@@ -21,9 +21,6 @@ h
 8app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml,6/e/6ec7d34b130497a10dc92abcde9b313d370a89df
 ?
 settings.gradle,0/5/05efc8b1657769a27696d478ded1e95f38737233
-:
-
-.gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
 h
 8app/src/main/res/drawable-v24/ic_launcher_foreground.xml,0/7/078508c831007ccb3938b355f0d30a8368f99a8d
 F
@@ -38,8 +35,6 @@ Oapp/src/main/java/com/jeanloth/project/android/kotlin/feedme/core/Extensions.kt
 Oapp/src/test/java/com/jeanloth/project/android/kotlin/feedme/ExampleUnitTest.kt,a/0/a0d84f20499588a02c959d4aa9d2737213c1ee2b
 ^
 .app/src/main/res/xml/data_extraction_rules.xml,3/b/3bc4db92963be77ebed9d7a4fff09127a1110e4d
-à
-Xapp/src/main/java/com/jeanloth/project/android/kotlin/feedme/presentation/theme/Theme.kt,1/1/11d745bc4359f3e5e96ceed5463049f9603d9231
 á
 Wapp/src/main/java/com/jeanloth/project/android/kotlin/feedme/domain/models/AppClient.kt,0/b/0ba6cb129def3cf7af484d2ac42878c97b0c19bc
 ò
@@ -62,8 +57,6 @@ gapp/src/main/java/com/jeanloth/project/android/kotlin/feedme/data/repository/Ap
 [app/src/main/java/com/jeanloth/project/android/kotlin/feedme/data/local/dao/AppClientDao.kt,0/4/042031eb09a99b9953a042ef2fdc0fea1355d21d
 ç
 ]app/src/main/java/com/jeanloth/project/android/kotlin/feedme/data/entities/AppClientEntity.kt,f/4/f45d34fb5e10e27232cf69b291c3e9c5e4590117
-à
-Xapp/src/main/java/com/jeanloth/project/android/kotlin/feedme/presentation/theme/Color.kt,1/3/1300de3b17b86ae43785deb9e1da72da64f02087
 P
  app/src/main/AndroidManifest.xml,8/c/8c55c3ccc257e5907959013f99656e4c8ec3903e
 X

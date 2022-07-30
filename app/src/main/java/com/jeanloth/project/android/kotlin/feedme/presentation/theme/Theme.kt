@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.ui.theme
+package com.jeanloth.project.android.kotlin.feedme.presentation.theme
 
 import android.app.Activity
 import android.os.Build
