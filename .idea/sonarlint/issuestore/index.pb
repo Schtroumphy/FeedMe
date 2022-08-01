@@ -1,6 +1,4 @@
 
-S
-#app/src/main/res/values/strings.xml,d/2/d2281fbb3027de2722081a53408dd77628bf080e
 A
 gradle.properties,2/a/2afbb999f001938c88fa43fc2ef52abf0f8213e4
 R
@@ -27,8 +25,6 @@ F
 app/proguard-rules.pro,9/e/9e08934d811afe28fbc77aaa3c0d747b94348db9
 Ž
 ^app/src/androidTest/java/com/jeanloth/project/android/kotlin/feedme/ExampleInstrumentedTest.kt,f/5/f5990b3a568ca0b5625f4a52ddb42f4cebe5b5c5
->
-app/.gitignore,5/1/51e1c5d383dfaa35e0e7e5873a0a99355a86880f
 
 Oapp/src/main/java/com/jeanloth/project/android/kotlin/feedme/core/Extensions.kt,0/9/095c6427474d2774c84be0350df1138a67b0791f
 
@@ -61,3 +57,13 @@ P
  app/src/main/AndroidManifest.xml,8/c/8c55c3ccc257e5907959013f99656e4c8ec3903e
 X
 (gradle/wrapper/gradle-wrapper.properties,f/b/fbe448ebfc3eb2d4e308f6b8b043666f5b57235e
+<
+build.gradle,f/0/f07866736216be0ee2aba49e392191aeae700a35
+ˆ
+Xapp/src/main/java/com/jeanloth/project/android/kotlin/feedme/presentation/theme/Theme.kt,1/1/11d745bc4359f3e5e96ceed5463049f9603d9231
+‡
+Wapp/src/main/java/com/jeanloth/project/android/kotlin/feedme/presentation/theme/Type.kt,f/b/fba9341b9e5a1fbdcdd5287a4bd58abebc3f5cc7
+‹
+[app/src/main/java/com/jeanloth/project/android/kotlin/feedme/presentation/ui/TestCompose.kt,b/c/bc49c52e9b6546b45e711d53b79fafce6b75bcb4
+@
+app/build.gradle,f/4/f4a01d6a4fcb971362ec00a83903fd3902f52164
