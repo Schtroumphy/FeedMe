@@ -32,7 +32,7 @@ enum class HomeCardType(val icon: ImageVector, val label: String, val color: Col
 @Composable
 @Preview
 fun HomePage(
-    navController: NavController
+    navController: NavController? = null
 ){
     Column(
         Modifier.fillMaxSize(),
@@ -42,7 +42,7 @@ fun HomePage(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.1f)
+                .fillMaxHeight(0.2f)
                 .padding(20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -61,15 +61,9 @@ fun HomePage(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
-                .fillMaxHeight(0.7f),
-            navController = navController
+                .fillMaxHeight(0.9f),
+            navController = navController !!
         )
-        FloatingActionButton(
-            onClick = {/*TODO*/ },
-            backgroundColor =BleuVert.copy(alpha = 0.8f)
-        ) {
-            Icon(imageVector = Icons.Filled.Add, contentDescription = "", tint = Color.White)
-        }
     }
 }
 
@@ -80,8 +74,7 @@ fun HomeCards(
 ){
     Row(
         modifier
-            .fillMaxWidth(0.9f)
-            .fillMaxHeight(0.8f)
+            .fillMaxSize()
     ) {
         Column(
             Modifier
@@ -100,7 +93,7 @@ fun HomeCards(
                 count = 25)
             HomeCard(
                 onClick = {
-                    navController?.navigate(FooterRoute.HOME.route)
+                    navController?.navigate(FooterRoute.COMMAND_LIST.route)
                 },
                 modifier = Modifier
                     .weight(3f)
@@ -153,7 +146,6 @@ fun HomeCard(modifier: Modifier = Modifier, cardType: HomeCardType = HomeCardTyp
             modifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxSize()
-                .align(Alignment.Center)
         ) {
             Icon(
                 imageVector = cardType.icon,

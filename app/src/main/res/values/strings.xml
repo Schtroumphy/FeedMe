@@ -4,6 +4,9 @@
     <!-- Text fields labels -->
     <string name="label">Libellé</string>
     <string name="price">Prix</string>
+    <string name="client">Client</string>
+    <string name="firstname">Nom</string>
+    <string name="lastname">Prénom</string>
 
     <!-- Fruits et Légumes -->
     <string name="banane_jaune">Banane jaune</string>
