@@ -57,8 +57,7 @@ fun AddClientPage(context : Context){
                 .navigationBarsWithImePadding()
                 .padding(dimensionResource(id = R.dimen.big_margin))
                 .verticalScroll(rememberScrollState())
-                .imePadding() // padding for the bottom for the IME
-                ,
+                .imePadding(), // padding for the bottom for the IME
             verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             FieldType.values().forEachIndexed { index, field ->
                 AppTextField(field.label, field.icon, field.keyboardType, field.isOptional, isLastField = index == FieldType.values().size - 1)

@@ -122,6 +122,56 @@ fun BasketPage(
 }
 
 @Composable
+@Preview
+fun AppTextField(
+    modifier : Modifier = Modifier,
+    widthPercentage : Float = 0.6f,
+    @StringRes labelId : Int = R.string.label,
+    keyboardType : KeyboardType = KeyboardType.Text
+)
+{
+    var text by remember { mutableStateOf("") }
+    val textFieldRequester = FocusRequester()
+    val focusManager = LocalFocusManager.current
+
+    Box(){
+    Box(
+        modifier
+            .padding(top = 10.dp)
+            .fillMaxWidth(widthPercentage)
+            .height(35.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(Jaune1)
+            .clickable {
+                textFieldRequester.requestFocus()
+            }
+            .padding(10.dp)
+
+    ) {
+        BasicTextField(
+            value = text,
+            onValueChange = {
+                text = it
+            },
+            singleLine = true,
+            textStyle = TextStyle(
+                textAlign = TextAlign.Center
+            ),
+            modifier = Modifier
+                .fillMaxSize()
+                .align(Alignment.Center),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType
+            ),
+            keyboardActions = KeyboardActions (
+                onDone = { focusManager.clearFocus() }
+            )
+        )
+    }
+        Text(stringResource(id = labelId), modifier = Modifier.align(Alignment.TopStart))
+    }
+}
+@Composable
 fun ProductItem(
     product: Product = Product.BANANE_JAUNE
 ){
