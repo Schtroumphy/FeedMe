@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">FeedMe</string>
+
+    <!-- Text fields labels -->
+    <string name="label">Libellé</string>
+    <string name="price">Prix</string>
+
+    <!-- Fruits et Légumes -->
+    <string name="banane_jaune">Banane jaune</string>
+    <string name="orange">Orange</string>
+    <string name="patate_douce">Patate douce</string>
 </resources>
