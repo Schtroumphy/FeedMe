@@ -1,329 +1,199 @@
 package com.jeanloth.project.android.kotlin.feedme.presentation.ui
 
-import androidx.annotation.DrawableRes
+import android.view.textclassifier.TextSelection
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Divider
+import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.jeanloth.project.android.kotlin.feedme.R
-import com.jeanloth.project.android.kotlin.feedme.presentation.FooterRoute
-import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Gray1
+import com.jeanloth.project.android.kotlin.feedme.domain.models.AppClient
+import com.jeanloth.project.android.kotlin.feedme.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Jaune1
-import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Red
-import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Vert1
-import java.util.Stack
 
-enum class Product(@StringRes val label: Int, @DrawableRes val drawableId: Int){
-    SWEET_POTATO(R.string.patate_douce, R.drawable.sweet_potato),
-    BANANE_JAUNE(R.string.banane_jaune, R.drawable.delicious_banana),
-    ORANGE(R.string.orange, R.drawable.orange),
-    SWEET_POTATO2(R.string.patate_douce, R.drawable.sweet_potato),
-    BANANE_JAUNE2(R.string.banane_jaune, R.drawable.delicious_banana),
-    ORANGE2(R.string.orange, R.drawable.orange),
-    SWEET_POTATO3(R.string.patate_douce, R.drawable.sweet_potato),
-    BANANE_JAUNE3(R.string.banane_jaune, R.drawable.delicious_banana),
-    ORANGE3(R.string.orange, R.drawable.orange),
-    ORANGE4(R.string.orange, R.drawable.orange),
-    SWEET_POTATO4(R.string.patate_douce, R.drawable.sweet_potato),
-    BANANE_JAUNE4(R.string.banane_jaune, R.drawable.delicious_banana),
-    ORANGE5(R.string.orange, R.drawable.orange),
-}
 
+var mockClients = mutableListOf(
+    AppClient(firstname = "Bella", lastname = "Rodriguez"),
+    AppClient(firstname = "Isabelle", lastname = "Souris"),
+    AppClient(firstname = "Jules", lastname = "TELON"),
+    AppClient(firstname = "Iris", lastname = "CLAVIER"),
+    AppClient(firstname = "Tony", lastname = "BILLARD"),
+)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-@Preview
-fun BasketPage(
+//@Preview
+fun AddCommandPage(
     navController : NavController? = null
 ){
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = CenterHorizontally
     ) {
+        // Choose client spinner
         Box(Modifier.weight(0.6f)){
-            AppTextField()
+            AppSpinner()
         }
-        Box(Modifier.weight(0.6f)) {
-            AppTextField(
-                modifier = Modifier.align(Center),
-                widthPercentage = 0.2f,
-                R.string.price,
-                KeyboardType.Number
-            )
-        }
-        Box(
-            Modifier.weight(8f)
-                .fillMaxSize()
-                .padding(15.dp)
-        ){
-            LazyVerticalGrid(
-                cells = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                contentPadding = PaddingValues(bottom = 25.dp),
-                modifier = Modifier.fillMaxWidth(0.85f).align(Center)
-            ) {
-                items(Product.values()){
-                    ProductItem(it)
-                }
-            }
-            FloatingActionButton(
-                onClick = { /*TODO*/ },
-                modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
-            ) {
-                Icon(Icons.Filled.Check, contentDescription = "")
-            }
-        }
+
+        // Baskets saved list
+
+        // Floating action button
+
     }
 }
 
 @Composable
 @Preview
-fun AppTextField(
+fun AppSpinner(
     modifier : Modifier = Modifier,
     widthPercentage : Float = 0.6f,
-    @StringRes labelId : Int = R.string.label,
+    @StringRes labelId : Int = R.string.client,
     keyboardType : KeyboardType = KeyboardType.Text
-)
-{
-    var text by remember { mutableStateOf("") }
-    val textFieldRequester = FocusRequester()
-    val focusManager = LocalFocusManager.current
+){
+    val selectedItem = remember { mutableStateOf("")}
+    val selectionMode = remember { mutableStateOf(false)}
+    val showCustomDialogWithResult = remember { mutableStateOf(false) }
+
+    if(showCustomDialogWithResult.value){
+        AddClientDialog {
+            selectedItem.value = it
+            showCustomDialogWithResult.value = false
+
+            mockClients.add(
+                AppClient(firstname = it)
+            )
+        }
+    }
 
     Box(){
-    Box(
-        modifier
-            .padding(top = 10.dp)
-            .fillMaxWidth(widthPercentage)
-            .height(35.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Jaune1)
-            .clickable {
-                textFieldRequester.requestFocus()
-            }
-            .padding(10.dp)
+        Box(
+            modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth(widthPercentage)
+                //.height(35.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Jaune1)
+                .clickable {
+                    selectionMode.value = true
+                }
+                .padding(10.dp)
 
-    ) {
-        BasicTextField(
-            value = text,
-            onValueChange = {
-                text = it
-            },
-            singleLine = true,
-            textStyle = TextStyle(
-                textAlign = TextAlign.Center
-            ),
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType
-            ),
-            keyboardActions = KeyboardActions (
-                onDone = { focusManager.clearFocus() }
-            )
-        )
-    }
+        ) {
+            AnimatedVisibility(visible = selectionMode.value) {
+                LazyColumn(
+                    modifier = Modifier.height(150.dp)
+                ){
+                    items(mockClients){
+                        Column(
+                            modifier = Modifier.clickable {
+                                selectedItem.value = it.toNameString()
+                                selectionMode.value = false
+                            },
+                            verticalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Text(it.toNameString(), modifier = Modifier.padding(vertical = 10.dp))
+                            Divider(color = Color.White)
+                        }
+                    }
+
+                    // Add client floating action button
+                    item {
+                        Box(Modifier.fillMaxWidth()) {
+                            FloatingActionButton(onClick = {
+                                showCustomDialogWithResult.value = true
+                            },modifier = Modifier
+                                .align(BottomEnd)
+                                .scale(0.5f)) {
+                                Icon(imageVector = Icons.Filled.Add, contentDescription = "")
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(!selectionMode.value) {
+                Text(selectedItem.value)
+            }
+        }
         Text(stringResource(id = labelId), modifier = Modifier.align(Alignment.TopStart))
     }
 }
-@Composable
-fun ProductItem(
-    product: Product = Product.BANANE_JAUNE
-){
-    var text by remember { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-    val textFieldRequester = FocusRequester()
-
-    Box(
-        Modifier.fillMaxSize()
-    ){
-        Box(
-            Modifier
-                .align(Center)
-                .padding(15.dp)
-                .fillMaxWidth()
-                .height(110.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Gray1)
-                .clickable {
-                    textFieldRequester.requestFocus()
-                }
-                .padding(bottom = 10.dp, start = 5.dp, end= 5.dp)
-
-        ) {
-            Column(
-                Modifier.fillMaxSize().align(Alignment.BottomCenter),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom
-            ){
-                TextField(
-                    value = text,
-                    onValueChange = {
-                        text = it
-                    },
-                    shape = RoundedCornerShape(25.dp),
-
-                    textStyle = LocalTextStyle.current.copy(
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp
-                    ),
-                    modifier = Modifier
-                        .focusRequester(textFieldRequester)
-                        .fillMaxWidth(0.7f),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        focusedIndicatorColor =  Color.Transparent, //hide the indicator
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        autoCorrect = false,
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {  focusManager.clearFocus() }
-                    )
-                )
-                Text(stringResource(id = product.label), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            }
-        }
-
-        Image(
-            painter = painterResource(product.drawableId),
-            contentDescription = "food icon",
-            contentScale = ContentScale.Crop,            // crop the image if it's not a square
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .size(65.dp)
-                .clip(CircleShape)
-        )
-
-        AnimatedVisibility(visible = text.isNotBlank(), modifier = Modifier.align(Alignment.BottomEnd)) {
-            FloatingActionButton(
-                shape = CircleShape,
-                containerColor = Red,
-                contentColor = Color.White,
-                onClick = {
-                    text = ""
-                },
-                modifier = Modifier.padding(top = 10.dp).scale(0.3f)
-            ) {
-                Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear")
-            }
-        }
-
-
-    }
-}
 
 @Composable
-//@Preview
-fun BasketTextField(
-    title : String = "Champs de texte",
-    modifier : Modifier = Modifier
-){
-    val text = remember { mutableStateOf( "") }
-    var textState by remember { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-
-    Box(modifier = modifier.padding(horizontal = 15.dp)){
-
-    }
-}
-
-@Composable
-//@Preview
-fun InputTextField(
-    labelText: String = "Libellé",
-    modifier: Modifier = Modifier,
-    dividerColor: Color = Color.Gray,
-    dividerThickness: Dp = 1.dp,
-    spacer: Dp = 10.dp,
-    textStyle: TextStyle = TextStyle()
+@Preview
+fun AddClientDialog(
+    onNewClientAdded : ((String)-> Unit)? = null
 ) {
-    var value by remember { mutableStateOf(TextFieldValue("")) }
-    val dividerState = remember { mutableStateOf(true) }
-    BasicTextField(
-        value = value,
-        onValueChange = { value = it },
-        modifier = modifier
-            .onFocusChanged {
-                dividerState.value = !it.isFocused
-            },
-        decorationBox = { innerTextField ->
-            var mainModifier: Modifier = modifier
-            if (!dividerState.value){
-                mainModifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        width = 1.dp,
-                        shape = RoundedCornerShape(15.dp),
-                        color = Color.LightGray
-                    )
-                    .padding(8.dp)
-            }
+    val openDialog = remember { mutableStateOf(true) }
 
-            Column(
-                modifier = mainModifier,
-                content = {
-                    Text(text = labelText, style = textStyle)
-                    Spacer(modifier = Modifier.size(spacer))
-                    innerTextField()
-                    if (dividerState.value) {
-                        Divider(
-                            thickness = dividerThickness, color = dividerColor,
-                            modifier = mainModifier
-                        )
-                    }
+    if(openDialog.value){
+        AlertDialog(
+            onDismissRequest = {
+                openDialog.value = false
+            },
+            title = {
+                Text(text = "Nouveau client")
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AppTextField(
+                        labelId = R.string.lastname,
+                        widthPercentage = 0.9f
+                    )
+                    AppTextField(
+                        labelId = R.string.firstname,
+                        widthPercentage = 0.9f
+                    )
                 }
-            )
-        }
-    )
+            },
+            buttons = {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Center){
+                    Button(
+                        text = "Valider",
+                        onClickAction = {
+                            onNewClientAdded?.invoke("Nouveau Client")
+                            openDialog.value = false
+                        }
+                    )
+                }
+            }
+        )
+    }
 }
