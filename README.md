@@ -15,6 +15,11 @@ Application de gestion de commande de paniers de fruits et légumes.
   <img src="https://user-images.githubusercontent.com/42738178/185606485-2e80922b-a776-4007-9e31-51c48275ba31.png" width="240" />
 </p>
 
+## Démo 
+
+https://user-images.githubusercontent.com/42738178/185626974-43c930cb-5747-4e9a-ba30-ff1862e6da93.mp4
+
+
 ### Stack technique 
 
 - MVVM : https://medium.com/androidmood/comprendre-larchitecture-mvvm-sur-android-aa285e4fe9dd
