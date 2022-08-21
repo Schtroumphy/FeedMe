@@ -19,7 +19,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -32,23 +37,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.jeanloth.project.android.kotlin.feedme.R
-import com.jeanloth.project.android.kotlin.feedme.presentation.FooterRoute
-import com.jeanloth.project.android.kotlin.feedme.presentation.FooterRoute.Companion.fromVal
+import com.jeanloth.project.android.kotlin.feedme.domain.FooterRoute
 import com.jeanloth.project.android.kotlin.feedme.presentation.theme.*
+
 
 @Composable
 fun Header(
     title : String = "Mon titre par défaut",
     onCloseOrBackClick : (() -> Unit)? = null,
-    isBackAllowed : Boolean = false
+    isBackAllowed : Boolean = false,
+    displayBackOrClose: Boolean = false,
+    displayAddButton : Boolean = true,
 ){
-    Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(top = 10.dp, start = 15.dp, end = 15.dp)){
-        Icon(imageVector = if(isBackAllowed) Icons.Filled.ArrowBack else Icons.Filled.Close, contentDescription = "Close",
-            modifier = Modifier.clickable { onCloseOrBackClick?.invoke() })
+    Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(20.dp)){
+        if(displayBackOrClose) Icon(imageVector = if(isBackAllowed) Icons.Filled.ArrowBack else Icons.Filled.Close, contentDescription = "Close",
+            modifier = Modifier
+                .clip(CircleShape)
+                .clickable { onCloseOrBackClick?.invoke() })
         Text(title, fontSize = 22.sp, textAlign = TextAlign.Center,
             modifier = Modifier
-                .fillMaxWidth()
+                .weight(1f)
                 .padding(top = dimensionResource(id = R.dimen.vertical_margin)), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if(displayAddButton) FloatingActionButton(
+            onClick = { /*TODO*/ },
+            containerColor = Bleu1,
+            contentColor = White,
+            modifier = Modifier.scale(0.7f)
+        ) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "")
+        }
     }
 }
 
@@ -122,7 +139,21 @@ fun PriceBox(modifier: Modifier = Modifier, color: Color = Orange1, price: Strin
     }
 }
 
-@Composable @Preview
+@Composable
+@Preview
+fun IconBox(modifier: Modifier = Modifier, color: Color = Orange1, icon: ImageVector = Icons.Filled.Edit){
+    Box(
+        modifier
+            .padding(5.dp)
+            .clip(CircleShape)
+            .background(color)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ){
+        Icon(imageVector = icon, tint = White, contentDescription = "icon button")
+    }
+}
+
+@Composable
 fun Footer(
     navController: NavController? = null,
     modifier: Modifier = Modifier,
@@ -136,7 +167,7 @@ fun Footer(
             .fillMaxWidth(0.8f)
             .padding(bottom = 15.dp)
             .clip(RoundedCornerShape(15.dp))
-            .background(BleuVert)
+            .background(BleuVert.copy(alpha = 0.2f))
     ){
         FooterRoute.values().filter { it.inFooter }.forEach {
             if(it.actionButton){
@@ -145,7 +176,9 @@ fun Footer(
                         selectedRoute = it.name
                         navController?.navigate(it.route)
                     },
-                    Modifier.scale(0.7f)
+                    containerColor = Bleu1,
+                    contentColor = White,
+                    modifier =Modifier.scale(0.7f)
                 ) {
                     Icon(imageVector = it.icon ?: Icons.Filled.Add, contentDescription = "")
                 }
@@ -154,7 +187,7 @@ fun Footer(
                     Box(modifier =
                     Modifier
                         .clip(CircleShape)
-                        .background(if (selectedRoute == it.name) White else BleuVert)
+                        .background(if (selectedRoute == it.name) White else Transparent)
                         .clickable {
                             selectedRoute = it.name
                             navController?.navigate(it.route)
@@ -165,7 +198,7 @@ fun Footer(
                         Icon(
                             imageVector = icon,
                             contentDescription = "",
-                            tint = if(selectedRoute == it.name) Vert1 else White,
+                            tint = if(selectedRoute == it.name) Vert1 else DarkGray,
                         )
                     }
                 }
@@ -237,13 +270,14 @@ fun PageTemplate(
     onCloseOrBackClick: (() -> Unit)? = null,
     displayHeader: Boolean = true,
     displayBottomNav: Boolean = true,
+    displayBackOrClose: Boolean = true,
     currentRoute: FooterRoute?
 ){
     Scaffold(
         topBar = {
             if(displayHeader) {
                 title?.let {
-                    Header(it, onCloseOrBackClick, isBackAllowed)
+                    Header(it, onCloseOrBackClick, isBackAllowed, displayBackOrClose = displayBackOrClose)
                 }
             }
         },

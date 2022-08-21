@@ -4,38 +4,26 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.jeanloth.project.android.kotlin.feedme.presentation.FooterRoute.Companion.fromVal
+import com.jeanloth.project.android.kotlin.feedme.domain.FooterRoute
+import com.jeanloth.project.android.kotlin.feedme.domain.FooterRoute.Companion.fromVal
 import com.jeanloth.project.android.kotlin.feedme.presentation.theme.FeedMeTheme
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.*
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.AddCommandPage
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.CommandListPage
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.PageTemplate
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.client.AddClientPage
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.client.ClientListPage
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.home.HomePage
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.products.BasketPage
 
-enum class FooterRoute(val route: String, val title: String? =null, val icon: ImageVector? = null, val inFooter: Boolean = false, val actionButton: Boolean = false, val displayFooter : Boolean = true) {
-    HOME("home", title = null, Icons.Filled.Home, true, displayFooter = true),
-    COMMAND_LIST("command_list", title = "Commandes", Icons.Filled.List, true, displayFooter = true),
-    ADD_COMMAND_BUTTON("add_command", title = "Création commande", Icons.Filled.Add, true, true, false),
-    CLIENT("clients", title = "Clients", Icons.Filled.Person, true, displayFooter = true),
-    PRODUCTS("products", title = "Création panier", Icons.Filled.ShoppingCart, true, displayFooter = true),
-
-    // Not in footer
-    ADD_CLIENT("add_client", title = "Création client", displayFooter = false),
-    ADD_COMMAND("add_command", title = "Création commande", displayFooter = false);
-
-    companion object{
-        fun fromVal(route: String?) = values()
-            .firstOrNull { it.route == route } ?: HOME
-    }
-}
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,18 +37,20 @@ class MainActivity : ComponentActivity() {
             }
             val topBarState = rememberSaveable { (mutableStateOf(true)) }
             val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
+            val displayBackOrCloseState = rememberSaveable { (mutableStateOf(false)) }
 
             val title = fromVal(navBackStackEntry?.destination?.route).title
             topBarState.value = fromVal(navBackStackEntry?.destination?.route).title != null
             bottomBarState.value = fromVal(navBackStackEntry?.destination?.route).displayFooter
+            displayBackOrCloseState.value = fromVal(navBackStackEntry?.destination?.route).displayBackOrClose
 
             FeedMeTheme {
-                // A surface container using the 'background' color from the theme
                 PageTemplate(
                     title  = title,
                     navController = navController,
                     displayHeader = topBarState.value,
                     displayBottomNav = bottomBarState.value,
+                    displayBackOrClose = displayBackOrCloseState.value ,
                     currentRoute = currentRoute.value,
                     onCloseOrBackClick = { navController.popBackStack(FooterRoute.HOME.route, false) },
                     content = { innerPadding ->
@@ -68,7 +58,7 @@ class MainActivity : ComponentActivity() {
                         composable(FooterRoute.HOME.route) { HomePage(navController) }
                         composable(FooterRoute.COMMAND_LIST.route) { CommandListPage() }
                         composable(FooterRoute.ADD_COMMAND_BUTTON.route) { AddCommandPage() }
-                        composable(FooterRoute.CLIENT.route) { AddClientPage(applicationContext) }
+                        composable(FooterRoute.CLIENT.route) { ClientListPage() }
                         composable(FooterRoute.PRODUCTS.route) { BasketPage(navController) }
 
                         // Not in footer

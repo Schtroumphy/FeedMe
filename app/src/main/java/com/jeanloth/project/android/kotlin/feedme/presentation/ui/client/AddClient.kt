@@ -39,6 +39,7 @@ import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.imePadding
 import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.jeanloth.project.android.kotlin.feedme.R
+import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Gray1
 
 enum class FieldType(val label : String, val icon : ImageVector, val keyboardType : KeyboardType, val isOptional : Boolean = false, val maxChar: Int = 10){
     FIRST_NAME("Nom", Icons.Rounded.Person, KeyboardType.Text),
@@ -100,10 +101,10 @@ fun AppTextField(
                     .padding(vertical = 4.dp, horizontal = 5.dp),
                 shape = RoundedCornerShape(25.dp),
                 trailingIcon = {
-                    Icon(icon, "", tint = White)
+                    Icon(icon, "", tint = LightGray)
                 },
                 colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = LightGray,
+                    backgroundColor = Gray1,
                     focusedIndicatorColor =  Color.Transparent, //hide the indicator
                     unfocusedIndicatorColor = Color.Transparent
                 ),

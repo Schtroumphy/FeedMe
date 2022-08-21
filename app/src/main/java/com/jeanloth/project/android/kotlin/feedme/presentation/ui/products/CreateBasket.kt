@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.presentation.ui
+package com.jeanloth.project.android.kotlin.feedme.presentation.ui.products
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -13,12 +13,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -34,7 +34,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -47,17 +46,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.jeanloth.project.android.kotlin.feedme.R
-import com.jeanloth.project.android.kotlin.feedme.presentation.FooterRoute
 import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Gray1
-import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Red
-import com.jeanloth.project.android.kotlin.feedme.presentation.theme.Vert1
-import java.util.Stack
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.AppTextField
 
 enum class Product(@StringRes val label: Int, @DrawableRes val drawableId: Int){
     SWEET_POTATO(R.string.patate_douce, R.drawable.sweet_potato),

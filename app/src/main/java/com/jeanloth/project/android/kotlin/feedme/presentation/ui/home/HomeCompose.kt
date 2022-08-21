@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.presentation.ui
+package com.jeanloth.project.android.kotlin.feedme.presentation.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.jeanloth.project.android.kotlin.feedme.presentation.FooterRoute
+import com.jeanloth.project.android.kotlin.feedme.domain.FooterRoute
 import com.jeanloth.project.android.kotlin.feedme.presentation.theme.*
 
 enum class HomeCardType(val icon: ImageVector, val label: String, val color: Color){
