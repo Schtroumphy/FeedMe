@@ -15,15 +15,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jeanloth.project.android.kotlin.feedme.domain.FooterRoute
 import com.jeanloth.project.android.kotlin.feedme.domain.FooterRoute.Companion.fromVal
+import com.jeanloth.project.android.kotlin.feedme.domain.models.DialogType
 import com.jeanloth.project.android.kotlin.feedme.presentation.theme.FeedMeTheme
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.AddCommandPage
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.AddClientPage
+import com.jeanloth.project.android.kotlin.feedme.presentation.ui.command.AddCommandPage
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.CommandListPage
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.PageTemplate
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.client.AddClientPage
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.client.ClientListPage
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.home.HomePage
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.products.BasketPage
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,21 +41,28 @@ class MainActivity : ComponentActivity() {
             val topBarState = rememberSaveable { (mutableStateOf(true)) }
             val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
             val displayBackOrCloseState = rememberSaveable { (mutableStateOf(false)) }
+            val displayAddButtonState = rememberSaveable { (mutableStateOf(false)) }
+            val dialogType = rememberSaveable { (mutableStateOf<DialogType?>(null)) }
 
             val title = fromVal(navBackStackEntry?.destination?.route).title
             topBarState.value = fromVal(navBackStackEntry?.destination?.route).title != null
             bottomBarState.value = fromVal(navBackStackEntry?.destination?.route).displayFooter
             displayBackOrCloseState.value = fromVal(navBackStackEntry?.destination?.route).displayBackOrClose
+            displayAddButtonState.value = fromVal(navBackStackEntry?.destination?.route).displayAddButton
+            dialogType.value = fromVal(navBackStackEntry?.destination?.route).dialogType
 
             FeedMeTheme {
                 PageTemplate(
+                    context = this,
                     title  = title,
                     navController = navController,
                     displayHeader = topBarState.value,
                     displayBottomNav = bottomBarState.value,
                     displayBackOrClose = displayBackOrCloseState.value ,
+                    displayAddButton = displayAddButtonState.value ,
                     currentRoute = currentRoute.value,
                     onCloseOrBackClick = { navController.popBackStack(FooterRoute.HOME.route, false) },
+                    addDialogType = dialogType.value,
                     content = { innerPadding ->
                     NavHost(navController = navController, startDestination = FooterRoute.HOME.route, modifier = Modifier.padding(innerPadding)) {
                         composable(FooterRoute.HOME.route) { HomePage(navController) }

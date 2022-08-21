@@ -81,14 +81,15 @@ fun BasketPage(
         horizontalAlignment = CenterHorizontally
     ) {
         Box(Modifier.weight(0.6f)){
-            AppTextField()
+            AppTextField(textState = mutableStateOf(""))
         }
         Box(Modifier.weight(0.6f)) {
             AppTextField(
+                textState = mutableStateOf(""),
                 modifier = Modifier.align(Center),
                 widthPercentage = 0.2f,
-                R.string.price,
-                KeyboardType.Number
+                labelId = R.string.price,
+                keyboardType = KeyboardType.Number
             )
         }
         Box(

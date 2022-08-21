@@ -1,6 +1,10 @@
 package com.jeanloth.project.android.kotlin.feedme.presentation.ui
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,17 +43,39 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.domain.FooterRoute
+import com.jeanloth.project.android.kotlin.feedme.domain.models.AppClient
+import com.jeanloth.project.android.kotlin.feedme.domain.models.DialogType
 import com.jeanloth.project.android.kotlin.feedme.presentation.theme.*
 
 
 @Composable
 fun Header(
+    context : Context,
     title : String = "Mon titre par défaut",
     onCloseOrBackClick : (() -> Unit)? = null,
     isBackAllowed : Boolean = false,
     displayBackOrClose: Boolean = false,
     displayAddButton : Boolean = true,
+    addDialogType : DialogType? = null
 ){
+
+    val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
+
+    if(showCustomDialogWithResult.value){
+        when(addDialogType){
+            DialogType.ADD_CLIENT -> {
+                AddClientDialog {
+                    showCustomDialogWithResult.value = false
+                    Log.d("TAG", "Create client : $it")
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT)
+                }
+            }
+            else -> {
+                showCustomDialogWithResult.value = false
+            } // TODO Add other dialog types (add basket, product...)
+        }
+    }
+
     Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(20.dp)){
         if(displayBackOrClose) Icon(imageVector = if(isBackAllowed) Icons.Filled.ArrowBack else Icons.Filled.Close, contentDescription = "Close",
             modifier = Modifier
@@ -59,7 +86,9 @@ fun Header(
                 .weight(1f)
                 .padding(top = dimensionResource(id = R.dimen.vertical_margin)), maxLines = 1, overflow = TextOverflow.Ellipsis)
         if(displayAddButton) FloatingActionButton(
-            onClick = { /*TODO*/ },
+            onClick = {
+                showCustomDialogWithResult.value = true
+            },
             containerColor = Bleu1,
             contentColor = White,
             modifier = Modifier.scale(0.7f)
@@ -212,12 +241,14 @@ fun Footer(
 @Preview
 fun AppTextField(
     modifier : Modifier = Modifier,
+    textState : MutableState<String>,
     widthPercentage : Float = 0.6f,
     @StringRes labelId : Int = R.string.label,
-    keyboardType : KeyboardType = KeyboardType.Text
+    keyboardType : KeyboardType = KeyboardType.Text,
+    onTextEntered : ((String) -> Unit)? = null
 )
 {
-    var text by remember { mutableStateOf("") }
+    //var text by remember { mutableStateOf("") }
     val textFieldRequester = FocusRequester()
     val focusManager = LocalFocusManager.current
 
@@ -236,9 +267,9 @@ fun AppTextField(
 
         ) {
             BasicTextField(
-                value = text,
+                value = textState.value,
                 onValueChange = {
-                    text = it
+                    textState.value = it
                 },
                 singleLine = true,
                 textStyle = TextStyle(
@@ -251,7 +282,10 @@ fun AppTextField(
                     keyboardType = keyboardType
                 ),
                 keyboardActions = KeyboardActions (
-                    onDone = { focusManager.clearFocus() }
+                    onDone = {
+                        focusManager.clearFocus()
+                        onTextEntered?.invoke(textState.value)
+                    }
                 )
             )
         }
@@ -263,6 +297,7 @@ fun AppTextField(
 @Composable
 @Preview
 fun PageTemplate(
+    context: Context,
     title: String? = null,
     content: @Composable (PaddingValues) -> Unit,
     isBackAllowed: Boolean = false,
@@ -271,13 +306,15 @@ fun PageTemplate(
     displayHeader: Boolean = true,
     displayBottomNav: Boolean = true,
     displayBackOrClose: Boolean = true,
-    currentRoute: FooterRoute?
+    displayAddButton: Boolean = false,
+    currentRoute: FooterRoute?,
+    addDialogType : DialogType? = null
 ){
     Scaffold(
         topBar = {
             if(displayHeader) {
                 title?.let {
-                    Header(it, onCloseOrBackClick, isBackAllowed, displayBackOrClose = displayBackOrClose)
+                    Header(context, it, onCloseOrBackClick, isBackAllowed, displayBackOrClose = displayBackOrClose, displayAddButton= displayAddButton, addDialogType = addDialogType)
                 }
             }
         },
@@ -290,5 +327,50 @@ fun PageTemplate(
         }
     ) { innerPadding ->
         content.invoke(innerPadding)
+    }
+}
+
+
+@Composable
+fun AddClientDialog(
+    onNewClientAdded : ((String)-> Unit)? = null
+) {
+    val openDialog = remember { mutableStateOf(true) }
+    val textState = rememberSaveable { mutableStateOf("") }
+    var newClientName = ""
+
+    if(openDialog.value){
+        androidx.compose.material.AlertDialog(
+            onDismissRequest = {
+                openDialog.value = false
+            },
+            title = {
+                Text(text = "Nouveau client")
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AppTextField(
+                        textState = textState,
+                        labelId = R.string.firstname,
+                        widthPercentage = 0.9f
+                    ){
+                        //textState = it
+                    }
+                }
+            },
+            buttons = {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Button(
+                        text = "Valider",
+                        onClickAction = {
+                            onNewClientAdded?.invoke(textState.value)
+                            openDialog.value = false
+                        }
+                    )
+                }
+            }
+        )
     }
 }
