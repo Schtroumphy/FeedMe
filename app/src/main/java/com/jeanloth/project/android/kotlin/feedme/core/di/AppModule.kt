@@ -2,12 +2,10 @@ package com.jeanloth.project.android.kotlin.feedme.core.di
 
 import android.app.Application
 import androidx.room.Room
-import com.jeanloth.project.android.kotlin.feedme.data.local.db.AppRoomDatabase
-import com.jeanloth.project.android.kotlin.feedme.data.local.db.AppRoomDatabase.Companion.DATABASE_NAME
-import com.jeanloth.project.android.kotlin.feedme.data.local.mappers.AppClientEntityMapper
-import com.jeanloth.project.android.kotlin.feedme.data.repository.AppClientRepositoryImpl
-import com.jeanloth.project.android.kotlin.feedme.domain.repository.AppClientRepository
-import com.jeanloth.project.android.kotlin.feedme.domain.usecases.client.SaveClientUseCase
+import com.jeanloth.project.android.kotlin.feedme.core.db.AppRoomDatabase
+import com.jeanloth.project.android.kotlin.feedme.core.db.AppRoomDatabase.Companion.DATABASE_NAME
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.AppClientRepository
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.SaveClientUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,18 +26,7 @@ object AppModule {
         ).build()
     }
 
-    @Provides
-    @Singleton
-    fun provideClientEntityMapper() : AppClientEntityMapper{
-        return AppClientEntityMapper()
-    }
-
-    @Provides
-    @Singleton
-    fun provideAppClientRepository(db : AppRoomDatabase, mapper: AppClientEntityMapper) : AppClientRepository {
-        return AppClientRepositoryImpl(db.appClientDao(), mapper)
-    }
-
+    /** Use cases **/
     @Provides
     @Singleton
     fun provideSaveClient(repository: AppClientRepository) : SaveClientUseCase {
