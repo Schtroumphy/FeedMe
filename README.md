@@ -1,9 +1,11 @@
 # FeedMe (en cours de développement)
-Application de gestion de commande de paniers de fruits et légumes. 
+Application de gestion de commandes de paniers de fruits et légumes. 
 
 ### Fonctionnalités : 
-- Création de clients, commands, produits, 
-- Affichage des données 
+- Création de clients, commands, produits
+- Dashboard 
+- Gestion des statuts de réalisation des commandes
+- Gestion de la livraison des commandes (Google Maps API ?)
 
 ## Quelques écrans 
 
@@ -19,15 +21,37 @@ Application de gestion de commande de paniers de fruits et légumes.
 
 https://user-images.githubusercontent.com/42738178/185626974-43c930cb-5747-4e9a-ba30-ff1862e6da93.mp4
 
+## Architecture
+L'architecture choisie est une sorte d'architecture modulaire par feature. Au lieu d'avoir des modules au sens premier sur Android Studio, j'ai fait le choix d'avoir des packages afin de réduire la compléxité. 
+- **Core** : Contient les éléments communs aux différents modules [Dagger-Hilt](https://developer.android.com/training/dependency-injection/hilt-android) pour l'injection de dépension, les fonctions d'extensions, la configuration de la base de données [Room](https://developer.android.com/training/data-storage/room) ...)
+- **Features** : Contient l'ensemble des features regroupés eux-mêmes en feature
+  Chaque "feature" comprend les couches :
+    - **Presentation** : Compose Screen, View Model, UiState (sealed class)
+    - **Domain** : Use cases, repository abstraction, models
+    - **Data**
+      - local : entities, mappers, repository implementation
+      - remote
+
+![image](https://user-images.githubusercontent.com/42738178/187178141-fceb9dc1-965c-4f2e-bebd-472ba5ad29a8.png)
+
+Ce choix me permettra par la suite de pouvoir réutiliser certain "module feature dans d'autres applications et de tester les features individuellement.
+
+## Conception 
+
+![image](https://user-images.githubusercontent.com/42738178/187171106-a44efd37-7501-41f0-af77-513d9dc047fe.png)
+
+*L'architecture et la conception - réalisés en [plantUml](https://plantuml.com/fr/) - sont séparées dans un module "Documentation" et seront mis à jour à chaque changement de modèle.*
 
 ### Stack technique 
 
 - MVVM : https://medium.com/androidmood/comprendre-larchitecture-mvvm-sur-android-aa285e4fe9dd
-- Koin : Injection de dépendance (https://insert-koin.io/)
-- Object Box : Base de donnée NoSQL (https://objectbox.io/)
+- Dagger-Hilt : Injection de dépendances (https://developer.android.com/training/dependency-injection/hilt-android)
+- Room : Base de donnée relationnelle (https://developer.android.com/training/data-storage/room)
 - Jetpack Compose : https://developer.android.com/jetpack/compose
+- PlantUml : https://plantuml.com/fr/
 
 ## Branches 
 
-- develop
-- v1 : Version comprenant les designs et la mise en place d'ObjectBox 
+- main : branche principale
+- master : branche de release
+- v1 : Version comprenant les designs et la mise en place de l'architecture 
