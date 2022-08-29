@@ -1,0 +1,89 @@
+@startuml
+
+skinparam object {
+    BackgroundColor Snow
+    BorderColor Purple
+    ArrowColor Purple
+}
+
+object Client{
+    <u>idClient</u> : Long auto_increment
+    ..
+    firstname : String not null
+    phoneNumber : Int?
+}
+
+object PaymentType{
+    CARD,
+    CASH,
+    PAYPAL,
+    OTHER
+}
+
+object Payment {
+    idPayment : Long auto_increment
+    ..
+    paymentAmount : Double
+    paymentType : PaymentType
+}
+
+object Command{
+    <u>idCommand</u> : Int auto_increment
+    ..
+    deliveryDate : LocalDateTime?
+    status : CommandStatusType?
+    totalPrice : Double
+    productWrappers : List<ProductWrapper>
+
+    clientId : Long
+    paymentId : Long
+}
+
+object ProductWrapper {
+    <u>idCommandIngredient</u> : Int auto_increment
+    ..
+    product : Product
+    count : Int
+    totalPrice : Double
+    status : ProductWrapperStatus
+}
+
+object ProductWrapperStatus{
+    IN_PROGRESS,
+    DONE,
+    CANCELED,
+}
+
+object CommandStatusType{
+    IN_PROGRESS,
+    DONE,
+    DELIVERED,
+    CANCELED,
+    PAYED
+}
+
+object Product{
+    <u>idProduct</u> : Int auto_increment
+    ..
+    label : String
+    img : String
+}
+
+object ProductCategory {
+    FRUITS,
+    VEGETABLE,
+    OTHER
+}
+
+Payment "1" --right-- "1" PaymentType : a
+Command "1" --right-- "1" Payment : a
+Command "1" --left-- "1" Client : a
+Command "1" -down- "1" ProductWrapper : possède
+Command "1" -up- "1" CommandStatusType : a
+ProductWrapper "1" --right-- "1" ProductWrapperStatus : a
+Product "1..n" --left-- "1" ProductCategory : est
+Product "1" --right-- "1" ProductWrapper : contient
+
+
+@enduml
+

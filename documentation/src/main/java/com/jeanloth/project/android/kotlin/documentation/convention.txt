@@ -1,0 +1,11 @@
+------- CONVENTION ----------
+
+** Git commits **
+
+[FEATURE] : Feature
+[FIX] : Fix bugs
+[DOC] : Documentation
+[CONFIG] : Setup
+[UX/UI] : Design
+[CLEAN] : Cleaning / Refactoring
+[OTHER]

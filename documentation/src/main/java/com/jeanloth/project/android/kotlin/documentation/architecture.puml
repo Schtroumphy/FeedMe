@@ -1,0 +1,101 @@
+@startuml
+
+title Architecture
+skinparam object {
+          BackgroundColor Snow
+          BorderColor Green
+          ArrowColor Green
+
+}
+skinparam defaultTextAlignment center
+skinparam packageStyle frame
+
+
+package "App" {
+
+    'CORE
+    package Core {
+        rectangle "di"
+        rectangle "extensions"
+        rectangle "interfaces"
+        rectangle "theme"
+        rectangle "database"
+    }
+
+    'FEATURES
+    package Features {
+      package command {
+          package presentation {
+            entity ClientList
+            entity ClientVM
+            entity ClientUiState
+          }
+          package domain {
+            package model {
+
+            }
+            package repository {
+                interface AppClientRepository
+            }
+
+           package usecases {
+            entity SaveClientUseCase
+           }
+          }
+          package data {
+            package local {
+                package dao {
+                    entity AppClientDao
+                }
+                package entities {
+                    entity AppClientEntity
+                }
+                package mappers {
+                    entity AppClientEntityMapper
+                }
+                package repositoryImpl {
+                    entity AppClientRepositoryImpl
+                }
+            }
+
+            package remote {
+                note as N1
+                  Maybe later
+                end note
+
+            }
+          }
+      }
+
+      package home {
+        package presentation as pHome{
+        }
+        package domain as domainHome {
+        }
+
+        package data as dataHome {
+        }
+      }
+
+    }
+}
+
+database Room {
+  rectangle CommandDB
+  rectangle StockDB
+}
+
+'RELATIONS
+database -right-> Room
+
+'Hidden relations
+Features -[hidden]down- Core
+presentation -[hidden]down- domain
+domain -[hidden]down- data
+ClientUiState -[hidden]right- ClientVM
+home -[hidden]down- command
+
+pHome -[hidden]right- domainHome
+domainHome -[hidden]right- dataHome
+
+@enduml

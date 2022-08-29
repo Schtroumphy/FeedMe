@@ -1,0 +1,4 @@
+/build
+
+# Android Profiling
+*.hprof.DS_Store
