@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key.Companion.D
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -52,7 +53,8 @@ fun Header(
     isBackAllowed : Boolean = false,
     displayBackOrClose: Boolean = false,
     displayAddButton : Boolean = true,
-    addDialogType : DialogType? = null
+    addDialogType : DialogType? = null,
+    onNewClientAdded: ((String) -> Unit)? = null
 ){
 
     val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
@@ -64,6 +66,9 @@ fun Header(
                     showCustomDialogWithResult.value = false
                     Log.d("TAG", "Create client : $it")
                     Toast.makeText(context, it, Toast.LENGTH_SHORT)
+
+                    // Save client to db
+                    onNewClientAdded?.invoke(it)
                 }
             }
             else -> {
@@ -234,7 +239,6 @@ fun Footer(
 
 
 @Composable
-@Preview
 fun AppTextField(
     modifier : Modifier = Modifier,
     textState : MutableState<String>,
@@ -304,13 +308,18 @@ fun PageTemplate(
     displayBackOrClose: Boolean = true,
     displayAddButton: Boolean = false,
     currentRoute: FooterRoute?,
-    addDialogType : DialogType? = null
+    addDialogType : DialogType? = null,
+    onNewClientAdded: ((String) -> Unit)? = null
 ){
     Scaffold(
         topBar = {
             if(displayHeader) {
                 title?.let {
-                    Header(context, it, onCloseOrBackClick, isBackAllowed, displayBackOrClose = displayBackOrClose, displayAddButton= displayAddButton, addDialogType = addDialogType)
+                    Header(context, it, onCloseOrBackClick, isBackAllowed, displayBackOrClose = displayBackOrClose, displayAddButton= displayAddButton, addDialogType = addDialogType,
+                        onNewClientAdded = {
+                            onNewClientAdded?.invoke(it)
+                        }
+                    )
                 }
             }
         },
@@ -326,6 +335,11 @@ fun PageTemplate(
     }
 }
 
+@Composable
+fun NoDataText(@StringRes res: Int, modifier : Modifier = Modifier){
+    Text(stringResource(id = res), modifier = modifier.fillMaxSize(), textAlign = TextAlign.Center)
+}
+
 
 @Composable
 fun AddClientDialog(
@@ -333,10 +347,10 @@ fun AddClientDialog(
 ) {
     val openDialog = remember { mutableStateOf(true) }
     val textState = rememberSaveable { mutableStateOf("") }
-    var newClientName = ""
+    val focusManager = LocalFocusManager.current
 
     if(openDialog.value){
-        androidx.compose.material.AlertDialog(
+        AlertDialog(
             onDismissRequest = {
                 openDialog.value = false
             },
@@ -352,21 +366,12 @@ fun AddClientDialog(
                         labelId = R.string.firstname,
                         widthPercentage = 0.9f
                     ){
-                        //textState = it
+                        onNewClientAdded?.invoke(it)
+                        openDialog.value = false
                     }
                 }
             },
-            buttons = {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Button(
-                        text = "Valider",
-                        onClickAction = {
-                            onNewClientAdded?.invoke(textState.value)
-                            openDialog.value = false
-                        }
-                    )
-                }
-            }
+            confirmButton = {}
         )
     }
 }

@@ -6,11 +6,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "app_client")
 class AppClientEntity(
-    @PrimaryKey
-    var idClient: Long = 0,
+    @PrimaryKey(autoGenerate = true)
+    var idClient: Long,
 
     @ColumnInfo(name = "first_name")
-    var firstname : String = "Adrien DELONNE",
+    var firstname : String = "",
 
     @ColumnInfo(name = "phone_number")
     var phoneNumber : Int? = null

@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.core.db
+package com.jeanloth.project.android.kotlin.feedme.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

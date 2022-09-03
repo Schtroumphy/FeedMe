@@ -3,8 +3,8 @@ package com.jeanloth.project.android.kotlin.feedme
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -16,19 +16,22 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jeanloth.project.android.kotlin.feedme.core.theme.FeedMeTheme
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.DialogType
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.AddClientPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.AddClientPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.BasketPage
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute.Companion.fromVal
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.presentation.HomePage
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.CommandListPage
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.PageTemplate
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.client.ClientListPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientListPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientVM
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.command.AddCommandPage
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    val clientVM : ClientVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,17 +74,25 @@ class MainActivity : ComponentActivity() {
                         composable(FooterRoute.HOME.route) { HomePage(navController) }
                         composable(FooterRoute.COMMAND_LIST.route) { CommandListPage() }
                         composable(FooterRoute.ADD_COMMAND_BUTTON.route) { AddCommandPage() }
-                        composable(FooterRoute.CLIENT.route) { ClientListPage() }
+                        composable(FooterRoute.CLIENT.route) {
+                            ClientListPage(clientVM,
+                                onClientRemoved = {
+                                    clientVM.removeClient(it)
+                                }
+                            )
+                        }
                         composable(FooterRoute.PRODUCTS.route) { BasketPage(navController) }
 
                         // Not in footer
                         composable(FooterRoute.ADD_COMMAND.route) { AddCommandPage() }
                         composable(FooterRoute.ADD_CLIENT.route) { AddClientPage(applicationContext) }
+                        }
+                    },
+                    onNewClientAdded = {
+                        clientVM.saveClient(it)
                     }
-                })
+                )
             }
         }
     }
-
-
 }

@@ -6,8 +6,9 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.AppClientRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class AppClientRepositoryImpl(
+class AppClientRepositoryImpl @Inject constructor(
     private val dao : AppClientDao,
     private val mapper : AppClientEntityMapper,
 ) : AppClientRepository {
@@ -20,4 +21,7 @@ class AppClientRepositoryImpl(
         return dao.observeAll().map { clients -> clients.map { mapper.from(it) } }
     }
 
+    override fun remove(client: AppClient) {
+        return dao.delete(mapper.to(client))
+    }
 }

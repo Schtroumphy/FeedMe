@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
+package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client
 
 import android.content.Context
 import android.widget.Toast
@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
@@ -79,6 +81,7 @@ fun AppTextField(
 ){
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    val focusRequester = FocusRequester()
 
     Box(modifier = Modifier.padding(horizontal = 15.dp)){
         Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.small_margin))) {
@@ -97,7 +100,8 @@ fun AppTextField(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp, horizontal = 5.dp),
+                    .padding(vertical = 4.dp, horizontal = 5.dp)
+                    .focusRequester(focusRequester),
                 shape = RoundedCornerShape(25.dp),
                 trailingIcon = {
                     Icon(icon, "", tint = LightGray)

@@ -8,4 +8,6 @@ interface AppClientRepository {
     fun save(client : AppClient)
 
     fun observeClients() : Flow<List<AppClient>>
+
+    fun remove(client : AppClient)
 }

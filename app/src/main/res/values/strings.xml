@@ -12,4 +12,8 @@
     <string name="banane_jaune">Banane jaune</string>
     <string name="orange">Orange</string>
     <string name="patate_douce">Patate douce</string>
+
+    <!-- Errors -->
+    <string name="no_client">Pas de client pour le moment.Veuillez en ajouter.</string>
+
 </resources>
