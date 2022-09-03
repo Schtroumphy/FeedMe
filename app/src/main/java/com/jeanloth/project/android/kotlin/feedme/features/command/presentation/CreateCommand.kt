@@ -43,7 +43,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.AddClientDialog
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.AddClientDialog
 
 var mockClients = mutableListOf(
     AppClient(firstname = "Bella Rodriguez"),
@@ -166,7 +166,6 @@ fun AddQuantity(modifier: Modifier = Modifier){
 
 
 @Composable
-//@Preview
 fun AppSpinner(
     modifier : Modifier = Modifier,
     widthPercentage : Float = 0.6f,

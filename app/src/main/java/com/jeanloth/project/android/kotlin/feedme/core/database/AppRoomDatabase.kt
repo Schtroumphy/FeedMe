@@ -15,6 +15,6 @@ abstract class AppRoomDatabase : RoomDatabase() {
         const val DATABASE_NAME = "feedme-db"
     }
 
-    // Dafine all daos like this
+    // Define all DAOs like this
     abstract fun appClientDao(): AppClientDao
 }
