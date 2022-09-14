@@ -25,6 +25,7 @@ import com.jeanloth.project.android.kotlin.feedme.presentation.ui.CommandListPag
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientListPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.command.AddCommandPage
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -32,12 +33,14 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     val clientVM : ClientVM by viewModels()
+    val productVM : ProductVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
-        setContent {
 
+        setContent {
+            productVM.syncProducts() // If needed
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -81,7 +84,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        composable(FooterRoute.PRODUCTS.route) { BasketPage(navController) }
+                        composable(FooterRoute.PRODUCTS.route) { BasketPage(navController, productVM, applicationContext) }
 
                         // Not in footer
                         composable(FooterRoute.ADD_COMMAND.route) { AddCommandPage() }

@@ -1,7 +1,7 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
+import android.content.Context
+import android.graphics.drawable.Drawable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -52,30 +51,20 @@ import androidx.navigation.NavController
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Red
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
 import com.jeanloth.project.android.kotlin.feedme.presentation.ui.AppTextField
-
-enum class Product(@StringRes val label: Int, @DrawableRes val drawableId: Int){
-    SWEET_POTATO(R.string.patate_douce, R.drawable.sweet_potato),
-    BANANE_JAUNE(R.string.banane_jaune, R.drawable.delicious_banana),
-    ORANGE(R.string.orange, R.drawable.orange),
-    SWEET_POTATO2(R.string.patate_douce, R.drawable.sweet_potato),
-    BANANE_JAUNE2(R.string.banane_jaune, R.drawable.delicious_banana),
-    ORANGE2(R.string.orange, R.drawable.orange),
-    SWEET_POTATO3(R.string.patate_douce, R.drawable.sweet_potato),
-    BANANE_JAUNE3(R.string.banane_jaune, R.drawable.delicious_banana),
-    ORANGE3(R.string.orange, R.drawable.orange),
-    ORANGE4(R.string.orange, R.drawable.orange),
-    SWEET_POTATO4(R.string.patate_douce, R.drawable.sweet_potato),
-    BANANE_JAUNE4(R.string.banane_jaune, R.drawable.delicious_banana),
-    ORANGE5(R.string.orange, R.drawable.orange),
-}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun BasketPage(
-    navController : NavController? = null
+    navController: NavController? = null,
+    productVM: ProductVM,
+    context: Context
 ){
+    val products by productVM.products.collectAsState()
+    
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = CenterHorizontally
@@ -93,7 +82,8 @@ fun BasketPage(
             )
         }
         Box(
-            Modifier.weight(8f)
+            Modifier
+                .weight(8f)
                 .fillMaxSize()
                 .padding(15.dp)
         ){
@@ -101,15 +91,19 @@ fun BasketPage(
                 cells = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 contentPadding = PaddingValues(bottom = 25.dp),
-                modifier = Modifier.fillMaxWidth(0.85f).align(Center)
+                modifier = Modifier
+                    .fillMaxWidth(0.85f)
+                    .align(Center)
             ) {
-                items(Product.values()){
-                    ProductItem(it)
+                items(products){
+                    ProductItem(it, context)
                 }
             }
             FloatingActionButton(
                 onClick = { /*TODO*/ },
-                modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(10.dp)
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "")
             }
@@ -119,11 +113,14 @@ fun BasketPage(
 
 @Composable
 fun ProductItem(
-    product: Product = Product.BANANE_JAUNE
+    product: Product,
+    context: Context
 ){
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val textFieldRequester = FocusRequester()
+
+    val imageResource: Int = context.resources.getIdentifier(product.image, "drawable", context.packageName)
 
     Box(
         Modifier.fillMaxSize()
@@ -139,12 +136,14 @@ fun ProductItem(
                 .clickable {
                     textFieldRequester.requestFocus()
                 }
-                .padding(bottom = 10.dp, start = 5.dp, end= 5.dp)
+                .padding(bottom = 10.dp, start = 5.dp, end = 5.dp)
 
         ) {
             Column(
-                Modifier.fillMaxSize().align(Alignment.BottomCenter),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                Modifier
+                    .fillMaxSize()
+                    .align(Alignment.BottomCenter),
+                horizontalAlignment = CenterHorizontally,
                 verticalArrangement = Arrangement.Bottom
             ){
                 TextField(
@@ -177,12 +176,12 @@ fun ProductItem(
                         onDone = {  focusManager.clearFocus() }
                     )
                 )
-                Text(stringResource(id = product.label), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Text(product.label, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
         }
 
         Image(
-            painter = painterResource(product.drawableId),
+            painter = painterResource(imageResource),
             contentDescription = "food icon",
             contentScale = ContentScale.Crop,            // crop the image if it's not a square
             modifier = Modifier
@@ -199,7 +198,9 @@ fun ProductItem(
                 onClick = {
                     text = ""
                 },
-                modifier = Modifier.padding(top = 10.dp).scale(0.3f)
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .scale(0.3f)
             ) {
                 Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear")
             }

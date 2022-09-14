@@ -1,0 +1,14 @@
+[
+  {
+    "label" :  "Patate Douce",
+    "image" : "sweet_potato"
+  },
+  {
+    "label" :  "Banane",
+    "image" : "delicious_banana"
+  },
+  {
+    "label" :  "Orange",
+    "image" : "orange"
+  }
+]

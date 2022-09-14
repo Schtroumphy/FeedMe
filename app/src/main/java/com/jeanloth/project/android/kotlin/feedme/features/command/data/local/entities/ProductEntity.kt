@@ -9,7 +9,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
  */
 @Entity(tableName = "product")
 class ProductEntity(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     var id: Long = 0,
     var label: String = "",
     var image : String? = null,
