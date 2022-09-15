@@ -149,7 +149,6 @@ fun AppTextField(
                 .clickable {
                     //textFieldRequester.requestFocus()
                 }
-                .padding(10.dp)
         ) {
             BasicTextField(
                 value = textState.value,
@@ -162,6 +161,7 @@ fun AppTextField(
                 ),
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(top = 5.dp)
                     .align(Alignment.Center)
                     .focusRequester(textFieldRequester),
                 keyboardOptions = KeyboardOptions(

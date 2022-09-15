@@ -64,7 +64,7 @@ fun BasketPage(
     context: Context
 ){
     val products by productVM.products.collectAsState()
-    
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = CenterHorizontally
