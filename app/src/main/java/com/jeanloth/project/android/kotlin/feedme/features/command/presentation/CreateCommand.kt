@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.presentation.ui.command
+package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -32,18 +32,17 @@ import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.jeanloth.project.android.kotlin.feedme.R
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.AddClientDialog
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.GetStringValueDialog
 
 var mockClients = mutableListOf(
     AppClient(firstname = "Bella Rodriguez"),
@@ -52,7 +51,6 @@ var mockClients = mutableListOf(
     AppClient(firstname = "Iris CLAVIER"),
     AppClient(firstname = "Tony BILLARD"),
 )
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun AddCommandPage(
@@ -66,7 +64,7 @@ fun AddCommandPage(
         // Choose client spinner
         AppSpinner()
 
-        Box(){
+        Box {
             // Baskets saved list
             LazyColumn(modifier = Modifier
                 .fillMaxHeight()
@@ -86,14 +84,12 @@ fun AddCommandPage(
                 Icon(imageVector = Icons.Filled.ArrowForwardIos, contentDescription = "")
             }
         }
-
     }
 }
 @Composable
-//@Preview
 fun BasketItem(){
     Row (
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.padding(vertical = 5.dp, horizontal = 15.dp)
     ){
@@ -161,7 +157,6 @@ fun AddQuantity(modifier: Modifier = Modifier){
             )
 
         }
-
 }
 
 
@@ -169,15 +164,14 @@ fun AddQuantity(modifier: Modifier = Modifier){
 fun AppSpinner(
     modifier : Modifier = Modifier,
     widthPercentage : Float = 0.6f,
-    @StringRes labelId : Int = R.string.client,
-    keyboardType : KeyboardType = KeyboardType.Text
+    @StringRes labelId : Int = R.string.client
 ){
     val selectedItem = remember { mutableStateOf("")}
     val selectionMode = remember { mutableStateOf(false)}
     val showCustomDialogWithResult = remember { mutableStateOf(false) }
 
     if(showCustomDialogWithResult.value){
-        AddClientDialog {
+        GetStringValueDialog {
             showCustomDialogWithResult.value = false
 
             mockClients.add(
@@ -187,7 +181,7 @@ fun AppSpinner(
         }
     }
 
-    Box(){
+    Box {
         Box(
             modifier
                 .padding(top = 10.dp)

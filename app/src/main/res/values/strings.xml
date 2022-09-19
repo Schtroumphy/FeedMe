@@ -7,6 +7,12 @@
     <string name="client">Client</string>
     <string name="firstname">Nom</string>
     <string name="lastname">Prénom</string>
+    <string name="item">Item</string>
+
+    <!-- General labels -->
+    <string name="validate">Valider</string>
+    <string name="new_item">Nouvel item</string>
+    <string name="new_client">Nouveau client</string>
 
     <!-- Fruits et Légumes -->
     <string name="banane_jaune">Banane jaune</string>

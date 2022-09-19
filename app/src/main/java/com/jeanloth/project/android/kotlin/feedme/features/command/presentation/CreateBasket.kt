@@ -1,19 +1,19 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Divider
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -32,54 +32,76 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.jeanloth.project.android.kotlin.feedme.R
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Red
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.AppTextField
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-@Preview
 fun BasketPage(
-    navController: NavController? = null,
     productVM: ProductVM,
     context: Context
 ){
     val products by productVM.products.collectAsState()
+    var selectedPrice by remember { mutableStateOf(0)}
+    var customQuantity by remember { mutableStateOf(0)}
+    val quantities = listOf(10, 15, 20, 25, customQuantity)
+
+    val showCustomDialogWithResult = remember { mutableStateOf(false) }
+
+    if(showCustomDialogWithResult.value){
+        GetIntValueDialog {
+            showCustomDialogWithResult.value = false
+            customQuantity = it
+            selectedPrice = it
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = CenterHorizontally
     ) {
         Box(Modifier.weight(0.6f)){
-            AppTextField(textState = mutableStateOf(""))
+            AppTextField()
         }
         Box(Modifier.weight(0.6f)) {
-            AppTextField(
-                textState = mutableStateOf(""),
-                modifier = Modifier.align(Center),
-                widthPercentage = 0.2f,
-                labelId = R.string.price,
-                keyboardType = KeyboardType.Number
-            )
+            Row(
+                Modifier
+                    .fillMaxSize()
+                    .align(Center),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ){
+                Text(stringResource(id = R.string.price))
+                quantities.forEach {
+                    QuantityBubble( it, if(selectedPrice == it) Jaune1 else Gray1, 10.dp){ price ->
+                        if(it == customQuantity) {
+                            showCustomDialogWithResult.value = true
+                        }
+                        selectedPrice = price
+                    }
+                }
+
+                Text("€")
+            }
         }
         Box(
             Modifier
@@ -104,6 +126,7 @@ fun BasketPage(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(10.dp)
+                    .scale(0.6f)
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "")
             }
@@ -137,7 +160,6 @@ fun ProductItem(
                     textFieldRequester.requestFocus()
                 }
                 .padding(bottom = 10.dp, start = 5.dp, end = 5.dp)
-
         ) {
             Column(
                 Modifier
@@ -159,6 +181,7 @@ fun ProductItem(
                     ),
                     modifier = Modifier
                         .focusRequester(textFieldRequester)
+                        .clearFocusOnKeyboardDismiss()
                         .fillMaxWidth(0.7f),
                     colors = TextFieldDefaults.textFieldColors(
                         backgroundColor = Color.Transparent,
@@ -205,72 +228,5 @@ fun ProductItem(
                 Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear")
             }
         }
-
-
     }
-}
-
-@Composable
-//@Preview
-fun BasketTextField(
-    title : String = "Champs de texte",
-    modifier : Modifier = Modifier
-){
-    val text = remember { mutableStateOf( "") }
-    var textState by remember { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
-
-    Box(modifier = modifier.padding(horizontal = 15.dp)){
-
-    }
-}
-
-@Composable
-//@Preview
-fun InputTextField(
-    labelText: String = "Libellé",
-    modifier: Modifier = Modifier,
-    dividerColor: Color = Color.Gray,
-    dividerThickness: Dp = 1.dp,
-    spacer: Dp = 10.dp,
-    textStyle: TextStyle = TextStyle()
-) {
-    var value by remember { mutableStateOf(TextFieldValue("")) }
-    val dividerState = remember { mutableStateOf(true) }
-    BasicTextField(
-        value = value,
-        onValueChange = { value = it },
-        modifier = modifier
-            .onFocusChanged {
-                dividerState.value = !it.isFocused
-            },
-        decorationBox = { innerTextField ->
-            var mainModifier: Modifier = modifier
-            if (!dividerState.value){
-                mainModifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        width = 1.dp,
-                        shape = RoundedCornerShape(15.dp),
-                        color = Color.LightGray
-                    )
-                    .padding(8.dp)
-            }
-
-            Column(
-                modifier = mainModifier,
-                content = {
-                    Text(text = labelText, style = textStyle)
-                    Spacer(modifier = Modifier.size(spacer))
-                    innerTextField()
-                    if (dividerState.value) {
-                        Divider(
-                            thickness = dividerThickness, color = dividerColor,
-                            modifier = mainModifier
-                        )
-                    }
-                }
-            )
-        }
-    )
 }

@@ -93,7 +93,7 @@ fun Header(
     if(showCustomDialogWithResult.value){
         when(addDialogType){
             DialogType.ADD_CLIENT -> {
-                AddClientDialog {
+                GetStringValueDialog {
                     showCustomDialogWithResult.value = false
                     Log.d("TAG", "Create client : $it")
                     Toast.makeText(context, it, Toast.LENGTH_SHORT)

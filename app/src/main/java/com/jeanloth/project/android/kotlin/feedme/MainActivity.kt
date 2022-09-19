@@ -21,12 +21,12 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute.Companion.fromVal
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.presentation.HomePage
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.CommandListPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CommandListPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientListPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.command.AddCommandPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.AddCommandPage
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

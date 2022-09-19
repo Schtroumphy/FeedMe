@@ -30,9 +30,9 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Red
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.IconBox
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.NoDataText
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.PersonName
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.IconBox
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.NoDataText
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PersonName
 
 
 @Composable

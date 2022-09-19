@@ -40,7 +40,7 @@ import com.google.accompanist.insets.imePadding
 import com.google.accompanist.insets.navigationBarsWithImePadding
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
-import com.jeanloth.project.android.kotlin.feedme.presentation.ui.Button
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.Button
 
 enum class FieldType(val label : String, val icon : ImageVector, val keyboardType : KeyboardType, val isOptional : Boolean = false, val maxChar: Int = 10){
     FIRST_NAME("Nom", Icons.Rounded.Person, KeyboardType.Text),

@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.presentation.ui
+package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,6 +15,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandStatus
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PersonName
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PriceBox
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.StatusCircle
 
 @Composable
 @Preview
