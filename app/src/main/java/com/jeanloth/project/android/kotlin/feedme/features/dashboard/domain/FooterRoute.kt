@@ -10,7 +10,7 @@ enum class FooterRoute(val route: String, val title: String? =null, val icon: Im
     COMMAND_LIST("command_list", title = "Commandes", icon = Icons.Filled.List, inFooter = true, displayFooter = true),
     ADD_COMMAND_BUTTON("add_command", title = "Création commande", Icons.Filled.Add, true, true, false, displayBackOrClose = true),
     CLIENT("clients", title = "Clients", Icons.Filled.Person, true, displayFooter = true, dialogType = DialogType.ADD_CLIENT, displayAddButton = true),
-    PRODUCTS("products", title = "Créer un panier", Icons.Filled.ShoppingCart, true, displayFooter = false, displayBackOrClose = true, displayAddButton = true),
+    PRODUCTS("products", title = "Créer un panier", Icons.Filled.ShoppingCart, true, displayFooter = false, displayBackOrClose = true, displayAddButton = false),
 
     // Not in footer
     ADD_CLIENT("add_client", title = "Création client", displayFooter = false, displayBackOrClose = true),

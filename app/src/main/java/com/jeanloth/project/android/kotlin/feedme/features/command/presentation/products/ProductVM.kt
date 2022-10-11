@@ -43,10 +43,6 @@ class ProductVM @Inject constructor(
         }
     }
 
-    fun doNothing(){
-        // DO Nothing
-    }
-
     fun saveProduct(label : String, image: String?){
         viewModelScope.launch(Dispatchers.IO){
 

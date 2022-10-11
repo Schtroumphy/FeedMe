@@ -32,15 +32,16 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val clientVM : ClientVM by viewModels()
-    val productVM : ProductVM by viewModels()
+    private val clientVM : ClientVM by viewModels()
+    private val productVM : ProductVM by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
+        productVM.syncProducts()
 
         setContent {
-            productVM.syncProducts() // If needed
+            
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -84,7 +85,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        composable(FooterRoute.PRODUCTS.route) { BasketPage(navController, productVM, applicationContext) }
+                        composable(FooterRoute.PRODUCTS.route) { BasketPage(productVM, applicationContext) }
 
                         // Not in footer
                         composable(FooterRoute.ADD_COMMAND.route) { AddCommandPage() }

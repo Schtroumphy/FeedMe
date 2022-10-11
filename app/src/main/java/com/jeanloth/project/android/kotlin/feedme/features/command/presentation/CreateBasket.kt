@@ -62,7 +62,7 @@ fun BasketPage(
 ){
     val products by productVM.products.collectAsState()
     var selectedPrice by remember { mutableStateOf(0)}
-    var customQuantity by remember { mutableStateOf(0)}
+    var customQuantity by remember { mutableStateOf(-1)}
     val quantities = listOf(10, 15, 20, 25, customQuantity)
 
     val showCustomDialogWithResult = remember { mutableStateOf(false) }
@@ -92,7 +92,7 @@ fun BasketPage(
             ){
                 Text(stringResource(id = R.string.price))
                 quantities.forEach {
-                    QuantityBubble( it, if(selectedPrice == it) Jaune1 else Gray1, 10.dp){ price ->
+                    QuantityBubble( it, if(selectedPrice == it) Jaune1 else Gray1, 12.dp){ price ->
                         if(it == customQuantity) {
                             showCustomDialogWithResult.value = true
                         }
