@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductDao {
+    @Query("SELECT * FROM product")
+    fun all() : List<ProductEntity>
+
     @Insert
     fun insert(client: ProductEntity)
 

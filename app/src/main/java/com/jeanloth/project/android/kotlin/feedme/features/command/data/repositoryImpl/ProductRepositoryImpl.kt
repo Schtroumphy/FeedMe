@@ -39,6 +39,13 @@ class ProductRepositoryImpl @Inject constructor(
 
         val result = adapter.fromJson(json) ?: emptyList()
         Log.d("ProductRepositoryImpl", "Products : $result")
-        return dao.insertAll(result.map{ mapper.to(it) })
+
+        val entities = result.map{ mapper.to(it) }
+
+        val allSaved = dao.all()
+        entities.onEach { product ->
+            product.id = allSaved.firstOrNull { it.label == product.label }?.id ?: 0L
+        }
+        return dao.insertAll(entities)
     }
 }
