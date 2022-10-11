@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         productVM.syncProducts()
 
         setContent {
-            
+
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
 

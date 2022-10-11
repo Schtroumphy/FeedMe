@@ -60,7 +60,7 @@ object AppModule {
     fun provideProductDao(appDatabase: AppRoomDatabase): ProductDao = appDatabase.productDao()
 
 
-    /** Use cases **/
+    /** --- Use cases --- **/
 
     // CLient
     @Provides
@@ -87,9 +87,4 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSyncProducts(repository: ProductRepository) : SyncProductUseCase = SyncProductUseCase(repository)
-
-    //@Provides
-    //@Singleton
-    //fun provideRemoveProduct(repository: ProductRepository) : RemoveProductUseCase = RemoveProductUseCase(repository)
-
 }

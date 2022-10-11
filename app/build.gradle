@@ -102,7 +102,7 @@ dependencies {
     kapt "androidx.hilt:hilt-compiler:1.0.0"
     implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
 
-    // Accompanist § for keyboard and form fields
+    // Accompanist for keyboard and form fields
     implementation "com.google.accompanist:accompanist-insets:0.24.1-alpha"
 
     // Material icon extended
