@@ -1,10 +1,12 @@
 package com.jeanloth.project.android.kotlin.feedme
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -54,6 +56,8 @@ class MainActivity : ComponentActivity() {
             val displayAddButtonState = rememberSaveable { (mutableStateOf(false)) }
             val dialogType = rememberSaveable { (mutableStateOf<DialogType?>(null)) }
 
+            val products by productVM.products.collectAsState()
+
             val title = fromVal(navBackStackEntry?.destination?.route).title
             topBarState.value = fromVal(navBackStackEntry?.destination?.route).title != null
             bottomBarState.value = fromVal(navBackStackEntry?.destination?.route).displayFooter
@@ -85,11 +89,15 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-                        composable(FooterRoute.PRODUCTS.route) { BasketPage(productVM, applicationContext) }
+                        composable(FooterRoute.PRODUCTS.route) { BasketPage(products) }
 
                         // Not in footer
                         composable(FooterRoute.ADD_COMMAND.route) { AddCommandPage() }
-                        composable(FooterRoute.ADD_CLIENT.route) { AddClientPage(applicationContext) }
+                        composable(FooterRoute.ADD_CLIENT.route) { AddClientPage(
+                            onValidateClick = {
+                                Toast.makeText(this@MainActivity, "Clic sur valider", Toast.LENGTH_SHORT)
+                            }
+                        ) }
                         }
                     },
                     onNewClientAdded = {

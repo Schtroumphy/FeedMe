@@ -50,7 +50,9 @@ enum class FieldType(val label : String, val icon : ImageVector, val keyboardTyp
 
 @Composable
 @Preview
-fun AddClientPage(context : Context){
+fun AddClientPage(
+    onValidateClick : (() -> Unit)? = null
+){
 
     ProvideWindowInsets(consumeWindowInsets = true) {
         Column(
@@ -64,7 +66,9 @@ fun AddClientPage(context : Context){
             FieldType.values().forEachIndexed { index, field ->
                 AppTextField(field.label, field.icon, field.keyboardType, field.isOptional, isLastField = index == FieldType.values().size - 1)
             }
-            Button("Valider") { Toast.makeText(context, "Clic sur valider", Toast.LENGTH_SHORT) }
+            Button("Valider") {
+                onValidateClick?.invoke()
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -25,14 +24,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -41,6 +43,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jeanloth.project.android.kotlin.feedme.R
@@ -48,19 +51,21 @@ import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKe
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Red
+import com.jeanloth.project.android.kotlin.feedme.core.theme.RedDark
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BasketPage(
-    productVM: ProductVM,
-    context: Context
-){
-    val products by productVM.products.collectAsState()
+@Preview
+fun BasketPage( products: List<Product> = listOf(
+    Product(label = "Mon orange"),
+    Product(label = "Poire"),
+    Product(label = "Pomme"),
+)){
+
     var selectedPrice by remember { mutableStateOf(0)}
     var customQuantity by remember { mutableStateOf(-1)}
     val quantities = listOf(10, 15, 20, 25, customQuantity)
@@ -82,7 +87,7 @@ fun BasketPage(
         Box(Modifier.weight(0.6f)){
             AppTextField()
         }
-        Box(Modifier.weight(0.6f)) {
+        Box(Modifier.padding(top= 10.dp).weight(1f)) {
             Row(
                 Modifier
                     .fillMaxSize()
@@ -114,11 +119,12 @@ fun BasketPage(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 contentPadding = PaddingValues(bottom = 25.dp),
                 modifier = Modifier
-                    .fillMaxWidth(0.85f)
-                    .align(Center)
+                    .fillMaxWidth(0.9f)
+                    .align(TopCenter)
             ) {
+
                 items(products){
-                    ProductItem(it, context)
+                    ProductItem(it)
                 }
             }
             FloatingActionButton(
@@ -135,15 +141,13 @@ fun BasketPage(
 }
 
 @Composable
+@Preview
 fun ProductItem(
-    product: Product,
-    context: Context
+    product: Product = Product(label = "Mon produit"),
 ){
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val textFieldRequester = FocusRequester()
-
-    val imageResource: Int = context.resources.getIdentifier(product.image, "drawable", context.packageName)
 
     Box(
         Modifier.fillMaxSize()
@@ -203,30 +207,36 @@ fun ProductItem(
             }
         }
 
-        Image(
-            painter = painterResource(imageResource),
-            contentDescription = "food icon",
-            contentScale = ContentScale.Crop,            // crop the image if it's not a square
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .size(65.dp)
-                .clip(CircleShape)
-        )
-
-        AnimatedVisibility(visible = text.isNotBlank(), modifier = Modifier.align(Alignment.BottomEnd)) {
-            FloatingActionButton(
-                shape = CircleShape,
-                containerColor = Red,
-                contentColor = Color.White,
-                onClick = {
-                    text = ""
-                },
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            Image(
+                painter = painterResource(product.imageId),
+                contentDescription = "food icon",
+                contentScale = ContentScale.Crop,            // crop the image if it's not a square
                 modifier = Modifier
-                    .padding(top = 10.dp)
-                    .scale(0.3f)
-            ) {
-                Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear")
+                    .size(65.dp)
+                    .clip(CircleShape)
+            )
+
+            AnimatedVisibility(visible = text.isNotEmpty()) {
+                FloatingActionButton(
+                    shape = CircleShape,
+                    containerColor = RedDark,
+                    contentColor = Color.White,
+                    onClick = {
+                        text = ""
+                    },
+                    modifier = Modifier.scale(0.45f)
+                        .padding(end = 10.dp)
+                ) {
+                    Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear")
+                }
             }
+
         }
+
     }
 }

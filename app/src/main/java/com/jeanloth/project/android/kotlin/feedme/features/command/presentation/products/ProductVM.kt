@@ -1,5 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,13 +11,17 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecas
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductVM @Inject constructor(
+    @ApplicationContext private val applicationContext: Context,
     private val syncProductUseCase: SyncProductUseCase,
     private val saveProductUseCase: SaveProductUseCase,
     private val observeAllProductsUseCase: ObserveAllProductsUseCase,
@@ -28,7 +33,9 @@ class ProductVM @Inject constructor(
     init {
         viewModelScope.launch {
             observeAllProductsUseCase.invoke().collect {
-                _products.value = it
+                _products.value = it.onEach {
+                    it.imageId = applicationContext.resources.getIdentifier(it.image, "drawable", applicationContext.packageName)
+                }
             }
         }
     }

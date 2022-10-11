@@ -28,7 +28,7 @@ object Payment {
 }
 
 object Command{
-    <u>idCommand</u> : Int auto_increment
+    <u>id</u> : Int auto_increment
     ..
     deliveryDate : LocalDateTime?
     status : CommandStatusType?
@@ -40,7 +40,7 @@ object Command{
 }
 
 object ProductWrapper {
-    <u>idCommandIngredient</u> : Int auto_increment
+    <u>id</u> : Int auto_increment
     ..
     product : Product
     count : Int
@@ -63,7 +63,7 @@ object CommandStatusType{
 }
 
 object Product{
-    <u>idProduct</u> : Int auto_increment
+    <u>id</u> : Int auto_increment
     ..
     label : String
     img : String
