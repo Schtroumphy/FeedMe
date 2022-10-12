@@ -44,11 +44,13 @@ object ProductWrapper {
     ..
     product : Product
     count : Int
-    totalPrice : Double
     status : ProductWrapperStatus
+    --
+    totalPrice : Double
 }
 
 object ProductWrapperStatus{
+    TO_DO,
     IN_PROGRESS,
     DONE,
     CANCELED,
