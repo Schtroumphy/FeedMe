@@ -13,14 +13,14 @@ interface ProductDao {
     fun all() : List<ProductEntity>
 
     @Insert
-    fun insert(client: ProductEntity)
+    fun insert(product: ProductEntity)
 
     @Insert
-    fun insertAll(clients: List<ProductEntity>)
+    fun insertAll(products: List<ProductEntity>)
 
     @Query("SELECT * FROM product")
     fun observeAll(): Flow<List<ProductEntity>>
 
     @Delete
-    fun delete(client: ProductEntity)
+    fun delete(product: ProductEntity)
 }

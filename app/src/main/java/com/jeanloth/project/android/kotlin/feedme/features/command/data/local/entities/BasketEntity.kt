@@ -5,11 +5,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "basket")
 class BasketEntity (
-    @PrimaryKey
-    var basketId : Long = 0,
+    @PrimaryKey(autoGenerate = true)
+    var id : Long = 0,
 
     var label : String = "",
     var price : Float = 0f,
-    var isBasketType : Boolean = false, // Panier type ?
-
 )
+
+// TODO Add wrapper entity ? or table for relation one-to-many with wrapperEntity

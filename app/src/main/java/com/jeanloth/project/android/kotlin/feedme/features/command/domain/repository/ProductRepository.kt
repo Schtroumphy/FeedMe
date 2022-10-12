@@ -10,7 +10,7 @@ interface ProductRepository {
 
     fun observeProducts() : Flow<List<Product>>
 
-    fun remove(client : Product)
+    fun remove(product : Product)
 
     fun syncProduct()
 }

@@ -5,14 +5,24 @@ import androidx.room.Room
 import com.jeanloth.project.android.kotlin.feedme.core.database.AppRoomDatabase
 import com.jeanloth.project.android.kotlin.feedme.core.database.AppRoomDatabase.Companion.DATABASE_NAME
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.AppClientDao
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.BasketDao
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.ProductDao
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.WrapperDao
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.AppClientEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.ProductEntityMapper
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.ProductCategory
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.AppClientRepository
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.BaseRepository
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.BasketRepository
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.ProductRepository
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.GetAllClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.RemoveClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.SaveClientUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveAllBasketsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveBasketUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
@@ -52,12 +62,18 @@ object AppModule {
     @Provides
     fun provideProductMapper(): ProductEntityMapper = ProductEntityMapper()
 
-    /** DAOs **/
+    /** --- DAOs --- **/
     @Provides
     fun provideAppClientDao(appDatabase: AppRoomDatabase): AppClientDao = appDatabase.appClientDao()
 
     @Provides
     fun provideProductDao(appDatabase: AppRoomDatabase): ProductDao = appDatabase.productDao()
+
+    @Provides
+    fun provideBasketDao(appDatabase: AppRoomDatabase): BasketDao = appDatabase.basketDao()
+
+    @Provides
+    fun provideWrapperDao(appDatabase: AppRoomDatabase): WrapperDao = appDatabase.wrapperDao()
 
 
     /** --- Use cases --- **/
@@ -82,9 +98,23 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetAllProducts(repository: ProductRepository) : ObserveAllProductsUseCase = ObserveAllProductsUseCase(repository)
+    fun provideObserveAllProducts(repository: ProductRepository) : ObserveAllProductsUseCase = ObserveAllProductsUseCase(repository)
 
     @Provides
     @Singleton
     fun provideSyncProducts(repository: ProductRepository) : SyncProductUseCase = SyncProductUseCase(repository)
+
+    // Wrapper
+    @Provides
+    @Singleton
+    fun provideSaveWrapper(repository: BaseRepository<Wrapper<Product>>) : SaveWrapperUseCase = SaveWrapperUseCase(repository)
+
+    // Basket
+    @Provides
+    @Singleton
+    fun provideSaveBasket(repository: BasketRepository, saveWrapper : SaveWrapperUseCase) : SaveBasketUseCase = SaveBasketUseCase(repository, saveWrapper)
+
+    @Provides
+    @Singleton
+    fun provideObserveAllBaskets(repository: BasketRepository) : ObserveAllBasketsUseCase = ObserveAllBasketsUseCase(repository)
 }

@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products
+package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket
 
 import android.content.Context
 import android.util.Log
@@ -9,6 +9,7 @@ import com.jeanloth.project.android.kotlin.feedme.core.AppPreferences
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveAllBasketsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveBasketUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
@@ -23,51 +24,52 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProductVM @Inject constructor(
-    @ApplicationContext private val applicationContext: Context,
-    private val syncProductUseCase: SyncProductUseCase,
-    private val saveProductUseCase: SaveProductUseCase,
-    private val observeAllProductsUseCase: ObserveAllProductsUseCase,
+class BasketVM @Inject constructor(
+    private val observeAllBasketsUseCase: ObserveAllBasketsUseCase,
+    private val saveBasketUseCase: SaveBasketUseCase,
 ) : ViewModel() {
 
-    private val _products : MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
-    val products : StateFlow<List<Product>> = _products.asStateFlow()
+    private val _baskets : MutableStateFlow<List<Basket>> = MutableStateFlow(emptyList())
+    val baskets : StateFlow<List<Basket>> = _baskets.asStateFlow()
 
     private val basketProductWrappers : MutableList<Wrapper<Product>> = mutableListOf()
 
     init {
         viewModelScope.launch {
-            observeAllProductsUseCase.invoke().collect {
-                _products.value = it.onEach {
-                    it.imageId = applicationContext.resources.getIdentifier(it.image, "drawable", applicationContext.packageName)
+            observeAllBasketsUseCase.invoke().collect {
+                _baskets.value = it
+            }
+        }
+    }
+
+    suspend fun saveBasket(label: String, price: Int, productQuantity: Map<Product, Int?>) : Boolean{
+        var result = false
+        val wrapperList = mutableListOf<Wrapper<Product>>().apply {
+            productQuantity.forEach {
+                it.value?.let { quantity ->
+                    this.add(
+                        Wrapper(item = it.key, quantity = quantity)
+                    )
                 }
             }
         }
-    }
 
-    fun syncProducts() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if(BuildConfig.DATABASE_VERSION > AppPreferences.databaseVersion){
-                Log.d("ProductVM", "Launch product synchronization" )
-                syncProductUseCase()
-                AppPreferences.databaseVersion = BuildConfig.DATABASE_VERSION
-            }
+        val basket = Basket(
+            label = label,
+            price = price.toFloat(),
+            wrappers = wrapperList
+        )
+        Log.d("ProductVM", "Basket to save : $basket")
+        val job = viewModelScope.launch(Dispatchers.IO){
+            result = saveBasketUseCase(basket)
         }
+        job.join()
+        return  result
     }
 
-    fun saveProduct(label : String, image: String?){
+    fun removebasket(basket: Basket){
         viewModelScope.launch(Dispatchers.IO){
-
-            saveProductUseCase.invoke(Product(
-                label = label,
-                image = image
-            ))
-        }
-    }
-
-    fun removeProduct(product: Product){
-        viewModelScope.launch(Dispatchers.IO){
-            //removeProductUseCase.invoke(product)
+            //removeBasketUseCase.invoke(basket)
         }
     }
 }
