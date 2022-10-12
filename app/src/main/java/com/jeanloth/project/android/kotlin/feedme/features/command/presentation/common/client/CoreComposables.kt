@@ -16,10 +16,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,7 +32,7 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Bleu1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.BleuVert
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Vert1
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.DialogType
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AddButtonActionType
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
 
 
@@ -48,17 +50,27 @@ fun PageTemplate(
     displayBackOrClose: Boolean = true,
     displayAddButton: Boolean = false,
     currentRoute: FooterRoute?,
-    addDialogType : DialogType? = null,
-    onNewClientAdded: ((String) -> Unit)? = null
+    addButtonActionType : AddButtonActionType? = null,
+    onNewClientAdded: ((String) -> Unit)? = null,
+    onDialogDismiss: (() -> Unit)? = null
 ){
     Scaffold(
         topBar = {
             if(displayHeader) {
                 title?.let {
-                    Header(context, it, onCloseOrBackClick, isBackAllowed, displayBackOrClose = displayBackOrClose, displayAddButton= displayAddButton, addDialogType = addDialogType,
+                    Header(context, it, onCloseOrBackClick, isBackAllowed, displayBackOrClose = displayBackOrClose, displayAddButton= displayAddButton, addButtonActionType = addButtonActionType,
                         onNewClientAdded = {
+                            Log.d("Header", "Click on add button")
                             onNewClientAdded?.invoke(it)
+                        },
+                        onAddBasketClicked = {
+                            Log.d("Header", "Navigate to add basket page")
+                            navController.navigate(FooterRoute.ADD_BASKET.route)
+                        },
+                        onDialogDismiss = {
+                            onDialogDismiss?.invoke()
                         }
+
                     )
                 }
             }
@@ -76,6 +88,7 @@ fun PageTemplate(
 }
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Header(
     context : Context,
@@ -84,27 +97,31 @@ fun Header(
     isBackAllowed : Boolean = false,
     displayBackOrClose: Boolean = false,
     displayAddButton : Boolean = true,
-    addDialogType : DialogType? = null,
-    onNewClientAdded: ((String) -> Unit)? = null
+    addButtonActionType : AddButtonActionType? = null,
+    onNewClientAdded: ((String) -> Unit)? = null,
+    onAddBasketClicked : (()-> Unit)? = null,
+    onDialogDismiss : (()-> Unit)? = null
 ){
-
     val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
 
     if(showCustomDialogWithResult.value){
-        when(addDialogType){
-            DialogType.ADD_CLIENT -> {
-                GetStringValueDialog {
-                    showCustomDialogWithResult.value = false
-                    Log.d("TAG", "Create client : $it")
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT)
+        when(addButtonActionType){
+            AddButtonActionType.ADD_CLIENT -> {
+                GetStringValueDialog (
+                        onNewClientAdded = {
+                        showCustomDialogWithResult.value = false
+                        Log.d("TAG", "Create client : $it")
+                        Toast.makeText(context, it, Toast.LENGTH_SHORT)
 
-                    // Save client to db
-                    onNewClientAdded?.invoke(it)
-                }
+                        // Save client to db
+                        onNewClientAdded?.invoke(it)
+                    },
+                    onDismiss = {
+                        onDialogDismiss?.invoke()
+                    }
+                )
             }
-            else -> {
-                showCustomDialogWithResult.value = false
-            } // TODO Add other dialog types (add basket, product...)
+            else -> {}
         }
     }
 
@@ -119,7 +136,13 @@ fun Header(
                 .padding(top = dimensionResource(id = R.dimen.vertical_margin)), maxLines = 1, overflow = TextOverflow.Ellipsis)
         if(displayAddButton) FloatingActionButton(
             onClick = {
-                showCustomDialogWithResult.value = true
+                Log.d("Header", "Click on add button in header")
+                when(addButtonActionType){
+                    AddButtonActionType.ADD_CLIENT -> showCustomDialogWithResult.value = true
+                    AddButtonActionType.ADD_BASKET -> onAddBasketClicked?.invoke()
+                    null -> TODO()
+                }
+
             },
             containerColor = Bleu1,
             contentColor = Color.White,

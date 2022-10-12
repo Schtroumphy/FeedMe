@@ -19,7 +19,13 @@
     <string name="orange">Orange</string>
     <string name="patate_douce">Patate douce</string>
 
+    <!-- Success -->
+    <string name="basket_added">Votre panier a bien été ajouté.</string>
+
     <!-- Errors -->
     <string name="no_client">Pas de client pour le moment.Veuillez en ajouter.</string>
+    <string name="basket_no_added">Une erreur est survenue lors de l\'ajout de votre panier.</string>
+
+
 
 </resources>

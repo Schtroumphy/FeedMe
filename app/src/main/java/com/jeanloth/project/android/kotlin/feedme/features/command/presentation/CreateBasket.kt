@@ -1,5 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -24,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.TopCenter
@@ -34,7 +34,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -48,10 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Red
-import com.jeanloth.project.android.kotlin.feedme.core.theme.RedDark
+import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
@@ -60,15 +56,20 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
-fun BasketPage( products: List<Product> = listOf(
-    Product(label = "Mon orange"),
-    Product(label = "Poire"),
-    Product(label = "Pomme"),
-)){
-
+fun CreateBasketPage(
+    products: List<Product> = listOf(
+        Product(label = "Mon orange"),
+        Product(label = "Poire"),
+        Product(label = "Pomme")
+    ),
+    onValidateBasket : ((String, Int, Map<Product, Int?>) -> Unit)
+){
+    var label by remember { mutableStateOf("") }
+    val productQuantity = remember { mutableStateMapOf<Product, Int?>() }
     var selectedPrice by remember { mutableStateOf(0)}
     var customQuantity by remember { mutableStateOf(-1)}
     val quantities = listOf(10, 15, 20, 25, customQuantity)
+    val validationEnabled = label.isNotEmpty() && selectedPrice != 0 && !productQuantity.isNullOrEmpty()
 
     val showCustomDialogWithResult = remember { mutableStateOf(false) }
 
@@ -85,9 +86,16 @@ fun BasketPage( products: List<Product> = listOf(
         horizontalAlignment = CenterHorizontally
     ) {
         Box(Modifier.weight(0.6f)){
-            AppTextField()
+            AppTextField(
+                onTextEntered = {
+                    label = it
+                }
+            )
         }
-        Box(Modifier.padding(top= 10.dp).weight(1f)) {
+        Box(
+            Modifier
+                .padding(top = 10.dp)
+                .weight(1f)) {
             Row(
                 Modifier
                     .fillMaxSize()
@@ -123,12 +131,23 @@ fun BasketPage( products: List<Product> = listOf(
                     .align(TopCenter)
             ) {
 
-                items(products){
-                    ProductItem(it)
+                items(products){ product ->
+                    ProductItem(product,
+                    onQuantityChange = {
+                        Log.d("Create Basket", "Quantity received : $it")
+                        if(it == null) productQuantity.remove(product) else productQuantity.put(product, it)
+                    })
                 }
             }
             FloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    if(validationEnabled){
+                        onValidateBasket(label, selectedPrice, productQuantity)
+                    } else {
+                        Log.d("CreateBasket", "Not enough element - Label : $label, Price : $selectedPrice, map is empty: ${productQuantity.isEmpty()}")
+                    }
+                },
+                containerColor = if(validationEnabled) Purple80 else Gray1,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(10.dp)
@@ -144,6 +163,7 @@ fun BasketPage( products: List<Product> = listOf(
 @Preview
 fun ProductItem(
     product: Product = Product(label = "Mon produit"),
+    onQuantityChange : ((Int?)-> Unit)? = null
 ){
     var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
@@ -176,6 +196,7 @@ fun ProductItem(
                     value = text,
                     onValueChange = {
                         text = it
+                        onQuantityChange?.invoke(if(it.isEmpty()) null else it.toInt())
                     },
                     shape = RoundedCornerShape(25.dp),
 
@@ -228,8 +249,10 @@ fun ProductItem(
                     contentColor = Color.White,
                     onClick = {
                         text = ""
+                        onQuantityChange?.invoke(null)
                     },
-                    modifier = Modifier.scale(0.45f)
+                    modifier = Modifier
+                        .scale(0.45f)
                         .padding(end = 10.dp)
                 ) {
                     Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear")

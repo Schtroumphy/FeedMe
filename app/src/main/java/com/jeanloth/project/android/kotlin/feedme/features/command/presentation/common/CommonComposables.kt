@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -36,6 +37,7 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
+import kotlinx.coroutines.android.awaitFrame
 
 @Composable
 fun Button(text: String = stringResource(id = R.string.validate), onClickAction: (() -> Unit)? = null) {
@@ -147,20 +149,21 @@ fun AppTextField(
     onTextEntered: ((String) -> Unit)? = null
 ) {
     var text by remember { mutableStateOf("") }
-    val textFieldRequester = FocusRequester()
+    val textFieldRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    LocalView.current.viewTreeObserver.addOnWindowFocusChangeListener {
+        if (it) textFieldRequester.requestFocus()
+    }
 
     Box {
-        Box(modifier
-            .padding(top = 10.dp)
-            .fillMaxWidth(widthPercentage)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Jaune1)
-            .clickable {
-                //textFieldRequester.requestFocus()
-            }
-            .align(Alignment.Center)
-            .padding(6.dp)
+        Box(
+            modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth(widthPercentage)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Jaune1)
+                .align(Alignment.Center)
+                .padding(6.dp)
         ) {
             BasicTextField(
                 value = (text),

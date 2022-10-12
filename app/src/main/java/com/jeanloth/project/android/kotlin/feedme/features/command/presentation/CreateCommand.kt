@@ -71,7 +71,7 @@ fun AddCommandPage(
                 .padding(top = 20.dp)){
                 for(i in 1..4) {
                     item {
-                        BasketItem()
+                        BasketItem(editMode = true)
                     }
                 }
             }
@@ -84,33 +84,6 @@ fun AddCommandPage(
                 Icon(imageVector = Icons.Filled.ArrowForwardIos, contentDescription = "")
             }
         }
-    }
-}
-@Composable
-fun BasketItem(){
-    Row (
-        verticalAlignment = CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(vertical = 5.dp, horizontal = 15.dp)
-    ){
-        Box(
-            modifier = Modifier
-                .weight(2f)
-                .clip(RoundedCornerShape(15.dp))
-        ){
-            Image(painter = painterResource(id = R.drawable.fruits), contentDescription = "")
-        }
-
-        Column(
-            Modifier
-                .padding(10.dp)
-                .weight(4f)
-        ) {
-            Text("Panier Gourmand", fontWeight = FontWeight.Bold)
-            Text("Banane x1, Poireaux x2, Pommes de terre x3, Orange x3", fontWeight = FontWeight.Light, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-
-        }
-        AddQuantity(Modifier.weight(1.5f))
     }
 }
 
@@ -171,14 +144,16 @@ fun AppSpinner(
     val showCustomDialogWithResult = remember { mutableStateOf(false) }
 
     if(showCustomDialogWithResult.value){
-        GetStringValueDialog {
-            showCustomDialogWithResult.value = false
+        GetStringValueDialog (
+            onNewClientAdded = {
+                showCustomDialogWithResult.value = false
 
-            mockClients.add(
-                AppClient(firstname = it)
-            )
-            selectedItem.value = it
-        }
+                mockClients.add(
+                    AppClient(firstname = it)
+                )
+                selectedItem.value = it
+            }
+        )
     }
 
     Box {
