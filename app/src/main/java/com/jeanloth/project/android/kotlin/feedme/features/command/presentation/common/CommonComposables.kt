@@ -154,6 +154,7 @@ fun AppTextField(
     widthPercentage: Float = 0.6f,
     @StringRes labelId: Int = R.string.label,
     keyboardType: KeyboardType = KeyboardType.Text,
+    onValueChange: ((String) -> Unit)? = null,
     onTextEntered: ((String) -> Unit)? = null
 ) {
     var text by remember { mutableStateOf("") }
@@ -174,7 +175,7 @@ fun AppTextField(
                 value = (text),
                 onValueChange = {
                     text = it
-                    onTextEntered?.invoke(text)
+                    onValueChange?.invoke(text)
                 },
                 singleLine = true,
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
@@ -190,6 +191,7 @@ fun AppTextField(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
+                        onTextEntered?.invoke(text)
                     }
                 )
             )

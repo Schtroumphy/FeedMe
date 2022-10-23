@@ -64,6 +64,7 @@ class MainActivity : ComponentActivity() {
             val displayAddButtonState = rememberSaveable { (mutableStateOf(false)) }
             val dialogType = rememberSaveable { (mutableStateOf<AddButtonActionType?>(null)) }
 
+            val clients by clientVM.allSF.collectAsState()
             val products by productVM.products.collectAsState()
             val baskets by basketVM.baskets.collectAsState()
 
@@ -103,7 +104,12 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = FooterRoute.HOME.route, modifier = Modifier.padding(innerPadding)) {
                         composable(FooterRoute.HOME.route) { HomePage(navController) }
                         composable(FooterRoute.COMMAND_LIST.route) { CommandListPage() }
-                        composable(FooterRoute.ADD_COMMAND_BUTTON.route) { AddCommandPage() }
+                        composable(FooterRoute.ADD_COMMAND_BUTTON.route) { AddCommandPage(
+                            clients = clients,
+                            onNewClientAdded = {
+                                clientVM.saveClient(it)
+                            }
+                        )}
                         composable(FooterRoute.CLIENT.route) {
                             ClientListPage(clientVM,
                                 onClientRemoved = {
@@ -135,7 +141,12 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // Not in footer
-                        composable(FooterRoute.ADD_COMMAND.route) { AddCommandPage() }
+                        composable(FooterRoute.ADD_COMMAND.route) { AddCommandPage(
+                            clients = clients,
+                            onNewClientAdded = {
+                                clientVM.saveClient(it)
+                            }
+                        ) }
                         composable(FooterRoute.ADD_CLIENT.route) { AddClientPage(
                             onValidateClick = {
                                 Toast.makeText(this@MainActivity, "Clic sur valider", Toast.LENGTH_SHORT)

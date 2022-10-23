@@ -2,7 +2,9 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,13 +31,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
@@ -44,17 +42,12 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.GetStringValueDialog
 
-var mockClients = mutableListOf(
-    AppClient(firstname = "Bella Rodriguez"),
-    AppClient(firstname = "Isabelle Souris"),
-    AppClient(firstname = "Jules TELON"),
-    AppClient(firstname = "Iris CLAVIER"),
-    AppClient(firstname = "Tony BILLARD"),
-)
 @Composable
 @Preview
 fun AddCommandPage(
-    navController : NavController? = null
+    navController : NavController? = null,
+    clients : List<AppClient> = emptyList(),
+    onNewClientAdded: ((String) -> Unit)? = null
 ){
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -62,7 +55,9 @@ fun AddCommandPage(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         // Choose client spinner
-        AppSpinner()
+        AppSpinner(elements = clients.map { it.toNameString() }){
+            onNewClientAdded?.invoke(it)
+        }
 
         Box {
             // Baskets saved list
@@ -137,7 +132,9 @@ fun AddQuantity(modifier: Modifier = Modifier){
 fun AppSpinner(
     modifier : Modifier = Modifier,
     widthPercentage : Float = 0.6f,
-    @StringRes labelId : Int = R.string.client
+    @StringRes labelId : Int = R.string.client,
+    elements : List<String> = emptyList(),
+    onNewElementAdded : ((String) -> Unit)? = null
 ){
     val selectedItem = remember { mutableStateOf("")}
     val selectionMode = remember { mutableStateOf(false)}
@@ -147,11 +144,9 @@ fun AppSpinner(
         GetStringValueDialog (
             onNewClientAdded = {
                 showCustomDialogWithResult.value = false
-
-                mockClients.add(
-                    AppClient(firstname = it)
-                )
+                onNewElementAdded?.invoke(it)
                 selectedItem.value = it
+                selectionMode.value = false
             }
         )
     }
@@ -174,15 +169,15 @@ fun AppSpinner(
                 LazyColumn(
                     modifier = Modifier.height(150.dp)
                 ){
-                    items(mockClients){
+                    items(elements){
                         Column(
                             modifier = Modifier.clickable {
-                                selectedItem.value = it.toNameString()
+                                selectedItem.value = it
                                 selectionMode.value = false
                             },
                             verticalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Text(it.toNameString(), modifier = Modifier.padding(vertical = 10.dp))
+                            Text(it, modifier = Modifier.padding(vertical = 10.dp))
                             Divider(color = Color.White)
                         }
                     }

@@ -46,11 +46,12 @@ fun GetStringValueDialog(
                 ) {
                     AppTextField(
                         labelId =labelId,
-                        widthPercentage = 0.9f
-                    ){
-                        onNewClientAdded?.invoke(it)
-                        openDialog.value = false
-                    }
+                        widthPercentage = 0.9f,
+                        onTextEntered = {
+                            onNewClientAdded?.invoke(it)
+                            openDialog.value = false
+                        }
+                    )
                 }
             },
             confirmButton = {},

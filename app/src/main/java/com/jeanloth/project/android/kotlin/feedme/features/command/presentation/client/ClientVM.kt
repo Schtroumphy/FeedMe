@@ -19,12 +19,16 @@ class ClientVM @Inject constructor(
     private val removeClientUseCase: RemoveClientUseCase,
 ) : ViewModel() {
 
+    private val _allMSF : MutableStateFlow<List<AppClient>> = MutableStateFlow(emptyList())
+    val allSF = _allMSF.asStateFlow()
+
     private val _clientUiState : MutableStateFlow<ClientUiState> = MutableStateFlow(ClientUiState.EmptyList)
     val clientUiState : StateFlow<ClientUiState> = _clientUiState.asStateFlow()
 
     init {
         viewModelScope.launch {
             getAllClientsUseCase.invoke().collect {
+                _allMSF.value = it
                 _clientUiState.value = if(it.isNullOrEmpty()){
                     ClientUiState.EmptyList
                 } else {

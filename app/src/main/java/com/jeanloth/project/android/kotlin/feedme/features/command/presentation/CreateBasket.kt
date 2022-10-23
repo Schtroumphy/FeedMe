@@ -114,7 +114,7 @@ fun CreateBasketPage(
     ) {
         Box(Modifier.weight(0.6f)){
             AppTextField(
-                onTextEntered = {
+                onValueChange = {
                     label = it
                 }
             )
