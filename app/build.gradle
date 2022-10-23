@@ -103,6 +103,8 @@ dependencies {
 
     // Accompanist for keyboard and form fields
     implementation "com.google.accompanist:accompanist-insets:0.24.1-alpha"
+    // Glide
+    implementation 'com.google.accompanist:accompanist-glide:0.9.1'
 
     // Material icon extended
     implementation "androidx.compose.material:material-icons-extended:$compose_version"

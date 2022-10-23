@@ -1,6 +1,12 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common
 
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,10 +28,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,7 +45,7 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
-import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.delay
 
 @Composable
 fun Button(text: String = stringResource(id = R.string.validate), onClickAction: (() -> Unit)? = null) {
@@ -151,9 +159,6 @@ fun AppTextField(
     var text by remember { mutableStateOf("") }
     val textFieldRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    LocalView.current.viewTreeObserver.addOnWindowFocusChangeListener {
-        if (it) textFieldRequester.requestFocus()
-    }
 
     Box {
         Box(
@@ -169,6 +174,7 @@ fun AppTextField(
                 value = (text),
                 onValueChange = {
                     text = it
+                    onTextEntered?.invoke(text)
                 },
                 singleLine = true,
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
@@ -184,7 +190,6 @@ fun AppTextField(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
-                        onTextEntered?.invoke(text)
                     }
                 )
             )
@@ -192,9 +197,9 @@ fun AppTextField(
         Text(stringResource(id = labelId), modifier = Modifier.align(Alignment.TopStart))
     }
 
-    DisposableEffect(Unit) {
+    LaunchedEffect(true){
+        delay(100)
         textFieldRequester.requestFocus()
-        onDispose { }
     }
 }
 
@@ -235,6 +240,81 @@ fun GetIntValueDialog(
                 }
             },
             confirmButton = {}
+        )
+    }
+}
+
+@Composable
+@Preview
+fun AddProductDialog(
+    onValidate : ((String?, Uri?)-> Unit)? = null
+) {
+    val openDialog = remember { mutableStateOf(true) }
+    var name by remember { mutableStateOf("") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(contract =
+    ActivityResultContracts.GetContent()) { uri: Uri? ->
+        imageUri = uri
+    }
+
+    if(openDialog.value){
+        AlertDialog(
+            onDismissRequest = {
+                onValidate?.invoke(null, null)
+                openDialog.value = false
+            },
+            title = {
+                Text(text = "Ajouter un produit", textAlign = TextAlign.Center)
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if(imageUri != null) {
+                        val source = ImageDecoder.createSource(context.contentResolver,imageUri!!)
+                        Log.d("AddProductDialog", "Image uri path : ${imageUri?.path}")
+                        Log.d("AddProductDialog", "Image uri encoded path : ${imageUri?.encodedPath}")
+                        Image(
+                            bitmap = ImageDecoder.decodeBitmap(source).asImageBitmap(),
+                            contentDescription =null,
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .clickable {
+                                    launcher.launch("image/*")
+                                }
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(R.drawable.delicious_banana),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clickable {
+                                    launcher.launch("image/*")
+                                }
+                        )
+                    }
+                    AppTextField(
+                        labelId = R.string.item,
+                        widthPercentage = 0.9f,
+                        keyboardType = KeyboardType.Text
+                    ){
+                        name = it
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onValidate?.invoke(name, imageUri)
+                        openDialog.value = false
+                    }
+                ) {
+                    Text("Valider")
+                }
+            }
         )
     }
 }

@@ -83,7 +83,7 @@ fun HomeCards(
 
             HomeCard(
                 onClick = {
-                    navController?.navigate(FooterRoute.HOME.route)
+                    navController.navigate(FooterRoute.HOME.route)
                 },
                 modifier = Modifier
                     .weight(2f)
@@ -92,7 +92,7 @@ fun HomeCards(
                 count = 25)
             HomeCard(
                 onClick = {
-                    navController?.navigate(FooterRoute.COMMAND_LIST.route)
+                    navController.navigate(FooterRoute.COMMAND_LIST.route)
                 },
                 modifier = Modifier
                     .weight(3f)
@@ -107,7 +107,7 @@ fun HomeCards(
         ) {
             HomeCard(
                 onClick = {
-                    navController?.navigate(FooterRoute.PRODUCTS.route)
+                    navController.navigate(FooterRoute.BASKETS.route)
                 },
                 modifier = Modifier
                     .weight(3f)
@@ -117,7 +117,7 @@ fun HomeCards(
             )
             HomeCard(
                 onClick = {
-                    navController?.navigate(FooterRoute.PRODUCTS.route)
+                    navController.navigate(FooterRoute.BASKETS.route)
                 },
                 modifier = Modifier
                     .weight(2f)

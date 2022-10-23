@@ -14,6 +14,6 @@ data class Product(
 ) : WrapperItem {
 
     override fun toString(): String {
-        return "Product : [id: $id, label: $label, price : $unitPrice]"
+        return "Product : [id: $id, label: $label, price : $unitPrice, image : $image, imageId: $imageId]"
     }
 }

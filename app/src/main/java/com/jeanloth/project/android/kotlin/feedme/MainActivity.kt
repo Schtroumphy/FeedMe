@@ -21,19 +21,19 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jeanloth.project.android.kotlin.feedme.core.theme.FeedMeTheme
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AddButtonActionType
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.AddClientPage
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CreateBasketPage
-import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
-import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute.Companion.fromVal
-import com.jeanloth.project.android.kotlin.feedme.features.dashboard.presentation.HomePage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.AddCommandPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.BasketList
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CommandListPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CreateBasketPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.BasketVM
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.AddClientPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientListPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.AddCommandPage
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.BasketList
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.BasketVM
+import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
+import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute.Companion.fromVal
+import com.jeanloth.project.android.kotlin.feedme.features.dashboard.presentation.HomePage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -116,17 +116,22 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(FooterRoute.ADD_BASKET.route) {
-                            CreateBasketPage(products,
-                            onValidateBasket = { label, price, productQuantity ->
-                                scope.launch {
-                                    if(basketVM.saveBasket(label, price, productQuantity)) {
-                                        splitties.toast.toast(R.string.basket_added)
-                                    } else {
-                                        splitties.toast.toast(R.string.basket_no_added)
+                            CreateBasketPage(
+                                products = products,
+                                onValidateBasket = { label, price, productQuantity ->
+                                    scope.launch {
+                                        if(basketVM.saveBasket(label, price, productQuantity)) {
+                                            splitties.toast.toast(R.string.basket_added)
+                                        } else {
+                                            splitties.toast.toast(R.string.basket_no_added)
+                                        }
+                                        navController.navigate(FooterRoute.BASKETS.route)
                                     }
-                                    navController.navigate(FooterRoute.BASKETS.route)
+                                },
+                                onAddProduct = { name, uri ->
+                                    productVM.saveProduct(name, uri?.path)
                                 }
-                            })
+                            )
                         }
 
                         // Not in footer

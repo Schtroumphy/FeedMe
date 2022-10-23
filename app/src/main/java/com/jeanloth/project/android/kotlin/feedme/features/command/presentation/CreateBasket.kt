@@ -1,5 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,12 +19,14 @@ import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -45,10 +48,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.glide.rememberGlidePainter
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
 import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AddProductDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
@@ -57,21 +62,18 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 @Composable
 @Preview
 fun CreateBasketPage(
-    products: List<Product> = listOf(
-        Product(label = "Mon orange"),
-        Product(label = "Poire"),
-        Product(label = "Pomme")
-    ),
-    onValidateBasket : ((String, Int, Map<Product, Int?>) -> Unit)
+    products: List<Product> = listOf(Product(label = "Mon orange"), Product(label = "Poire"), Product(label = "Pomme")),
+    onValidateBasket : ((String, Int, Map<Product, Int?>) -> Unit)?= null,
+    onAddProduct : ((String, Uri?)-> Unit)?= null
 ){
     var label by remember { mutableStateOf("") }
     val productQuantity = remember { mutableStateMapOf<Product, Int?>() }
     var selectedPrice by remember { mutableStateOf(0)}
     var customQuantity by remember { mutableStateOf(-1)}
     val quantities = listOf(10, 15, 20, 25, customQuantity)
-    val validationEnabled = label.isNotEmpty() && selectedPrice != 0 && !productQuantity.isNullOrEmpty()
+    val validationEnabled = label.isNotEmpty() && selectedPrice != 0 && !productQuantity.isEmpty()
 
-    val showCustomDialogWithResult = remember { mutableStateOf(false) }
+    val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
 
     if(showCustomDialogWithResult.value){
         GetIntValueDialog {
@@ -79,6 +81,31 @@ fun CreateBasketPage(
             customQuantity = it
             selectedPrice = it
         }
+    }
+
+    val showAddProductDialog = rememberSaveable { mutableStateOf(false) }
+    val showImageUriTest = rememberSaveable { mutableStateOf(false) }
+
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
+    if(showAddProductDialog.value){
+        AddProductDialog { name, uri ->
+            name?.let {
+                onAddProduct?.invoke(it, uri)
+                //imageUri.value = uri
+                //showImageUriTest.value = true
+            }
+            showAddProductDialog.value = false
+        }
+    }
+
+    if(showImageUriTest.value){
+        Image(
+            painter = rememberGlidePainter(
+                request = imageUri,
+                shouldRefetchOnSizeChange = { _, _ -> false },
+            ),
+            contentDescription = null,
+        )
     }
 
     Column(
@@ -112,7 +139,6 @@ fun CreateBasketPage(
                         selectedPrice = price
                     }
                 }
-
                 Text("€")
             }
         }
@@ -125,6 +151,7 @@ fun CreateBasketPage(
             LazyVerticalGrid(
                 cells = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.Center,
                 contentPadding = PaddingValues(bottom = 25.dp),
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
@@ -132,35 +159,64 @@ fun CreateBasketPage(
             ) {
 
                 items(products){ product ->
-                    ProductItem(product,
-                    onQuantityChange = {
-                        Log.d("Create Basket", "Quantity received : $it")
-                        if(it == null) productQuantity.remove(product) else productQuantity.put(product, it)
-                    })
+                    ProductItem(
+                        product,
+                        onQuantityChange = {
+                            Log.d("Create Basket", "Quantity received : $it")
+                            if(it == null) productQuantity.remove(product) else productQuantity.put(product, it)
+                        }
+                    )
+                }
+
+                item {
+                    Box(
+                        Modifier
+                            .padding(15.dp)
+                            .fillMaxWidth()
+                            .height(110.dp)
+                            .clickable {
+                                showAddProductDialog.value = true
+                            },
+                        contentAlignment = Center
+                    ){
+                        FloatingActionButton(
+                            onClick = {
+                                Log.d("CreateBasket", "Click to add product")
+                                showAddProductDialog.value = true
+                          },
+                            containerColor = BleuVert,
+                            modifier = Modifier
+                                .scale(0.8f)
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "")
+                        }
+                    }
                 }
             }
+
             FloatingActionButton(
                 onClick = {
                     if(validationEnabled){
-                        onValidateBasket(label, selectedPrice, productQuantity)
+                        onValidateBasket?.invoke(label, selectedPrice, productQuantity)
                     } else {
                         Log.d("CreateBasket", "Not enough element - Label : $label, Price : $selectedPrice, map is empty: ${productQuantity.isEmpty()}")
                     }
                 },
-                containerColor = if(validationEnabled) Purple80 else Gray1,
+                containerColor = if(validationEnabled) Purple80 else Color.LightGray,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(10.dp)
-                    .scale(0.6f)
             ) {
                 Icon(Icons.Filled.Check, contentDescription = "")
             }
+
         }
     }
 }
 
 @Composable
 @Preview
+// /document/image%3A70 ou /document/image:70
 fun ProductItem(
     product: Product = Product(label = "Mon produit"),
     onQuantityChange : ((Int?)-> Unit)? = null
@@ -233,6 +289,7 @@ fun ProductItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ){
+
             Image(
                 painter = painterResource(product.imageId),
                 contentDescription = "food icon",
