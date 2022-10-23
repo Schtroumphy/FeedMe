@@ -3,6 +3,7 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 import com.google.common.truth.Truth.assertThat
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.toBasketDescription
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.updateProductWrapper
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.updateWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import org.junit.After
@@ -26,7 +27,7 @@ internal class WrapperExtensionTest {
         val product = Product(label = "Orange")
         val quantity = 2
 
-        val result = mutableWrapperList.updateProductWrapper(product, quantity)
+        val result = mutableWrapperList.updateWrapper(product, quantity)
 
         assertThat(result).isNotEmpty()
         assertThat(result.size).isEqualTo(1)
@@ -42,7 +43,7 @@ internal class WrapperExtensionTest {
     fun `updateProductWrapper() | update existing wrapper | singleton With The Only Wrapper`() {
         val product = Product(label = "Orange")
         val quantity = 2
-        val result = mutableWrapperList.updateProductWrapper(product, quantity)
+        val result = mutableWrapperList.updateWrapper(product, quantity)
         val result2 = result.updateProductWrapper(product, 3)
 
         assertThat(result2).isNotEmpty()
@@ -59,8 +60,8 @@ internal class WrapperExtensionTest {
     fun `updateProductWrapper() | remove existing wrapper if quantity is zero | empty list`() {
         val product = Product(label = "Orange")
         val quantity = 2
-        val result = mutableWrapperList.updateProductWrapper(product, quantity)
-        val result2 = result.updateProductWrapper(product, 0)
+        val result = mutableWrapperList.updateWrapper(product, quantity)
+        val result2 = result.updateWrapper(product, 0)
 
         assertThat(result2).isEmpty()
     }
@@ -77,7 +78,7 @@ internal class WrapperExtensionTest {
     fun `toBasketDescription | Singleton wrapper list | Single description with no comma`(){
         val product = Product(label = "Orange")
         val quantity = 2
-        val newList = mutableWrapperList.updateProductWrapper(product, quantity)
+        val newList = mutableWrapperList.updateWrapper(product, quantity)
 
         val description = newList.toBasketDescription()
         assertThat(newList).isNotEmpty()
@@ -91,11 +92,11 @@ internal class WrapperExtensionTest {
     fun `toBasketDescription | Wrapper list with several items | Description with comma`(){
         val product = Product(label = "Orange")
         val quantity = 2
-        var newList = mutableWrapperList.updateProductWrapper(product, quantity)
+        var newList = mutableWrapperList.updateWrapper(product, quantity)
 
         val product2 = Product(label = "Pomme")
         val quantity2 = 3
-        newList = newList.updateProductWrapper(product2, quantity2)
+        newList = newList.updateWrapper(product2, quantity2)
 
         val description = newList.toBasketDescription()
 

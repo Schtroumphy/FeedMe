@@ -7,7 +7,10 @@ data class Basket(
     var label : String = "",
     var price : Float = 0f,
     var wrappers : List<Wrapper<Product>> = emptyList()
-) {
+) : WrapperItem {
+    override val unitPrice: Float
+        get() = price
+
     override fun toString(): String {
         return "Basket : [Id : $id, Label : $label, price : $price, wrappers: $wrappers]"
     }

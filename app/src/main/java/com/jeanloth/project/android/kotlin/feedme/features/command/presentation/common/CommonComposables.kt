@@ -247,6 +247,46 @@ fun GetIntValueDialog(
 }
 
 @Composable
+fun YesNoDialog(
+    @StringRes title: Int = R.string.save_state,
+    @StringRes question: Int = R.string.save_current_command,
+    @StringRes yesLabel: Int = R.string.yes,
+    onYesClicked : (()-> Unit)? = null,
+    @StringRes noLabel: Int = R.string.no,
+    onNoClicked : (()-> Unit)? = null,
+) {
+    AlertDialog(
+        onDismissRequest = {
+            onNoClicked?.invoke()
+        },
+        title = {
+            Text(text = stringResource(id = title), style = MaterialTheme.typography.titleMedium)
+        },
+        text = {
+            Text(text = stringResource(id = question), style = MaterialTheme.typography.labelMedium)
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onYesClicked?.invoke()
+                }
+            ) {
+                Text(stringResource(id = yesLabel))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onNoClicked?.invoke()
+                }
+            ) {
+                Text(stringResource(id = noLabel))
+            }
+        }
+    )
+}
+
+@Composable
 @Preview
 fun AddProductDialog(
     onValidate : ((String?, Uri?)-> Unit)? = null

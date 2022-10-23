@@ -1,20 +1,21 @@
 package com.jeanloth.project.android.kotlin.feedme
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -29,6 +30,8 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.AddClientPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientListPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientVM
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.YesNoDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
@@ -43,12 +46,21 @@ class MainActivity : ComponentActivity() {
     private val clientVM : ClientVM by viewModels()
     private val productVM : ProductVM by viewModels()
     private val basketVM : BasketVM by viewModels()
+    private val commandVM : CommandVM by viewModels()
 
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, true)
         productVM.syncProducts()
+
+        lifecycleScope.launchWhenCreated {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                commandVM.basketWrappers.collect{
+                    Log.d("Command", "Wrappers received : $it")
+                }
+            }
+        }
 
         setContent {
 
@@ -67,6 +79,7 @@ class MainActivity : ComponentActivity() {
             val clients by clientVM.allSF.collectAsState()
             val products by productVM.products.collectAsState()
             val baskets by basketVM.baskets.collectAsState()
+            val basketWrappers by commandVM.basketWrappers.collectAsState()
 
             val title = fromVal(navBackStackEntry?.destination?.route).title
             topBarState.value = fromVal(navBackStackEntry?.destination?.route).title != null
@@ -74,6 +87,23 @@ class MainActivity : ComponentActivity() {
             displayBackOrCloseState.value = fromVal(navBackStackEntry?.destination?.route).displayBackOrClose
             displayAddButtonState.value = fromVal(navBackStackEntry?.destination?.route).displayAddButton
             dialogType.value = fromVal(navBackStackEntry?.destination?.route).dialogType
+
+            val displayYesNoDialog = remember { mutableStateOf(false) }
+
+            if(displayYesNoDialog.value){
+                YesNoDialog(
+                    onYesClicked = {
+                        displayYesNoDialog.value = false
+                        navController.navigate(FooterRoute.COMMAND_LIST.route)
+                        splitties.toast.toast(R.string.current_command_saved)
+                    },
+                    onNoClicked = {
+                        commandVM.clearCurrentCommand()
+                        displayYesNoDialog.value = false
+                        navController.navigate(FooterRoute.COMMAND_LIST.route)
+                    }
+                )
+            }
 
             val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -93,6 +123,12 @@ class MainActivity : ComponentActivity() {
                         keyboardController?.hide()
                         when(navController.currentDestination?.route){
                             FooterRoute.ADD_BASKET.route -> navController.popBackStack(FooterRoute.BASKETS.route, false)
+                            FooterRoute.ADD_COMMAND_BUTTON.route, FooterRoute.ADD_COMMAND.route -> {
+                                // Display dialog to know if the user want to keep current command saved to edit it later
+                                if(commandVM.canAskUserToSaveCommand()) displayYesNoDialog.value = true else {
+                                    navController.navigate(FooterRoute.COMMAND_LIST.route)
+                                }
+                            }
                             else -> navController.popBackStack(FooterRoute.HOME.route, false)
                         }
                      },
@@ -106,8 +142,16 @@ class MainActivity : ComponentActivity() {
                         composable(FooterRoute.COMMAND_LIST.route) { CommandListPage() }
                         composable(FooterRoute.ADD_COMMAND_BUTTON.route) { AddCommandPage(
                             clients = clients,
+                            selectedClient = commandVM.client,
+                            basketWrappers = basketWrappers ?: emptyList(),
                             onNewClientAdded = {
                                 clientVM.saveClient(it)
+                            },
+                            onBasketQuantityChange = { basketId, quantity ->
+                                commandVM.setBasketQuantityChange(basketId, quantity)
+                            },
+                            onClientSelected = {
+                                commandVM.setClient(it)
                             }
                         )}
                         composable(FooterRoute.CLIENT.route) {
@@ -143,8 +187,16 @@ class MainActivity : ComponentActivity() {
                         // Not in footer
                         composable(FooterRoute.ADD_COMMAND.route) { AddCommandPage(
                             clients = clients,
+                            selectedClient = commandVM.client,
+                            basketWrappers = basketWrappers ?: emptyList(),
                             onNewClientAdded = {
                                 clientVM.saveClient(it)
+                            },
+                            onBasketQuantityChange = { basketId, quantity ->
+                                commandVM.setBasketQuantityChange(basketId, quantity)
+                            },
+                            onClientSelected = {
+                                commandVM.setClient(it)
                             }
                         ) }
                         composable(FooterRoute.ADD_CLIENT.route) { AddClientPage(

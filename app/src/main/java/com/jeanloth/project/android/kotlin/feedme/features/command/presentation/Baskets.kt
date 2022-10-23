@@ -21,7 +21,7 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.toBasketDescription
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 
 @Composable
 @Preview
@@ -32,26 +32,23 @@ fun BasketList(
 
     Log.d("BasketList", "Baskets : $baskets")
     LazyColumn{
-        items(baskets){
+        items(baskets.map { it.toWrapper() }){
             BasketItem(it)
         }
     }
 }
 
 @Composable
-@Preview
 fun BasketItem(
-    basket: Basket = Basket(label = "Mon panier", wrappers = listOf(
-        Wrapper(item = Product(label= "Produit1"), quantity = 2),
-        Wrapper(item = Product(label= "Produit2"), quantity = 4),
-    )),
+    basketWrapper: Wrapper<Basket>,
     onClick : ((Basket)-> Unit)? = null,
-    editMode : Boolean = false
+    editMode : Boolean = false,
+    onBasketQuantityChange : ((Pair<Long, Int>) -> Unit)? = null
 ){
     Row (
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(vertical = 5.dp, horizontal = 15.dp)
+        modifier = Modifier.padding(vertical = 5.dp)
     ){
         Box(
             modifier = Modifier
@@ -66,12 +63,19 @@ fun BasketItem(
                 .padding(10.dp)
                 .weight(4f)
         ) {
-            Text(basket.label, fontWeight = FontWeight.Bold)
-            Text(basket.wrappers.toBasketDescription(), fontWeight = FontWeight.Light, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            //Text("Banane x1, Poireaux x2, Pommes de terre x3, Orange x3", fontWeight = FontWeight.Light, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(basket.price.toInt().toString() + "€", fontWeight = FontWeight.Bold)
+            Text(basketWrapper.item.label, fontWeight = FontWeight.Bold)
+            Text(basketWrapper.item.wrappers.toBasketDescription(), fontWeight = FontWeight.Light, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(basketWrapper.item.price.toInt().toString() + "€", fontWeight = FontWeight.Bold)
         }
-        if(editMode) AddQuantity(Modifier.weight(1.5f))
+        if(editMode) AddQuantity(
+            modifier = Modifier.weight(2.5f),
+            quantity = basketWrapper.quantity,
+            onQuantityChange = {
+                onBasketQuantityChange?.invoke(basketWrapper.item.id to it)
+            }
+        ) else {
+            Text("x ${basketWrapper.quantity}")
+        }
     }
 }
 

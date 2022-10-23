@@ -4,7 +4,7 @@ data class Wrapper<T : WrapperItem>(
     var id: Long = 0L,
     val item : T,
     var basketId : Long = 0L,
-    var quantity : Int,
+    var quantity : Int = 0,
     val status : ProductWrapperStatus = ProductWrapperStatus.TO_DO
 ){
     val totalPrice = quantity * item.unitPrice
@@ -14,7 +14,13 @@ data class Wrapper<T : WrapperItem>(
     }
 
     override fun toString(): String {
-        return "Wrapper : [id : $id, basketId: $basketId, item: $item, quantity: $quantity, status: $status]"
+        return "Wrapper : [id : $id, basketId: $basketId, quantity: $quantity, status: $status, item: $item]"
+    }
+
+    companion object{
+        fun <T : WrapperItem> T.toWrapper() : Wrapper<T>{
+            return Wrapper(item = this)
+        }
     }
 }
 
