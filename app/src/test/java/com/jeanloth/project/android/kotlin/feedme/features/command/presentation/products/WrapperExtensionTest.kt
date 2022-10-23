@@ -66,6 +66,17 @@ internal class WrapperExtensionTest {
         assertThat(result2).isEmpty()
     }
 
+    @Test
+    fun `updateProductWrapper() | WITHOUT removing existing wrapper if quantity is zero | singleton list`() {
+        val product = Product(label = "Orange")
+        val quantity = 2
+        val result = mutableWrapperList.updateWrapper(product, quantity, false)
+        val result2 = result.updateWrapper(product, 0, false)
+
+        assertThat(result2.size).isEqualTo(1)
+        assertThat(result2).isNotEmpty()
+    }
+
 
     /** Basket descrption from wrapper<Product> list **/
     @Test

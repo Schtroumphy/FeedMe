@@ -24,25 +24,25 @@ fun MutableList<Wrapper<Product>>.updateProductWrapper(product: Product, quantit
     return this
 }
 
-fun <T : WrapperItem> MutableList<Wrapper<T>>.updateWrapper(item: T, quantity : Int): MutableList<Wrapper<T>> {
+fun <T : WrapperItem> MutableList<Wrapper<T>>.updateWrapper(item: T, quantity : Int, removeIfQuantityIsZero : Boolean = true): MutableList<Wrapper<T>> {
+    val temp = this.toMutableList()
     if(this.any { it.item == item }){
-        if(quantity > 0) {
-            this.firstOrNull { it.item == item}?.let {
-                it.quantity = quantity
-            }
+        val index = temp.indexOfFirst { it.item == item }
+        if(quantity > 0 || !removeIfQuantityIsZero) {
+            temp[index] = temp[index]?.copy(quantity = quantity)
         } else {
-            this.removeIf { it.item == item }
+            temp.removeIf { it.item == item }
         }
 
     } else {
-        this.add(
+        temp.add(
             Wrapper(
                 item = item,
                 quantity = quantity
             )
         )
     }
-    return this
+    return temp
 }
 
 

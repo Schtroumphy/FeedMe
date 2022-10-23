@@ -2,7 +2,7 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.domain.model
 
 data class Wrapper<T : WrapperItem>(
     var id: Long = 0L,
-    val item : T,
+    var item : T,
     var basketId : Long = 0L,
     var quantity : Int = 0,
     val status : ProductWrapperStatus = ProductWrapperStatus.TO_DO

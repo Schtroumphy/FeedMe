@@ -9,7 +9,6 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveAllBasketsUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveBasketUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,8 +56,8 @@ class CommandVM @Inject constructor(
         val basket = _baskets.value.firstOrNull { it.id == basketId }
         basket?.let {
             viewModelScope.launch {
-                _basketWrappers.emit(null)
-                _basketWrappers.emit(_basketWrappers.value?.toMutableList()?.updateWrapper(basket, quantity) ?: mutableListOf<Wrapper<Basket>>().updateWrapper(basket, quantity))
+                _basketWrappers.emit(_basketWrappers.value?.toMutableList()?.updateWrapper(basket, quantity, false))
+
                 Log.d("CommandVM", "Basket wrappers : ${_basketWrappers.value}")
             }
         }
