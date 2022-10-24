@@ -161,9 +161,9 @@ fun AppTextField(
     val textFieldRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    Box {
+    Box(modifier) {
         Box(
-            modifier
+            Modifier
                 .padding(top = 10.dp)
                 .fillMaxWidth(widthPercentage)
                 .clip(RoundedCornerShape(20.dp))

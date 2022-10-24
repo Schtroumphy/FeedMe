@@ -167,7 +167,7 @@ class MainActivity : ComponentActivity() {
 
                         composable(FooterRoute.ADD_BASKET.route) {
                             CreateBasketPage(
-                                products = products,
+                                products = products.map { BasketItem(product = it) } + BasketItem(null, true),
                                 onValidateBasket = { label, price, productQuantity ->
                                     scope.launch {
                                         if(basketVM.saveBasket(label, price, productQuantity)) {

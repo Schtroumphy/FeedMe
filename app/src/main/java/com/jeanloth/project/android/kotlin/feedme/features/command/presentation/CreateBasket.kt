@@ -8,9 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -30,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,11 +57,13 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
 
+data class BasketItem(val product : Product? = null, val addButton : Boolean = false)
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun CreateBasketPage(
-    products: List<Product> = listOf(Product(label = "Mon orange"), Product(label = "Poire"), Product(label = "Pomme")),
+    products: List<BasketItem> = emptyList(),
     onValidateBasket : ((String, Int, Map<Product, Int?>) -> Unit)?= null,
     onAddProduct : ((String, Uri?)-> Unit)?= null
 ){
@@ -107,109 +108,125 @@ fun CreateBasketPage(
             contentDescription = null,
         )
     }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .padding(15.dp)
+    ){
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = CenterHorizontally
-    ) {
-        Box(Modifier.weight(0.6f)){
-            AppTextField(
-                onValueChange = {
-                    label = it
-                }
-            )
-        }
-        Box(
-            Modifier
-                .padding(top = 10.dp)
-                .weight(1f)) {
-            Row(
-                Modifier
-                    .fillMaxSize()
-                    .align(Center),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ){
-                Text(stringResource(id = R.string.price))
-                quantities.forEach {
-                    QuantityBubble( it, if(selectedPrice == it) Jaune1 else Gray1, 12.dp){ price ->
-                        if(it == customQuantity) {
-                            showCustomDialogWithResult.value = true
-                        }
-                        selectedPrice = price
-                    }
-                }
-                Text("€")
-            }
-        }
-        Box(
-            Modifier
-                .weight(8f)
+        LazyColumn(
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(15.dp)
-        ){
-            LazyVerticalGrid(
-                cells = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.Center,
-                contentPadding = PaddingValues(bottom = 25.dp),
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .align(TopCenter)
-            ) {
-
-                items(products){ product ->
-                    ProductItem(
-                        product,
-                        onQuantityChange = {
-                            Log.d("Create Basket", "Quantity received : $it")
-                            if(it == null) productQuantity.remove(product) else productQuantity.put(product, it)
-                        }
-                    )
+                .padding(10.dp),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            item {
+                Box(Modifier.fillMaxWidth()){
+                    AppTextField(modifier = Modifier.align(Center), onValueChange = { label = it })
                 }
-
-                item {
-                    Box(
+            }
+            item {
+                Box(
+                    Modifier
+                        .padding(top = 10.dp)) {
+                    Row(
                         Modifier
-                            .padding(15.dp)
-                            .fillMaxWidth()
-                            .height(110.dp)
-                            .clickable {
-                                showAddProductDialog.value = true
-                            },
-                        contentAlignment = Center
+                            .fillMaxSize()
+                            .align(Center),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ){
-                        FloatingActionButton(
-                            onClick = {
-                                Log.d("CreateBasket", "Click to add product")
-                                showAddProductDialog.value = true
-                          },
-                            containerColor = BleuVert,
-                            modifier = Modifier
-                                .scale(0.8f)
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = "")
+                        //Text(stringResource(id = R.string.price))
+                        quantities.forEach {
+                            QuantityBubble( it, if(selectedPrice == it) Jaune1 else Gray1, 12.dp){ price ->
+                                if(it == customQuantity) {
+                                    showCustomDialogWithResult.value = true
+                                }
+                                selectedPrice = price
+                            }
                         }
+                        Text("€")
                     }
                 }
             }
 
-            FloatingActionButton(
-                onClick = {
-                    if(validationEnabled){
-                        onValidateBasket?.invoke(label, selectedPrice, productQuantity)
-                    } else {
-                        Log.d("CreateBasket", "Not enough element - Label : $label, Price : $selectedPrice, map is empty: ${productQuantity.isEmpty()}")
-                    }
-                },
-                containerColor = if(validationEnabled) Purple80 else Color.LightGray,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(10.dp)
-            ) {
-                Icon(Icons.Filled.Check, contentDescription = "")
+            products.chunked(2).forEach {
+               item {
+                   Row(
+                       Modifier.fillMaxWidth(),
+                       verticalAlignment = CenterVertically,
+                       horizontalArrangement = Arrangement.SpaceEvenly
+                   ){
+                       it.forEach{ item ->
+                           if(item.product != null) {
+                               ProductItem(
+                                   product = item.product,
+                                   modifier = Modifier.weight(1f),
+                                   onQuantityChange = { quantity ->
+                                       Log.d("Create Basket", "Quantity received : $quantity")
+                                       if (quantity == null) productQuantity.remove(item.product) else productQuantity.put(
+                                           item.product,
+                                           quantity
+                                       )
+                                   }
+                               )
+                           } else {
+                               AddProductButton(
+                                   modifier = Modifier.weight(1f),
+                                   onAddProductClicked = {
+                                       showAddProductDialog.value = true
+                                   }
+                               )
+                           }
+                       }
+                   }
+               }
+
             }
 
+
+            }
+
+        FloatingActionButton(
+            onClick = {
+                if(validationEnabled){
+                    onValidateBasket?.invoke(label, selectedPrice, productQuantity)
+                } else {
+                    Log.d("CreateBasket", "Not enough element - Label : $label, Price : $selectedPrice, map is empty: ${productQuantity.isEmpty()}")
+                }
+            },
+            containerColor = if(validationEnabled) Purple80 else Color.LightGray,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(10.dp)
+        ) {
+            Icon(Icons.Filled.Check, contentDescription = "")
+        }
+    }
+}
+
+@Composable
+fun AddProductButton(modifier: Modifier = Modifier, onAddProductClicked : (() -> Unit)? = null) {
+    Box(
+        modifier
+            .padding(15.dp)
+            .fillMaxWidth()
+            .height(110.dp)
+            .clickable {
+                onAddProductClicked?.invoke()
+            },
+        contentAlignment = Center
+    ) {
+        FloatingActionButton(
+            onClick = {
+                Log.d("CreateBasket", "Click to add product")
+                onAddProductClicked?.invoke()
+            },
+            containerColor = BleuVert,
+            modifier = Modifier
+                .scale(0.8f)
+        ) {
+            Icon(Icons.Filled.Add, contentDescription = "")
         }
     }
 }
@@ -218,6 +235,7 @@ fun CreateBasketPage(
 @Preview
 // /document/image%3A70 ou /document/image:70
 fun ProductItem(
+    modifier : Modifier = Modifier,
     product: Product = Product(label = "Mon produit"),
     onQuantityChange : ((Int?)-> Unit)? = null
 ){
@@ -226,7 +244,7 @@ fun ProductItem(
     val textFieldRequester = FocusRequester()
 
     Box(
-        Modifier.fillMaxSize()
+        modifier.fillMaxSize()
     ){
         Box(
             Modifier
