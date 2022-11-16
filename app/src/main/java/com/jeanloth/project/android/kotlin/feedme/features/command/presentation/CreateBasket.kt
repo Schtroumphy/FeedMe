@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -39,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,7 +46,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.glide.rememberGlidePainter
-import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
 import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
@@ -63,9 +60,9 @@ data class BasketItem(val product : Product? = null, val addButton : Boolean = f
 @Composable
 @Preview
 fun CreateBasketPage(
-    products: List<BasketItem> = emptyList(),
+    basketItems: List<BasketItem> = emptyList(),
     onValidateBasket : ((String, Int, Map<Product, Int?>) -> Unit)?= null,
-    onAddProduct : ((String, Uri?)-> Unit)?= null
+    onAddProduct : ((String, String?)-> Unit)?= null
 ){
     var label by remember { mutableStateOf("") }
     val productQuantity = remember { mutableStateMapOf<Product, Int?>() }
@@ -91,7 +88,7 @@ fun CreateBasketPage(
     if(showAddProductDialog.value){
         AddProductDialog { name, uri ->
             name?.let {
-                onAddProduct?.invoke(it, uri)
+                onAddProduct?.invoke(it, uri?.path)
                 //imageUri.value = uri
                 //showImageUriTest.value = true
             }
@@ -150,7 +147,7 @@ fun CreateBasketPage(
                 }
             }
 
-            products.chunked(2).forEach {
+            basketItems.chunked(2).forEach {
                item {
                    Row(
                        Modifier.fillMaxWidth(),
@@ -160,15 +157,16 @@ fun CreateBasketPage(
                        it.forEach{ item ->
                            if(item.product != null) {
                                ProductItem(
-                                   product = item.product,
                                    modifier = Modifier.weight(1f),
+                                   product = item.product,
                                    onQuantityChange = { quantity ->
                                        Log.d("Create Basket", "Quantity received : $quantity")
                                        if (quantity == null) productQuantity.remove(item.product) else productQuantity.put(
                                            item.product,
                                            quantity
                                        )
-                                   }
+                                   },
+                                   quantity = productQuantity[item.product] ?: 0
                                )
                            } else {
                                AddProductButton(
@@ -235,11 +233,12 @@ fun AddProductButton(modifier: Modifier = Modifier, onAddProductClicked : (() ->
 @Preview
 // /document/image%3A70 ou /document/image:70
 fun ProductItem(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     product: Product = Product(label = "Mon produit"),
-    onQuantityChange : ((Int?)-> Unit)? = null
+    onQuantityChange: ((Int?) -> Unit)? = null,
+    quantity: Int? = null
 ){
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(if(quantity == null || quantity == 0) "" else quantity.toString()) }
     val focusManager = LocalFocusManager.current
     val textFieldRequester = FocusRequester()
 

@@ -13,12 +13,11 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecas
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.BasketItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,6 +31,14 @@ class ProductVM @Inject constructor(
 
     private val _products : MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
     val products : StateFlow<List<Product>> = _products.asStateFlow()
+
+    val basketItems : StateFlow<List<BasketItem>> = _products.map {
+       it.map { BasketItem(product = it) } + BasketItem(null, true)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
 
     private val basketProductWrappers : MutableList<Wrapper<Product>> = mutableListOf()
 
@@ -60,7 +67,8 @@ class ProductVM @Inject constructor(
 
             saveProductUseCase.invoke(Product(
                 label = label,
-                image = image
+                image = image,
+                imageId = applicationContext.resources.getIdentifier(image, "drawable", applicationContext.packageName)
             ))
         }
     }

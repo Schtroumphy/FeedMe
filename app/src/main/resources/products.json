@@ -10,5 +10,29 @@
   {
     "label" :  "Orange",
     "image" : "orange"
+  },
+  {
+    "label" :  "Patate Douce 2",
+    "image" : "sweet_potato"
+  },
+  {
+    "label" :  "Banane 2",
+    "image" : "delicious_banana"
+  },
+  {
+    "label" :  "Orange 2",
+    "image" : "orange"
+  },
+  {
+    "label" :  "Patate Douce 3",
+    "image" : "sweet_potato"
+  },
+  {
+    "label" :  "Banane 3",
+    "image" : "delicious_banana"
+  },
+  {
+    "label" :  "Orange 3",
+    "image" : "orange"
   }
 ]

@@ -48,7 +48,7 @@ fun BasketItem(
     Row (
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(vertical = 5.dp)
+        modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp)
     ){
         Box(
             modifier = Modifier
@@ -67,7 +67,7 @@ fun BasketItem(
             Text(basketWrapper.item.wrappers.toBasketDescription(), fontWeight = FontWeight.Light, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(basketWrapper.item.price.toInt().toString() + "€", fontWeight = FontWeight.Bold)
         }
-        if(editMode) AddQuantity(
+        if(editMode) AddQuantityBox(
             modifier = Modifier.weight(2.5f),
             quantity = basketWrapper.quantity,
             onQuantityChange = {

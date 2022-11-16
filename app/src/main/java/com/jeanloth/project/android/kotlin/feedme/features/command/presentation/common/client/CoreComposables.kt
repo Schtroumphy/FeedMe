@@ -77,7 +77,7 @@ fun PageTemplate(
         },
         bottomBar = {
             if(displayBottomNav) {
-                Box(Modifier.fillMaxWidth()){
+                Box(Modifier.fillMaxWidth().background(Color.White)){
                     Footer(navController, modifier = Modifier.align(Alignment.Center), currentRoute)
                 }
             }
@@ -88,7 +88,6 @@ fun PageTemplate(
 }
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Header(
     context : Context,
