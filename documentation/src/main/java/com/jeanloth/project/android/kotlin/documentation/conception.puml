@@ -31,20 +31,39 @@ object Command{
     <u>id</u> : Int auto_increment
     ..
     deliveryDate : LocalDateTime?
-    status : CommandStatusType?
+    status : StatusType
     totalPrice : Double
     productWrappers : List<ProductWrapper>
+    basketWrappers : List<BasketWrapper>
 
     clientId : Long
     paymentId : Long
 }
 
-object ProductWrapper {
+object Product {
     <u>id</u> : Int auto_increment
     ..
     product : Product
     count : Int
-    status : ProductWrapperStatus
+}
+
+object Basket {
+    <u>id</u> : Int auto_increment
+    ..
+    label : String
+    price : Int
+    wrappers : List<Wrapper<Product>>
+    --
+    price : Double
+}
+
+object Wrapper {
+    <u>id</u> : Int auto_increment
+        ..
+    item : T,
+    basketId : Long = 0L,
+    quantity : Int = 0,
+    status : Status
     --
     totalPrice : Double
 }
@@ -56,7 +75,7 @@ object ProductWrapperStatus{
     CANCELED,
 }
 
-object CommandStatusType{
+object StatusType{
     IN_PROGRESS,
     DONE,
     DELIVERED,
@@ -81,10 +100,11 @@ Payment "1" --right-- "1" PaymentType : a
 Command "1" --right-- "1" Payment : a
 Command "1" --left-- "1" Client : a
 Command "1" -down- "1" ProductWrapper : possède
-Command "1" -up- "1" CommandStatusType : a
-ProductWrapper "1" --right-- "1" ProductWrapperStatus : a
+Command "1" -down- "1" BasketWrapper : possède
+Command "1" -- "1" StatusType : a
+Basket "1" -- "1" StatusType : a
+Product "1" --right-- "1" StatusType : a
 Product "1..n" --left-- "1" ProductCategory : est
-Product "1" --right-- "1" ProductWrapper : contient
 
 
 @enduml
