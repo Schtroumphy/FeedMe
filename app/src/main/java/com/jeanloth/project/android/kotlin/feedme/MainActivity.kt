@@ -31,6 +31,8 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.YesNoDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandCallbacks
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandParameters
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute.Companion.fromVal
@@ -142,17 +144,22 @@ class MainActivity : ComponentActivity() {
                             composable(FooterRoute.COMMAND_LIST.route) { CommandListPage() }
 
                             // Add commad page
-                            composable(FooterRoute.ADD_COMMAND_BUTTON.route) { AddCommandPage(
-                                clients = clients,
-                                selectedClient = selectedClient,
-                                basketWrappers = basketWrappers,
-                                productWrappers = productWrappers,
-                                basketItems = basketItems,
-                                onNewClientAdded = clientVM::saveClient,
-                                onBasketQuantityChange = commandVM::setBasketQuantityChange,
-                                onProductQuantityChange = commandVM::setProductQuantityChange,
-                                onClientSelected = commandVM::updateClient
-                            )}
+                            composable(FooterRoute.ADD_COMMAND_BUTTON.route) {
+                                AddCommandPage(
+                                    parameters = CreateCommandParameters(
+                                        clients = clients,
+                                        selectedClient = selectedClient,
+                                        basketWrappers = basketWrappers,
+                                        productWrappers = productWrappers
+                                    ),
+                                    callbacks = CreateCommandCallbacks (
+                                        onNewClientAdded = clientVM::saveClient,
+                                        onBasketQuantityChange = commandVM::setBasketQuantityChange,
+                                        onProductQuantityChange = commandVM::setProductQuantityChange,
+                                        onClientSelected = commandVM::updateClient
+                                    )
+                                )
+                            }
 
                             // Client list page
                             composable(FooterRoute.CLIENT.route) { ClientListPage(clientVM, onClientRemoved = clientVM::removeClient) }
@@ -179,16 +186,20 @@ class MainActivity : ComponentActivity() {
                             }
 
                             // Add command page - Not in footer
-                            composable(FooterRoute.ADD_COMMAND.route) { AddCommandPage(
-                                clients = clients,
-                                selectedClient = selectedClient,
-                                basketWrappers = basketWrappers,
-                                basketItems = basketItems,
-                                productWrappers = productWrappers,
-                                onNewClientAdded = clientVM::saveClient,
-                                onBasketQuantityChange = commandVM::setBasketQuantityChange,
-                                onProductQuantityChange = commandVM::setProductQuantityChange,
-                                onClientSelected = commandVM::updateClient
+                            composable(FooterRoute.ADD_COMMAND.route) {
+                                AddCommandPage(
+                                    parameters = CreateCommandParameters(
+                                        clients = clients,
+                                        selectedClient = selectedClient,
+                                        basketWrappers = basketWrappers,
+                                        productWrappers = productWrappers
+                                    ),
+                                    callbacks = CreateCommandCallbacks (
+                                        onNewClientAdded = clientVM::saveClient,
+                                        onBasketQuantityChange = commandVM::setBasketQuantityChange,
+                                        onProductQuantityChange = commandVM::setProductQuantityChange,
+                                        onClientSelected = commandVM::updateClient
+                                    )
                                 )
                             }
                             // Add client page - Not in footer

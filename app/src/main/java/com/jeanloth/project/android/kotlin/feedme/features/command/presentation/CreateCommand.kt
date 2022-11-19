@@ -3,7 +3,10 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -43,14 +46,13 @@ import androidx.constraintlayout.compose.Dimension
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.DeliveryDateSpinner
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PricesRow
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.GetStringValueDialog
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandCallbacks
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandParameters
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductItem
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.RoundedProductItem
 
@@ -58,23 +60,16 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 @Composable
 @Preview
 fun AddCommandPage(
-    selectedClient: AppClient? = null,
-    clients: List<AppClient> = emptyList(),
-    basketItems: List<BasketItem> = emptyList(),
-    basketWrappers: List<Wrapper<Basket>> = emptyList(),
-    productWrappers: List<Wrapper<Product>> = emptyList(),
-    onNewClientAdded: ((String) -> Unit)? = null,
-    onClientSelected: ((AppClient) -> Unit)? = null,
-    onBasketQuantityChange: ((Long, Int) -> Unit)? = null, // Transfer basket id and new quantity to viewModel
-    onProductQuantityChange: ((Long, Int) -> Unit)? = null, // Transfer product id and new quantity to viewModel
+    parameters : CreateCommandParameters = CreateCommandParameters(),
+    callbacks : CreateCommandCallbacks = CreateCommandCallbacks()
 ){
     val maxStepCount = 3
     var currentStep by remember { mutableStateOf(1) }
-    var clientSelected by remember { mutableStateOf(selectedClient)}
+    var clientSelected by remember { mutableStateOf(parameters.selectedClient)}
 
     val nextStepEnabled = when(currentStep){
-        1 -> clientSelected != null && basketWrappers.any { it.quantity > 0 }
-        2 -> clientSelected != null && productWrappers.any { it.quantity > 0 }
+        1 -> clientSelected != null && parameters.basketWrappers.any { it.quantity > 0 }
+        2 -> clientSelected != null && parameters.productWrappers.any { it.quantity > 0 }
         else -> true
     }
 
@@ -111,14 +106,12 @@ fun AddCommandPage(
             // Choose client to associate to command
             ClientSpinner(
                 isEnabled = currentStep != maxStepCount,
-                elements = clients,
+                elements = parameters.clients,
                 client = clientSelected,
-                onNewElementAdded = {
-                    onNewClientAdded?.invoke(it)
-                },
+                onNewElementAdded = { callbacks.onNewClientAdded?.invoke(it) },
                 clientSelected = {
                     clientSelected = it
-                    onClientSelected?.invoke(it)
+                    callbacks.onClientSelected?.invoke(it)
                 }
             )
 
@@ -147,12 +140,12 @@ fun AddCommandPage(
                             height = Dimension.fillToConstraints
                         }
                 ) {
-                    items(basketWrappers) {
+                    items(parameters.basketWrappers) {
                         BasketItem(
                             basketWrapper = it,
                             editMode = true,
                             onBasketQuantityChange = { basketIdQuantity ->
-                                onBasketQuantityChange?.invoke(basketIdQuantity.first, basketIdQuantity.second)
+                                callbacks.onBasketQuantityChange?.invoke(basketIdQuantity.first, basketIdQuantity.second)
                             }
                         )
                     }
@@ -171,7 +164,7 @@ fun AddCommandPage(
                         height = Dimension.fillToConstraints
                     }
                 ){
-                    items(productWrappers){
+                    items(parameters.productWrappers){
                         it.let {
                             ProductItem(
                                 product = it.item,
@@ -179,7 +172,7 @@ fun AddCommandPage(
                                 modifier = Modifier,
                                 onQuantityChange = { quantity ->
                                     Log.d("Create Basket", "Quantity received : $quantity")
-                                    onProductQuantityChange?.invoke(it.item.id, quantity ?: 0)
+                                    callbacks.onProductQuantityChange?.invoke(it.item.id, quantity ?: 0)
                                 }
                             )
                         }
@@ -212,7 +205,7 @@ fun AddCommandPage(
                     }
 
                     // Baskets encart
-                    items(basketWrappers.filter { it.quantity > 0 }) {
+                    items(parameters.basketWrappers.filter { it.quantity > 0 }) {
                         /*Box(
                             Modifier
                                 .padding(top = 15.dp)
@@ -236,7 +229,7 @@ fun AddCommandPage(
                         Text("Produits individuels", modifier = Modifier.padding(vertical = 12.dp, horizontal = 5.dp))
                     }
 
-                    productWrappers.filter { (it.quantity ?: 0) > 0 }.chunked(3).forEach {
+                    parameters.productWrappers.filter { (it.quantity ?: 0) > 0 }.chunked(3).forEach {
                         item {
                             Row(
                                 modifier = Modifier
