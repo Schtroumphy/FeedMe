@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
@@ -33,9 +32,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,8 +44,8 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppButton
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.DeliveryDateSpinner
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PricesRow
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.GetStringValueDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandCallbacks
@@ -64,35 +61,24 @@ fun AddCommandPage(
     callbacks : CreateCommandCallbacks = CreateCommandCallbacks()
 ){
     val maxStepCount = 3
-    var currentStep by remember { mutableStateOf(1) }
+    var currentStep by remember { mutableStateOf(if(parameters.basketWrappers.isEmpty()) 2 else 1) } // Go to step 2 directly if there is no baskets to display
+    Log.d("CreateCommand", "Step $currentStep")
+    val displayPreviousButton = if (currentStep > 1) 1f else 0f
     var clientSelected by remember { mutableStateOf(parameters.selectedClient)}
+    var selectedPrice by remember { mutableStateOf<Int?>(null)}
 
     val nextStepEnabled = when(currentStep){
-        1 -> clientSelected != null && parameters.basketWrappers.any { it.quantity > 0 }
-        2 -> clientSelected != null && parameters.productWrappers.any { it.quantity > 0 }
-        else -> true
-    }
-
-    // Price states // TODO Integrate dialog in price row composable ?
-    var selectedPrice by remember { mutableStateOf(0) }
-    var customQuantity by remember { mutableStateOf(-1) }
-    val quantities = listOf(10, 15, 20, 25, customQuantity)
-
-    // Choose custom basket price dialog
-    val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
-
-    if (showCustomDialogWithResult.value) {
-        GetIntValueDialog {
-            showCustomDialogWithResult.value = false
-            customQuantity = it
-            selectedPrice = it
-        }
+        1 -> clientSelected != null
+        2 -> parameters.productWrappers.any { it.quantity > 0 }
+        3 -> selectedPrice != null
+        else -> false
     }
 
     ConstraintLayout(Modifier.fillMaxSize()) {
         val (clientSpinner, content, nextPreviousButtons) = createRefs()
 
-        Row(
+        // Header with client and delivery date selections
+        ClientAndDeliveryDateRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(clientSpinner) {
@@ -100,30 +86,19 @@ fun AddCommandPage(
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            // Choose client to associate to command
-            ClientSpinner(
-                isEnabled = currentStep != maxStepCount,
-                elements = parameters.clients,
-                client = clientSelected,
-                onNewElementAdded = { callbacks.onNewClientAdded?.invoke(it) },
-                clientSelected = {
-                    clientSelected = it
-                    callbacks.onClientSelected?.invoke(it)
-                }
-            )
-
-            DeliveryDateSpinner(
-                isEnabled = currentStep != maxStepCount
-            )
-        }
+            clientSpinnerElements = parameters.clients,
+            selectedClient = clientSelected,
+            onNewClientAdded = { callbacks.onNewClientAdded?.invoke(it) },
+            onClientSelected = {
+                clientSelected = it
+                callbacks.onClientSelected?.invoke(it)
+            }
+        )
 
         /**
-         * Step 1 : Choose presaved basket if exist // TODO : Go to step 2 directly if there is no presaved baskets
+         * Step 1 : Choose presaved basket if exist
          * Step 2 : Choose product individually to add to basket
-         * Step 3 : // TODO : Display a brief of command and define price
+         * Step 3 : Display a brief of command and define price
          */
         when(currentStep){
             1 -> {
@@ -165,22 +140,18 @@ fun AddCommandPage(
                     }
                 ){
                     items(parameters.productWrappers){
-                        it.let {
-                            ProductItem(
-                                product = it.item,
-                                quantity = it.quantity,
-                                modifier = Modifier,
-                                onQuantityChange = { quantity ->
-                                    Log.d("Create Basket", "Quantity received : $quantity")
-                                    callbacks.onProductQuantityChange?.invoke(it.item.id, quantity ?: 0)
-                                }
-                            )
-                        }
+                        ProductItem(
+                            product = it.item,
+                            quantity = it.quantity,
+                            modifier = Modifier,
+                            onQuantityChange = { quantity ->
+                                Log.d("Create Basket", "Quantity received : $quantity")
+                                callbacks.onProductQuantityChange?.invoke(it.item.id, quantity ?: 0)
+                            }
+                        )
                     }
 
-                    item {
-                        AddProductButton()
-                    }
+                    item { AddProductButton() }
                 }
             }
             3 -> {
@@ -197,38 +168,24 @@ fun AddCommandPage(
                     // Prices row selection
                     item {
                         Box(Modifier.padding(top = 10.dp)) {
-                            PricesRow(Modifier.fillMaxSize().align(Center), quantities, selectedPrice){ price ->
-                                if (price == customQuantity) showCustomDialogWithResult.value = true
+                            PricesRow(modifier = Modifier.fillMaxSize().align(Center), prices = listOf(10, 15, 20, 25)){ price ->
+                                callbacks.onCommandPriceSelected?.invoke(price)
                                 selectedPrice = price
                             }
                         }
                     }
 
+                    // Baskets label
+                    item { Text("Paniers", modifier = Modifier.padding(vertical = 12.dp, horizontal = 5.dp), color = Orange1) }
+                    if(parameters.basketWrappers.filter { it.quantity > 0 }.isEmpty()) item { Text("Aucun panier sélectionné", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 5.dp)) }
+
                     // Baskets encart
-                    items(parameters.basketWrappers.filter { it.quantity > 0 }) {
-                        /*Box(
-                            Modifier
-                                .padding(top = 15.dp)
-                                .border(
-                                    width = 1.5.dp,
-                                    color = Orange1,
-                                    shape = RoundedCornerShape(20.dp)
-                                )
-                        ){
-                            basketWrappers.filter { it.quantity > 0 }.forEach {*/
-                                BasketItem(
-                                    basketWrapper = it,
-                                    editMode = false
-                                )
-                           // }
-                       // }
-                    }
+                    items(parameters.basketWrappers.filter { it.quantity > 0 }) { BasketItem(basketWrapper = it, editMode = false) }
 
-                    // Individual products
-                    item {
-                        Text("Produits individuels", modifier = Modifier.padding(vertical = 12.dp, horizontal = 5.dp))
-                    }
+                    // Individual products label
+                    item { Text("Produits individuels", modifier = Modifier.padding(vertical = 12.dp, horizontal = 5.dp), color = Orange1) }
 
+                    // Indeviduals product list items
                     parameters.productWrappers.filter { (it.quantity ?: 0) > 0 }.chunked(3).forEach {
                         item {
                             Row(
@@ -247,13 +204,11 @@ fun AddCommandPage(
                             }
                         }
                     }
-
-
                 }
             }
         }
 
-        // Floating action buttons (next and previous)
+        // Next/Previous action buttons
         Row(
             Modifier
                 .fillMaxWidth()
@@ -265,35 +220,51 @@ fun AddCommandPage(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ){
-            // TODO : Refactor by creating a single button composable with paramters for previous/next state
             // Previous button
-            FloatingActionButton(
-                onClick = {
-                    if(currentStep > 0) currentStep -= 1 // Change to previous step if possible - Only when step > 1
-                },
+            AppButton(
                 containerColor = Purple80,
-                modifier = Modifier
-                    .scale(0.6f)
-                    .alpha(if (currentStep > 1) 1f else 0f), // Do not display in step 1
-            ) {
-                Icon(imageVector = Icons.Filled.ArrowBackIos, contentDescription = "")
-            }
+                modifier = Modifier.alpha(displayPreviousButton),
+                icon = Icons.Filled.ArrowBackIos,
+                onClick = { if(currentStep > 0) currentStep -= 1 }
+            )
+
+            // TODO : Step points
 
             // Next button
-            FloatingActionButton(
-                onClick = {
-                    // Change to next step if possible
-                    Log.d("CreateCommand", "Step $currentStep")
-                    if(nextStepEnabled && currentStep < maxStepCount) currentStep += 1
-                },
-                containerColor = if(nextStepEnabled) {
-                    if(currentStep == maxStepCount) Orange1 else Purple80
-                } else Gray1,
-                modifier = Modifier.scale(0.6f),
-            ) {
-                Icon(imageVector = if(currentStep != maxStepCount) Icons.Filled.ArrowForwardIos else Icons.Filled.Check, contentDescription = "", tint = if(currentStep == maxStepCount) White else Black)
-            }
+            AppButton(
+                containerColor = if(nextStepEnabled) { if(currentStep == maxStepCount) Orange1 else Purple80 } else Gray1,
+                icon = if(currentStep != maxStepCount) Icons.Filled.ArrowForwardIos else Icons.Filled.Check,
+                onClick = { if(nextStepEnabled && currentStep < maxStepCount) currentStep += 1 else callbacks.onCreateCommandClick?.invoke() },
+            )
         }
+    }
+}
+
+@Composable
+fun ClientAndDeliveryDateRow(
+    modifier: Modifier = Modifier,
+    isClientSpinnerEnabled : Boolean = true,
+    clientSpinnerElements : List<AppClient> = emptyList(),
+    selectedClient : AppClient? = null,
+    onNewClientAdded : ((String)-> Unit)? = null,
+    onClientSelected : ((AppClient)-> Unit)? = null,
+    isDeliverDateEnabled : Boolean = true,
+){
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = CenterVertically
+    ){
+        // Choose client
+        ClientSpinner(
+            isEnabled = isClientSpinnerEnabled,
+            elements = clientSpinnerElements,
+            client = selectedClient,
+            onNewClientAdded = { onNewClientAdded?.invoke(it)},
+            clientSelected = {onClientSelected?.invoke(it) }
+        )
+        //Choose delivery date
+        DeliveryDateSpinner(isEnabled = isDeliverDateEnabled)
     }
 }
 
@@ -353,7 +324,6 @@ fun AddQuantityBox(
         }
 }
 
-
 @Composable
 fun ClientSpinner(
     modifier : Modifier = Modifier,
@@ -362,7 +332,7 @@ fun ClientSpinner(
     widthPercentage : Float = 0.6f,
     @StringRes labelId : Int = R.string.client,
     elements : List<AppClient> = emptyList(),
-    onNewElementAdded : ((String) -> Unit)? = null,
+    onNewClientAdded : ((String) -> Unit)? = null,
     clientSelected : ((AppClient)-> Unit)? = null
 ){
     var selectedItem by remember { mutableStateOf<AppClient?>(client ?: AppClient(firstname = ""))}
@@ -373,7 +343,7 @@ fun ClientSpinner(
         GetStringValueDialog (
             onNewClientAdded = {
                 showCustomDialogWithResult.value = false
-                onNewElementAdded?.invoke(it)
+                onNewClientAdded?.invoke(it)
             }
         )
     }

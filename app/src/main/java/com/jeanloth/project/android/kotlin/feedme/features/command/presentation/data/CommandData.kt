@@ -17,4 +17,6 @@ class CreateCommandCallbacks(
     val onClientSelected: ((AppClient) -> Unit)? = null,
     val onBasketQuantityChange: ((Long, Int) -> Unit)? = null,
     val onProductQuantityChange: ((Long, Int) -> Unit)? = null,
+    val onCommandPriceSelected: ((Int) -> Unit)? = null,
+    val onCreateCommandClick: (() -> Unit)? = null,
 )

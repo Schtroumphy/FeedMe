@@ -18,14 +18,17 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -50,6 +53,7 @@ import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortD
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Purple80
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -422,23 +426,56 @@ fun DeliveryDateSpinner(
 fun PricesRow(
     modifier: Modifier = Modifier,
     prices : List<Int> = emptyList(),
-    selectedPrice : Int? = null,
-    onCustomPriceSelected : ((Int)-> Unit)?=null
+    onPriceSelected : ((Int)-> Unit)?=null
 ){
+    // Price states // TODO Integrate dialog in price row composable ?
+    var selectedPrice by remember { mutableStateOf(0) }
+    var customQuantity by remember { mutableStateOf(-1) }
+
+    // Choose custom basket price dialog
+    val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
+
+    if (showCustomDialogWithResult.value) {
+        GetIntValueDialog {
+            showCustomDialogWithResult.value = false
+            customQuantity = it
+            selectedPrice = it
+            onPriceSelected?.invoke(selectedPrice)
+        }
+    }
+
     Row(
         modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        prices.forEach {
+        (prices +  customQuantity).forEach {
             QuantityBubble(
                 it.toString(),
                 if (selectedPrice == it) Jaune1 else Gray1,
                 12.dp
             ) { price ->
-                onCustomPriceSelected?.invoke(price)
+                if(price == customQuantity) showCustomDialogWithResult.value = true else selectedPrice = price
+                onPriceSelected?.invoke(selectedPrice)
             }
         }
         Text("€")
+    }
+}
+
+@Composable
+fun AppButton(
+    modifier: Modifier = Modifier,
+    scale: Float = 0.6f,
+    containerColor : Color = Purple80,
+    icon : ImageVector = Icons.Filled.ArrowBackIos,
+    onClick: (() -> Unit)?
+){
+    FloatingActionButton(
+        onClick = { onClick?.invoke() },
+        containerColor = containerColor,
+        modifier = modifier.scale(scale)
+    ) {
+        Icon(imageVector = icon, contentDescription = "")
     }
 }

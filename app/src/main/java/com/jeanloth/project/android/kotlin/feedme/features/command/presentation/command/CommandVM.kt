@@ -49,6 +49,7 @@ class CommandVM @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null
     )
+    var commandPrice = 0
 
     init {
         viewModelScope.launch {
@@ -87,6 +88,9 @@ class CommandVM @Inject constructor(
             }
         }
     }
+    fun updateCommandPrice(price : Int){
+        commandPrice = price
+    }
 
     fun setProductQuantityChange(productId: Long, quantity : Int){
         val product = _products.value.firstOrNull { it.id == productId }
@@ -124,6 +128,7 @@ class CommandVM @Inject constructor(
 
     fun saveCommand() {
         // TODO : Save command method
+
 
     }
 }

@@ -1,6 +1,5 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,7 +9,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -23,11 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jeanloth.project.android.kotlin.feedme.core.theme.BleuVert
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Purple80
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.*
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AddProductDialog
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PricesRow
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductItem
 
 data class BasketItem(val product: Product? = null, val addButton: Boolean = false)
@@ -43,24 +41,12 @@ fun CreateBasketPage(
     var label by remember { mutableStateOf("") }
     val productQuantity = remember { mutableStateMapOf<Product, Int?>() }
 
-    // Price states
+    // Price state
     var selectedPrice by remember { mutableStateOf(0) }
-    var customQuantity by remember { mutableStateOf(-1) }
-    val quantities = listOf(10, 15, 20, 25, customQuantity)
 
     // Validation state
     val validationEnabled = label.isNotEmpty() && selectedPrice != 0 && !productQuantity.isEmpty()
 
-    // Choose custom basket price dialog
-    val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
-
-    if (showCustomDialogWithResult.value) {
-        GetIntValueDialog {
-            showCustomDialogWithResult.value = false
-            customQuantity = it
-            selectedPrice = it
-        }
-    }
     // Add product data
     val showAddProductDialog = rememberSaveable { mutableStateOf(false) }
     if (showAddProductDialog.value) {
@@ -89,8 +75,7 @@ fun CreateBasketPage(
             // Prices row selection
             item {
                 Box(Modifier.padding(top = 10.dp)) {
-                    PricesRow(Modifier.fillMaxSize().align(Center), quantities, selectedPrice){ price ->
-                        if (price == customQuantity) showCustomDialogWithResult.value = true
+                    PricesRow(modifier = Modifier.fillMaxSize().align(Center), prices = listOf(10, 15, 20, 25)){ price ->
                         selectedPrice = price
                     }
                 }

@@ -156,7 +156,12 @@ class MainActivity : ComponentActivity() {
                                         onNewClientAdded = clientVM::saveClient,
                                         onBasketQuantityChange = commandVM::setBasketQuantityChange,
                                         onProductQuantityChange = commandVM::setProductQuantityChange,
-                                        onClientSelected = commandVM::updateClient
+                                        onClientSelected = commandVM::updateClient,
+                                        onCommandPriceSelected = commandVM::updateCommandPrice,
+                                        onCreateCommandClick = {
+                                            navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
+                                            commandVM::saveCommand
+                                        }
                                     )
                                 )
                             }
@@ -198,7 +203,12 @@ class MainActivity : ComponentActivity() {
                                         onNewClientAdded = clientVM::saveClient,
                                         onBasketQuantityChange = commandVM::setBasketQuantityChange,
                                         onProductQuantityChange = commandVM::setProductQuantityChange,
-                                        onClientSelected = commandVM::updateClient
+                                        onClientSelected = commandVM::updateClient,
+                                        onCommandPriceSelected = commandVM::updateCommandPrice,
+                                        onCreateCommandClick = {
+                                            navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
+                                            commandVM::saveCommand
+                                        }
                                     )
                                 )
                             }
