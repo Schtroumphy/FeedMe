@@ -31,14 +31,14 @@ class CommandVM @Inject constructor(
     private val observeAllProductsUseCase: ObserveAllProductsUseCase
 ) : ViewModel() {
 
-    val _baskets : MutableStateFlow<List<Basket>> = MutableStateFlow(emptyList())
+    private val _baskets : MutableStateFlow<List<Basket>> = MutableStateFlow(emptyList())
     val baskets : StateFlow<List<Basket>> = _baskets.asStateFlow()
 
-    val _products : MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
+    private val _products : MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
     val products : StateFlow<List<Product>> = _products.asStateFlow()
 
-    private val _productsQuantityMap : MutableStateFlow<MutableMap<Product, Int?>> = MutableStateFlow(mutableMapOf())
-    val productsQuantityMap = _productsQuantityMap.asStateFlow()
+    private val _productWrappers : MutableStateFlow<List<Wrapper<Product>>> = MutableStateFlow(emptyList())
+    val productWrappers = _productWrappers.asStateFlow()
 
     private val _basketWrappers : MutableStateFlow<List<Wrapper<Basket>>> = MutableStateFlow(emptyList())
     val basketWrappers = _basketWrappers.asStateFlow()
@@ -57,20 +57,14 @@ class CommandVM @Inject constructor(
                 _basketWrappers.emit(it.map { it.toWrapper() })
             }
         }
-        viewModelScope.launch {
-           // observeAllProductsUseCase().collect {
-            //    _products.emit(it)
-            //    prod
-            // }
-        }
 
         observeAllProductsUseCase().onEach {
             it.onEach {
                 it.imageId = applicationContext.resources.getIdentifier(it.image, "drawable", applicationContext.packageName)
             }
-                _products.emit(it)
-                it.forEach { _productsQuantityMap.value[it] = null }
-            }.launchIn(viewModelScope)
+            _products.emit(it)
+            _productWrappers.emit(it.map { it.toWrapper()})
+        }.launchIn(viewModelScope)
     }
 
     fun canAskUserToSaveCommand() : Boolean = client.value != null && _basketWrappers.value.any { it.quantity > 0 }
@@ -84,12 +78,11 @@ class CommandVM @Inject constructor(
 
     fun setBasketQuantityChange(basketId: Long, quantity : Int){
         val basket = _baskets.value.firstOrNull { it.id == basketId }
-        basket?.let { test ->
+        basket?.let { basketNonNull ->
             viewModelScope.launch {
                 _basketWrappers.update {
-                    it.toMutableList().updateWrapper(test, quantity, false)
+                    it.toMutableList().updateWrapper(basketNonNull, quantity, false)
                 }
-
                 Log.d("CommandVM", "Basket wrappers : ${basketWrappers.value}")
             }
         }
@@ -97,30 +90,40 @@ class CommandVM @Inject constructor(
 
     fun setProductQuantityChange(productId: Long, quantity : Int){
         val product = _products.value.firstOrNull { it.id == productId }
-        product?.let { test ->
+        product?.let { productNonNull ->
             viewModelScope.launch {
-                _productsQuantityMap.update {
-                    updateProductQuantityMap(it, product, quantity)
+                _productWrappers.update {
+                    it.toMutableList().updateWrapper(productNonNull, quantity, false)
                 }
-                Log.d("CommandVM", "Product quantity map : ${_productsQuantityMap.value}")
+                Log.d("CommandVM", "Product wrappers : ${_productWrappers.value}")
             }
         }
     }
 
+    /**
+     * Update quantity map
+     * Mpa of product / quantity
+     * TODO Replace by product wrapper ?
+     */
     fun updateProductQuantityMap(productQuantityMap: MutableMap<Product, Int?>, product: Product, quantity: Int?) : MutableMap<Product, Int?>{
         return productQuantityMap.apply {
             this[product] = quantity
         }
     }
 
+    /**
+     * Clear client, basket wrappers and product quantity map
+     */
     fun clearCurrentCommand(){
         viewModelScope.launch {
             updateClient(null)
             _basketWrappers.emit(baskets.value.map { it.toWrapper() })
+            _productWrappers.emit(products.value.map { it.toWrapper() })
         }
     }
 
-    fun saveCommand(client : AppClient?= null) {
+    fun saveCommand() {
         // TODO : Save command method
+
     }
 }

@@ -3,10 +3,7 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.indication
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
@@ -16,10 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBackIos
-import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -35,7 +29,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,16 +40,16 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.jeanloth.project.android.kotlin.feedme.R
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Purple80
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Vert0
+import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.DeliveryDateSpinner
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.GetStringValueDialog
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductItem
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.RoundedProductItem
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -63,46 +59,55 @@ fun AddCommandPage(
     clients: List<AppClient> = emptyList(),
     basketItems: List<BasketItem> = emptyList(),
     basketWrappers: List<Wrapper<Basket>> = emptyList(),
-    productQuantity: Map<Product, Int?> = mapOf(),
+    productWrappers: List<Wrapper<Product>> = emptyList(),
     onNewClientAdded: ((String) -> Unit)? = null,
     onClientSelected: ((AppClient) -> Unit)? = null,
     onBasketQuantityChange: ((Long, Int) -> Unit)? = null, // Transfer basket id and new quantity to viewModel
     onProductQuantityChange: ((Long, Int) -> Unit)? = null, // Transfer product id and new quantity to viewModel
 ){
     val maxStepCount = 3
+    var currentStep by remember { mutableStateOf(1) }
     var clientSelected by remember { mutableStateOf(selectedClient)}
 
-    Log.d("AddCommandPage", "Map basketId / Quantity : ${basketWrappers.map { (key, value) -> "[$key=$value]" }}")
-
-    var currentStep by remember { mutableStateOf(1) }
     val nextStepEnabled = when(currentStep){
         1 -> clientSelected != null && basketWrappers.any { it.quantity > 0 }
-        2 -> clientSelected != null && productQuantity.values.any { (it ?: 0) > 0 }
+        2 -> clientSelected != null && productWrappers.any { it.quantity > 0 }
         else -> true
     }
-
-    Log.d("AddCommandPage", "FirstNext step enabled : $nextStepEnabled")
 
     ConstraintLayout(Modifier.fillMaxSize()) {
         val (clientSpinner, content, nextPreviousButtons) = createRefs()
 
-        // Choose client to associate to command
-        ClientSpinner(
-            modifier = Modifier.constrainAs(clientSpinner){
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-            },
-            elements = clients,
-            client = clientSelected,
-            onNewElementAdded = {
-                onNewClientAdded?.invoke(it)
-            },
-            clientSelected = {
-                clientSelected = it
-                onClientSelected?.invoke(it)
-            }
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .constrainAs(clientSpinner) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                },
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            // Choose client to associate to command
+            ClientSpinner(
+                isEnabled = currentStep != maxStepCount,
+                elements = clients,
+                client = clientSelected,
+                onNewElementAdded = {
+                    onNewClientAdded?.invoke(it)
+                },
+                clientSelected = {
+                    clientSelected = it
+                    onClientSelected?.invoke(it)
+                }
+            )
+
+            DeliveryDateSpinner(
+                isEnabled = currentStep != maxStepCount
+            )
+        }
+
 
         /**
          * Step 1 : Choose presaved basket if exist // TODO : Go to step 2 directly if there is no presaved baskets
@@ -113,14 +118,16 @@ fun AddCommandPage(
             1 -> {
                 // Baskets list
                 LazyColumn(
-                    Modifier.fillMaxWidth().constrainAs(content){
-                        top.linkTo(clientSpinner.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(nextPreviousButtons.top)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    }
+                    Modifier
+                        .fillMaxWidth()
+                        .constrainAs(content) {
+                            top.linkTo(clientSpinner.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            bottom.linkTo(nextPreviousButtons.top)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        }
                 ) {
                     items(basketWrappers) {
                         BasketItem(
@@ -146,15 +153,15 @@ fun AddCommandPage(
                         height = Dimension.fillToConstraints
                     }
                 ){
-                    items(productQuantity.keys.toList()){
-                        it?.let {
+                    items(productWrappers){
+                        it.let {
                             ProductItem(
-                                product = it,
+                                product = it.item,
+                                quantity = it.quantity,
                                 modifier = Modifier,
-                                quantity = productQuantity[it] ?: 0,
                                 onQuantityChange = { quantity ->
                                     Log.d("Create Basket", "Quantity received : $quantity")
-                                    onProductQuantityChange?.invoke(it.id, quantity ?: 0)
+                                    onProductQuantityChange?.invoke(it.item.id, quantity ?: 0)
                                 }
                             )
                         }
@@ -166,7 +173,62 @@ fun AddCommandPage(
                 }
             }
             3 -> {
+                LazyColumn(
+                    modifier = Modifier.constrainAs(content){
+                        top.linkTo(clientSpinner.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        bottom.linkTo(nextPreviousButtons.top)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.fillToConstraints
+                    }
+                ){
+                    // Baskets encart
+                    item {
+                        Box(
+                            Modifier
+                                .padding(top = 15.dp)
+                                .border(
+                                    width = 1.5.dp,
+                                    color = Orange1,
+                                    shape = RoundedCornerShape(20.dp)
+                                )
+                        ){
+                            basketWrappers.filter { it.quantity > 0 }.forEach {
+                                BasketItem(
+                                    basketWrapper = it,
+                                    editMode = false
+                                )
+                            }
+                        }
+                    }
 
+                    // Individual products
+                    item {
+                        Text("Produits individuels", modifier = Modifier.padding(vertical = 12.dp, horizontal = 5.dp))
+                    }
+
+                    productWrappers.filter { (it.quantity ?: 0) > 0 }.chunked(3).forEach {
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                it.forEach { productWrapper ->
+                                    RoundedProductItem(
+                                        product = productWrapper.item,
+                                        quantity = productWrapper.quantity
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+
+                }
             }
         }
 
@@ -201,45 +263,16 @@ fun AddCommandPage(
                 onClick = {
                     // Change to next step if possible
                     Log.d("CreateCommand", "Step $currentStep")
-                    if(nextStepEnabled && currentStep <= maxStepCount) currentStep += 1
+                    if(nextStepEnabled && currentStep < maxStepCount) currentStep += 1
                 },
-                containerColor = if(nextStepEnabled) Purple80 else Gray1,
+                containerColor = if(nextStepEnabled) {
+                    if(currentStep == maxStepCount) Orange1 else Purple80
+                } else Gray1,
                 modifier = Modifier.scale(0.6f),
             ) {
-                Icon(imageVector = Icons.Filled.ArrowForwardIos, contentDescription = "")
+                Icon(imageVector = if(currentStep != maxStepCount) Icons.Filled.ArrowForwardIos else Icons.Filled.Check, contentDescription = "", tint = if(currentStep == maxStepCount) White else Black)
             }
         }
-    }
-}
-
-@Composable
-fun ProductAndAddButton(products : List<BasketItem>, onQuantityChange : ((Product, Int?) -> Unit)?= null, onAddProductClicked : (() -> Unit)?= null) {
-    products.chunked(2).forEach {
-
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ){
-                it.forEach{ item ->
-                    if(item.product != null) {
-                        ProductItem(
-                            modifier = Modifier.weight(1f),
-                            product = item.product,
-                            onQuantityChange = { onQuantityChange?.invoke(item.product, it)
-                            },
-                            quantity = 0
-                        )
-                    } else {
-                        AddProductButton(
-                            modifier = Modifier.weight(1f),
-                            onAddProductClicked = { onAddProductClicked?.invoke() }
-                        )
-                    }
-                }
-            }
-
-
     }
 }
 
@@ -304,6 +337,7 @@ fun AddQuantityBox(
 fun ClientSpinner(
     modifier : Modifier = Modifier,
     client : AppClient?= null,
+    isEnabled : Boolean = true,
     widthPercentage : Float = 0.6f,
     @StringRes labelId : Int = R.string.client,
     elements : List<AppClient> = emptyList(),
@@ -331,8 +365,8 @@ fun ClientSpinner(
                 .align(Center)
                 //.height(35.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(Jaune1)
-                .clickable {
+                .background(if (isEnabled) Jaune1 else Gray1)
+                .clickable(enabled = isEnabled) {
                     selectionMode.value = true
                     selectedItem?.let { clientSelected?.invoke(it) }
                 }

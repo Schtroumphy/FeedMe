@@ -1,8 +1,10 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common
 
+import android.app.DatePickerDialog
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Log
+import android.widget.DatePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -42,10 +44,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jeanloth.project.android.kotlin.feedme.R
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.SLASH_DATE_FORMAT
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortDate
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
 import kotlinx.coroutines.delay
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun Button(text: String = stringResource(id = R.string.validate), onClickAction: (() -> Unit)? = null) {
@@ -94,25 +101,25 @@ fun StatusCircle(color: Color, status: String) {
 
 @Composable
 fun QuantityBubble(
-    quantity: Int = 20,
+    quantity: String = "20",
     backgroundColor: Color = White,
     padding: Dp = 2.dp,
-    onClick: ((Int) -> Unit)? = null
+    modifier: Modifier =Modifier,
+    onClick: ((Int) -> Unit)? = null,
 ) {
     val focusManager = LocalFocusManager.current
 
     Box(
-        Modifier
-            .wrapContentSize()
+        modifier
             .clip(CircleShape)
             .background(backgroundColor)
             .clickable {
                 focusManager.clearFocus()
-                onClick?.invoke(quantity)
+                onClick?.invoke(quantity.toIntOrNull() ?: 0)
             }
             .padding(padding)
     ) {
-        Text(if(quantity  > 0) quantity.toString() else "?", modifier = Modifier.align(Alignment.Center))
+        Text(quantity, modifier = Modifier.align(Alignment.Center))
     }
 }
 
@@ -358,5 +365,52 @@ fun AddProductDialog(
                 }
             }
         )
+    }
+}
+
+@Composable
+@Preview
+fun DeliveryDateSpinner(
+    modifier : Modifier = Modifier,
+    date : LocalDate?= null,
+    isEnabled : Boolean = true,
+    @StringRes labelId : Int = R.string.delivery_date,
+    onDateSelected : ((String)-> Unit)? = null
+){
+    var selectedItem by remember { mutableStateOf<String>(LocalDate.now().plusDays(1).formatToShortDate())}
+
+    // Declaring integer values for current year, month and day
+    val mYear = LocalDate.now().plusDays(1).year
+    val mMonth = LocalDate.now().plusDays(1).monthValue - 1
+    val mDay = LocalDate.now().plusDays(1).dayOfMonth
+
+    // Declaring a string value to store date in string format
+    val mContext = LocalContext.current
+    val mDatePickerDialog = DatePickerDialog(mContext,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            val date = "$mDayOfMonth/${mMonth+1}/$mYear"
+            val dateFormatted = date.split("/").map { it.padStart(2, '0')}.joinToString("/")
+            selectedItem = LocalDate.parse(dateFormatted, DateTimeFormatter.ofPattern(SLASH_DATE_FORMAT)).formatToShortDate()
+            selectedItem?.let { onDateSelected?.invoke(it) }
+        }, mYear, mMonth, mDay
+    )
+
+    Box(modifier) {
+        Box(
+            Modifier
+                .padding(top = 10.dp)
+                .wrapContentSize()
+                .align(Alignment.Center)
+                .clip(RoundedCornerShape(20.dp))
+                .background(if (isEnabled) Jaune1 else Gray1)
+                .clickable(enabled = isEnabled) {
+                    mDatePickerDialog.show()
+                }
+                .padding(10.dp)
+
+        ) {
+            Text(selectedItem)
+        }
+        Text(stringResource(id = labelId), modifier = Modifier.align(Alignment.TopStart), style = MaterialTheme.typography.labelSmall)
     }
 }

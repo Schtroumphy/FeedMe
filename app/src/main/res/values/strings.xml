@@ -5,6 +5,7 @@
     <string name="label">Libellé</string>
     <string name="price">Prix</string>
     <string name="client">Client</string>
+    <string name="delivery_date">A livrer le</string>
     <string name="firstname">Nom</string>
     <string name="lastname">Prénom</string>
     <string name="item">Item</string>
@@ -15,6 +16,7 @@
     <string name="new_client">Nouveau client</string>
     <string name="yes">Yes</string>
     <string name="no">Non</string>
+    <string name="euro">%1$s€</string>
 
     <!-- Dialog texts -->
     <string name="save_state">Sauvegarde de l\'avancée</string>

@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
             val basketItems by productVM.basketItems.collectAsState()
             val baskets by basketVM.baskets.collectAsState()
             val basketWrappers by commandVM.basketWrappers.collectAsState()
-            val productQuantity by commandVM.productsQuantityMap.collectAsState()
+            val productWrappers by commandVM.productWrappers.collectAsState()
 
             val title = fromVal(navBackStackEntry?.destination?.route).title
             topBarState.value = fromVal(navBackStackEntry?.destination?.route).title != null
@@ -146,7 +146,7 @@ class MainActivity : ComponentActivity() {
                                 clients = clients,
                                 selectedClient = selectedClient,
                                 basketWrappers = basketWrappers,
-                                productQuantity = productQuantity,
+                                productWrappers = productWrappers,
                                 basketItems = basketItems,
                                 onNewClientAdded = clientVM::saveClient,
                                 onBasketQuantityChange = commandVM::setBasketQuantityChange,
@@ -184,7 +184,7 @@ class MainActivity : ComponentActivity() {
                                 selectedClient = selectedClient,
                                 basketWrappers = basketWrappers,
                                 basketItems = basketItems,
-                                productQuantity = productQuantity,
+                                productWrappers = productWrappers,
                                 onNewClientAdded = clientVM::saveClient,
                                 onBasketQuantityChange = commandVM::setBasketQuantityChange,
                                 onProductQuantityChange = commandVM::setProductQuantityChange,

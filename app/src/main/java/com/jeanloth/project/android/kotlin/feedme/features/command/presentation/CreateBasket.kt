@@ -53,10 +53,10 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductItem
 
 data class BasketItem(val product : Product? = null, val addButton : Boolean = false)
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun CreateBasketPage(
@@ -135,7 +135,7 @@ fun CreateBasketPage(
                     ){
                         //Text(stringResource(id = R.string.price))
                         quantities.forEach {
-                            QuantityBubble( it, if(selectedPrice == it) Jaune1 else Gray1, 12.dp){ price ->
+                            QuantityBubble( if(it > 0) it.toString() else "?", if(selectedPrice == it) Jaune1 else Gray1, 12.dp){ price ->
                                 if(it == customQuantity) {
                                     showCustomDialogWithResult.value = true
                                 }
@@ -226,114 +226,5 @@ fun AddProductButton(modifier: Modifier = Modifier, onAddProductClicked : (() ->
         ) {
             Icon(Icons.Filled.Add, contentDescription = "")
         }
-    }
-}
-
-@Composable
-@Preview
-// /document/image%3A70 ou /document/image:70
-fun ProductItem(
-    modifier: Modifier = Modifier,
-    product: Product = Product(label = "Mon produit"),
-    onQuantityChange: ((Int?) -> Unit)? = null,
-    quantity: Int? = null
-){
-    var text by remember { mutableStateOf(if(quantity == null || quantity == 0) "" else quantity.toString()) }
-    val focusManager = LocalFocusManager.current
-    val textFieldRequester = FocusRequester()
-
-    Box(
-        modifier.fillMaxSize()
-    ){
-        Box(
-            Modifier
-                .align(Center)
-                .padding(15.dp)
-                .fillMaxWidth()
-                .height(110.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Gray1)
-                .clickable {
-                    textFieldRequester.requestFocus()
-                }
-                .padding(bottom = 10.dp, start = 5.dp, end = 5.dp)
-        ) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .align(Alignment.BottomCenter),
-                horizontalAlignment = CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom
-            ){
-                TextField(
-                    value = text,
-                    onValueChange = {
-                        text = it
-                        onQuantityChange?.invoke(if(it.isEmpty()) null else it.toInt())
-                    },
-                    shape = RoundedCornerShape(25.dp),
-
-                    textStyle = LocalTextStyle.current.copy(
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp
-                    ),
-                    modifier = Modifier
-                        .focusRequester(textFieldRequester)
-                        .clearFocusOnKeyboardDismiss()
-                        .fillMaxWidth(0.7f),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        focusedIndicatorColor =  Color.Transparent, //hide the indicator
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    maxLines = 1,
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        autoCorrect = false,
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {  focusManager.clearFocus() }
-                    )
-                )
-                Text(product.label, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-
-            Image(
-                painter = painterResource(product.imageId),
-                contentDescription = "food icon",
-                contentScale = ContentScale.Crop,            // crop the image if it's not a square
-                modifier = Modifier
-                    .size(65.dp)
-                    .clip(CircleShape)
-            )
-
-            AnimatedVisibility(visible = text.isNotEmpty()) {
-                FloatingActionButton(
-                    shape = CircleShape,
-                    containerColor = RedDark,
-                    contentColor = Color.White,
-                    onClick = {
-                        text = ""
-                        onQuantityChange?.invoke(null)
-                    },
-                    modifier = Modifier
-                        .scale(0.45f)
-                        .padding(end = 10.dp)
-                ) {
-                    Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear")
-                }
-            }
-
-        }
-
     }
 }

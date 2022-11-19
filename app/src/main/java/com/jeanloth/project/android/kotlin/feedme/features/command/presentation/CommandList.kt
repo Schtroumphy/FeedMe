@@ -82,7 +82,7 @@ fun CommandProduct(productName:String = "Banane"){
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        QuantityBubble(10)
+        QuantityBubble("10")
         Text(productName)
     }
 }
