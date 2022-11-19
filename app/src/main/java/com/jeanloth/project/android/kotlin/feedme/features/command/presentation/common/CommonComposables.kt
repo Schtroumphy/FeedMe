@@ -99,6 +99,7 @@ fun StatusCircle(color: Color, status: String) {
     }
 }
 
+// TODO Create specific Price bubble
 @Composable
 fun QuantityBubble(
     quantity: String = "20",
@@ -108,6 +109,7 @@ fun QuantityBubble(
     onClick: ((Int) -> Unit)? = null,
 ) {
     val focusManager = LocalFocusManager.current
+    val text = if (quantity.filterNot{ it == '€'}.toIntOrNull() ?: 0 > 0) quantity else "?"
 
     Box(
         modifier
@@ -119,7 +121,7 @@ fun QuantityBubble(
             }
             .padding(padding)
     ) {
-        Text(quantity, modifier = Modifier.align(Alignment.Center))
+        Text(text, modifier = Modifier.align(Alignment.Center))
     }
 }
 
@@ -412,5 +414,31 @@ fun DeliveryDateSpinner(
             Text(selectedItem)
         }
         Text(stringResource(id = labelId), modifier = Modifier.align(Alignment.TopStart), style = MaterialTheme.typography.labelSmall)
+    }
+}
+
+
+@Composable
+fun PricesRow(
+    modifier: Modifier = Modifier,
+    prices : List<Int> = emptyList(),
+    selectedPrice : Int? = null,
+    onCustomPriceSelected : ((Int)-> Unit)?=null
+){
+    Row(
+        modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        prices.forEach {
+            QuantityBubble(
+                it.toString(),
+                if (selectedPrice == it) Jaune1 else Gray1,
+                12.dp
+            ) { price ->
+                onCustomPriceSelected?.invoke(price)
+            }
+        }
+        Text("€")
     }
 }

@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
@@ -47,6 +48,8 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.DeliveryDateSpinner
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PricesRow
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.GetStringValueDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductItem
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.RoundedProductItem
@@ -73,6 +76,22 @@ fun AddCommandPage(
         1 -> clientSelected != null && basketWrappers.any { it.quantity > 0 }
         2 -> clientSelected != null && productWrappers.any { it.quantity > 0 }
         else -> true
+    }
+
+    // Price states // TODO Integrate dialog in price row composable ?
+    var selectedPrice by remember { mutableStateOf(0) }
+    var customQuantity by remember { mutableStateOf(-1) }
+    val quantities = listOf(10, 15, 20, 25, customQuantity)
+
+    // Choose custom basket price dialog
+    val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
+
+    if (showCustomDialogWithResult.value) {
+        GetIntValueDialog {
+            showCustomDialogWithResult.value = false
+            customQuantity = it
+            selectedPrice = it
+        }
     }
 
     ConstraintLayout(Modifier.fillMaxSize()) {
@@ -107,7 +126,6 @@ fun AddCommandPage(
                 isEnabled = currentStep != maxStepCount
             )
         }
-
 
         /**
          * Step 1 : Choose presaved basket if exist // TODO : Go to step 2 directly if there is no presaved baskets
@@ -183,9 +201,19 @@ fun AddCommandPage(
                         height = Dimension.fillToConstraints
                     }
                 ){
-                    // Baskets encart
+                    // Prices row selection
                     item {
-                        Box(
+                        Box(Modifier.padding(top = 10.dp)) {
+                            PricesRow(Modifier.fillMaxSize().align(Center), quantities, selectedPrice){ price ->
+                                if (price == customQuantity) showCustomDialogWithResult.value = true
+                                selectedPrice = price
+                            }
+                        }
+                    }
+
+                    // Baskets encart
+                    items(basketWrappers.filter { it.quantity > 0 }) {
+                        /*Box(
                             Modifier
                                 .padding(top = 15.dp)
                                 .border(
@@ -194,13 +222,13 @@ fun AddCommandPage(
                                     shape = RoundedCornerShape(20.dp)
                                 )
                         ){
-                            basketWrappers.filter { it.quantity > 0 }.forEach {
+                            basketWrappers.filter { it.quantity > 0 }.forEach {*/
                                 BasketItem(
                                     basketWrapper = it,
                                     editMode = false
                                 )
-                            }
-                        }
+                           // }
+                       // }
                     }
 
                     // Individual products

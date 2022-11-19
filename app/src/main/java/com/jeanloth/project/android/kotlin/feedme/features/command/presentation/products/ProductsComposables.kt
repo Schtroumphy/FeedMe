@@ -171,14 +171,16 @@ fun ProductItem(
             verticalAlignment = Alignment.CenterVertically
         ){
 
-            Image(
-                painter = painterResource(product.imageId),
-                contentDescription = "food icon",
-                contentScale = ContentScale.Crop,// crop the image if it's not a square
-                modifier = Modifier
-                    .size(65.dp)
-                    .clip(CircleShape)
-            )
+            painterResource(product.imageId)?.let {
+                Image(
+                    painter = it,
+                    contentDescription = "food icon",
+                    contentScale = ContentScale.Crop,// crop the image if it's not a square
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(CircleShape)
+                )
+            }
 
             AnimatedVisibility(visible = text.isNotEmpty()) {
                 FloatingActionButton(

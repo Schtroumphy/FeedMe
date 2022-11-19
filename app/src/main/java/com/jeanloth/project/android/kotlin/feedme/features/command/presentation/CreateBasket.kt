@@ -2,24 +2,12 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -30,173 +18,136 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.google.accompanist.glide.rememberGlidePainter
-import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
-import com.jeanloth.project.android.kotlin.feedme.core.theme.*
+import com.jeanloth.project.android.kotlin.feedme.core.theme.BleuVert
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Purple80
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AddProductDialog
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.GetIntValueDialog
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductItem
 
-data class BasketItem(val product : Product? = null, val addButton : Boolean = false)
+data class BasketItem(val product: Product? = null, val addButton: Boolean = false)
 
 @Composable
 @Preview
 fun CreateBasketPage(
     basketItems: List<BasketItem> = emptyList(),
-    onValidateBasket : ((String, Int, Map<Product, Int?>) -> Unit)?= null,
-    onAddProduct : ((String, String?)-> Unit)?= null
-){
+    onValidateBasket: ((String, Int, Map<Product, Int?>) -> Unit)? = null,
+    onAddProduct: ((String, String?) -> Unit)? = null
+) {
+    // Basket info
     var label by remember { mutableStateOf("") }
     val productQuantity = remember { mutableStateMapOf<Product, Int?>() }
-    var selectedPrice by remember { mutableStateOf(0)}
-    var customQuantity by remember { mutableStateOf(-1)}
+
+    // Price states
+    var selectedPrice by remember { mutableStateOf(0) }
+    var customQuantity by remember { mutableStateOf(-1) }
     val quantities = listOf(10, 15, 20, 25, customQuantity)
+
+    // Validation state
     val validationEnabled = label.isNotEmpty() && selectedPrice != 0 && !productQuantity.isEmpty()
 
+    // Choose custom basket price dialog
     val showCustomDialogWithResult = rememberSaveable { mutableStateOf(false) }
 
-    if(showCustomDialogWithResult.value){
+    if (showCustomDialogWithResult.value) {
         GetIntValueDialog {
             showCustomDialogWithResult.value = false
             customQuantity = it
             selectedPrice = it
         }
     }
-
+    // Add product data
     val showAddProductDialog = rememberSaveable { mutableStateOf(false) }
-    val showImageUriTest = rememberSaveable { mutableStateOf(false) }
-
-    val imageUri = remember { mutableStateOf<Uri?>(null) }
-    if(showAddProductDialog.value){
+    if (showAddProductDialog.value) {
         AddProductDialog { name, uri ->
             name?.let {
                 onAddProduct?.invoke(it, uri?.path)
-                //imageUri.value = uri
-                //showImageUriTest.value = true
             }
             showAddProductDialog.value = false
         }
     }
 
-    if(showImageUriTest.value){
-        Image(
-            painter = rememberGlidePainter(
-                request = imageUri,
-                shouldRefetchOnSizeChange = { _, _ -> false },
-            ),
-            contentDescription = null,
-        )
-    }
-    Box(
-        Modifier
-            .fillMaxSize()
-            .padding(15.dp)
-    ){
-
+    // Page content
+    Box(Modifier.fillMaxSize().padding(10.dp)) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
+            modifier = Modifier.fillMaxSize().padding(10.dp),
             horizontalAlignment = CenterHorizontally
         ) {
+
+            // Basket label text field
             item {
-                Box(Modifier.fillMaxWidth()){
+                Box(Modifier.fillMaxWidth()) {
                     AppTextField(modifier = Modifier.align(Center), onValueChange = { label = it })
                 }
             }
+
+            // Prices row selection
             item {
-                Box(
-                    Modifier
-                        .padding(top = 10.dp)) {
-                    Row(
-                        Modifier
-                            .fillMaxSize()
-                            .align(Center),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ){
-                        //Text(stringResource(id = R.string.price))
-                        quantities.forEach {
-                            QuantityBubble( if(it > 0) it.toString() else "?", if(selectedPrice == it) Jaune1 else Gray1, 12.dp){ price ->
-                                if(it == customQuantity) {
-                                    showCustomDialogWithResult.value = true
-                                }
-                                selectedPrice = price
-                            }
-                        }
-                        Text("€")
+                Box(Modifier.padding(top = 10.dp)) {
+                    PricesRow(Modifier.fillMaxSize().align(Center), quantities, selectedPrice){ price ->
+                        if (price == customQuantity) showCustomDialogWithResult.value = true
+                        selectedPrice = price
                     }
                 }
             }
 
+            // Basket possible items and add product abutton
             basketItems.chunked(2).forEach {
-               item {
-                   Row(
-                       Modifier.fillMaxWidth(),
-                       verticalAlignment = CenterVertically,
-                       horizontalArrangement = Arrangement.SpaceEvenly
-                   ){
-                       it.forEach{ item ->
-                           if(item.product != null) {
-                               ProductItem(
-                                   modifier = Modifier.weight(1f),
-                                   product = item.product,
-                                   onQuantityChange = { quantity ->
-                                       Log.d("Create Basket", "Quantity received : $quantity")
-                                       if (quantity == null) productQuantity.remove(item.product) else productQuantity.put(
-                                           item.product,
-                                           quantity
-                                       )
-                                   },
-                                   quantity = productQuantity[item.product] ?: 0
-                               )
-                           } else {
-                               AddProductButton(
-                                   modifier = Modifier.weight(1f),
-                                   onAddProductClicked = {
-                                       showAddProductDialog.value = true
-                                   }
-                               )
-                           }
-                       }
-                   }
-               }
+                item {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        it.forEach { item ->
+                            // TODO : Create custom list instead of adding null at the end for add button
+                            if (item.product != null) {
+                                ProductItem(
+                                    modifier = Modifier.weight(1f),
+                                    product = item.product,
+                                    onQuantityChange = { quantity ->
+                                        Log.d("Create Basket", "Quantity received : $quantity")
+                                        if (quantity == null) productQuantity.remove(item.product) else productQuantity.put(
+                                            item.product,
+                                            quantity
+                                        )
+                                    },
+                                    quantity = productQuantity[item.product] ?: 0
+                                )
+                            } else {
+                                AddProductButton(
+                                    modifier = Modifier.weight(1f),
+                                    onAddProductClicked = {
+                                        showAddProductDialog.value = true
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
 
             }
+        }
 
-
-            }
-
+        // Validation button
         FloatingActionButton(
             onClick = {
-                if(validationEnabled){
+                if (validationEnabled) {
                     onValidateBasket?.invoke(label, selectedPrice, productQuantity)
                 } else {
-                    Log.d("CreateBasket", "Not enough element - Label : $label, Price : $selectedPrice, map is empty: ${productQuantity.isEmpty()}")
+                    Log.d(
+                        "CreateBasket",
+                        "Not enough element - Label : $label, Price : $selectedPrice, map is empty: ${productQuantity.isEmpty()}"
+                    )
                 }
             },
-            containerColor = if(validationEnabled) Purple80 else Color.LightGray,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(10.dp)
+            containerColor = if (validationEnabled) Purple80 else Color.LightGray,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(10.dp)
         ) {
             Icon(Icons.Filled.Check, contentDescription = "")
         }
@@ -204,7 +155,7 @@ fun CreateBasketPage(
 }
 
 @Composable
-fun AddProductButton(modifier: Modifier = Modifier, onAddProductClicked : (() -> Unit)? = null) {
+fun AddProductButton(modifier: Modifier = Modifier, onAddProductClicked: (() -> Unit)? = null) {
     Box(
         modifier
             .padding(15.dp)
