@@ -8,7 +8,7 @@ interface ProductWrapperRepository {
 
     fun save(product : Wrapper<Product>) : Long
 
-    fun save(products : List<Wrapper<Product>>) : Array<Long>
+    fun save(products : List<Wrapper<Product>>, isAssociatedToCommand: Boolean = false) : Array<Long>
 
     fun observeProducts() : Flow<List<Wrapper<Product>>>
 

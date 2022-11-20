@@ -7,6 +7,8 @@ interface CommandRepository {
 
     fun save(command : Command) : Long
 
+    fun getCommandById(id: Long) : Command?
+
     fun observeCommands() : Flow<List<Command>>
 
     fun remove(command : Command)

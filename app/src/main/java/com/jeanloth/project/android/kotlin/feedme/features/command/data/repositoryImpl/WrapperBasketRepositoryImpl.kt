@@ -26,7 +26,7 @@ class WrapperBasketRepositoryImpl @Inject constructor(
             basketId = wrapper.item.id,
             commandId = wrapper.parentId,
             quantity = wrapper.quantity,
-            status = wrapper.status.name
+            status = wrapper.status
         ))
     }
 
@@ -36,7 +36,7 @@ class WrapperBasketRepositoryImpl @Inject constructor(
                 basketId = wrapper.item.id,
                 commandId = wrapper.parentId,
                 quantity = wrapper.quantity,
-                status = wrapper.status.name
+                status = wrapper.status
             )
         })
     }
@@ -47,7 +47,7 @@ class WrapperBasketRepositoryImpl @Inject constructor(
             id = wrapper.id,
             basketId = wrapper.item.id,
             quantity = wrapper.quantity,
-            status = wrapper.status.name
+            status = wrapper.status
             )
         )
     }

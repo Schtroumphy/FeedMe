@@ -25,17 +25,18 @@ class WrapperProductRepositoryImpl @Inject constructor(
             productId = wrapper.item.id,
             basketId = wrapper.parentId,
             quantity = wrapper.quantity,
-            status = wrapper.status.name
+            status = wrapper.status
         ))
     }
 
-    override fun save(wrappers: List<Wrapper<Product>>) : Array<Long> {
+    override fun save(wrappers: List<Wrapper<Product>>, isAssociatedToCommand: Boolean) : Array<Long> {
         return dao.insertAll(wrappers.map { wrapper ->
             ProductWrapperEntity(
                 productId = wrapper.item.id,
-                basketId = wrapper.parentId,
                 quantity = wrapper.quantity,
-                status = wrapper.status.name
+                status = wrapper.status,
+                commandId = if(isAssociatedToCommand) wrapper.parentId else 0,
+                basketId = if(isAssociatedToCommand) 0 else wrapper.parentId,
             )
         })
     }
@@ -46,7 +47,7 @@ class WrapperProductRepositoryImpl @Inject constructor(
             id = wrapper.id,
                 productId = wrapper.item.id,
             quantity = wrapper.quantity,
-            status = wrapper.status.name
+            status = wrapper.status
             )
         )
     }

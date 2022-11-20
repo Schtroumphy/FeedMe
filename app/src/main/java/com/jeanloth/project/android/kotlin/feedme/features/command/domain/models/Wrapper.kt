@@ -5,7 +5,7 @@ data class Wrapper<T : WrapperItem>(
     var item : T,
     var parentId : Long = 0L,
     var quantity : Int = 0,
-    val status : ProductWrapperStatus = ProductWrapperStatus.TO_DO
+    val status : Status = Status.TO_DO
 ){
     val totalPrice = quantity * item.unitPrice
 

@@ -18,9 +18,13 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveAllBasketsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.GetCommandByIdUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveAllCommandsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.SaveCommandUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -30,7 +34,10 @@ import javax.inject.Inject
 class CommandVM @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
     private val observeAllBasketsUseCase: ObserveAllBasketsUseCase,
-    private val observeAllProductsUseCase: ObserveAllProductsUseCase
+    private val observeAllProductsUseCase: ObserveAllProductsUseCase,
+    private val observeAllCommandsUseCase: ObserveAllCommandsUseCase,
+    private val getCommandByIdUseCase: GetCommandByIdUseCase,
+    private val saveCommandUseCase: SaveCommandUseCase
 ) : ViewModel() {
 
     private val _baskets : MutableStateFlow<List<Basket>> = MutableStateFlow(emptyList())
@@ -38,6 +45,9 @@ class CommandVM @Inject constructor(
 
     private val _products : MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
     val products : StateFlow<List<Product>> = _products.asStateFlow()
+
+    private val _commands : MutableStateFlow<List<Command>> = MutableStateFlow(emptyList())
+    val commands : StateFlow<List<Command>> = _commands.asStateFlow()
 
     private val _productWrappers : MutableStateFlow<List<Wrapper<Product>>> = MutableStateFlow(emptyList())
     val productWrappers = _productWrappers.asStateFlow()
@@ -51,6 +61,11 @@ class CommandVM @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = null
     )
+
+    private val _currentCommand : MutableStateFlow<Command?> = MutableStateFlow(null)
+    val currentCommand : StateFlow<Command?> = _currentCommand.asStateFlow()
+
+    var selectedClient : AppClient? = null
     var commandPrice = 0
     var deliveryDate = LocalDate.now().plusDays(1)
 
@@ -69,6 +84,13 @@ class CommandVM @Inject constructor(
             _products.emit(it)
             _productWrappers.emit(it.map { it.toWrapper()})
         }.launchIn(viewModelScope)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            observeAllCommandsUseCase().collect {
+                _commands.emit(it)
+                Log.d("CommandVM", "Commands observed : $it")
+            }
+        }
     }
 
     fun canAskUserToSaveCommand() : Boolean = client.value != null && _basketWrappers.value.any { it.quantity > 0 }
@@ -78,6 +100,7 @@ class CommandVM @Inject constructor(
         withMutableSnapshot {
             _client = client
         }
+        selectedClient = client
     }
 
     fun setBasketQuantityChange(basketId: Long, quantity : Int){
@@ -117,20 +140,30 @@ class CommandVM @Inject constructor(
     fun clearCurrentCommand(){
         viewModelScope.launch {
             updateClient(null)
+            deliveryDate = LocalDate.now().plusDays(1)
+            commandPrice = 0
             _basketWrappers.emit(baskets.value.map { it.toWrapper() })
             _productWrappers.emit(products.value.map { it.toWrapper() })
         }
     }
 
-    fun saveCommand() {
-        // TODO : Save command method
-        val command = Command(
-            totalPrice = commandPrice,
-            productWrappers = _productWrappers.value,
-            basketWrappers = _basketWrappers.value,
-            clientId = _client?.idClient ?: 0,
-            deliveryDate = deliveryDate
-        )
-        Log.d("CommandVM", "Command : $command")
+    fun saveCommand() : Boolean {
+        viewModelScope.launch(Dispatchers.IO) {
+            saveCommandUseCase(
+                clientId = selectedClient?.idClient ?: 0,
+                deliveryDate = deliveryDate,
+                price = commandPrice,
+                basketWrappers = _basketWrappers.value.filter { it.quantity > 0 },
+                productWrappers = _productWrappers.value.filter { it.quantity > 0 }
+            )
+        }
+        clearCurrentCommand()
+        return true
+    }
+
+    fun updateCurrentCommand(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _currentCommand.value = getCommandByIdUseCase(id)
+        }
     }
 }

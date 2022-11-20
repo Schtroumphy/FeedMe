@@ -9,6 +9,8 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.reposi
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveBasketWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveWrapperUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -51,7 +53,7 @@ class SaveCommandUseCase @Inject constructor(
             it.parentId = commandId
         }
         Log.d(TAG, "Saving basket wrappers : $basketWrappers")
-        val productWrappersIds = saveProductWrapperUseCase(productWrappers)
+        val productWrappersIds = saveProductWrapperUseCase(productWrappers, true)
 
         return commandId != 0L && basketWrappersIds.size == basketWrappers.size && productWrappersIds.size == productWrappers.size
     }

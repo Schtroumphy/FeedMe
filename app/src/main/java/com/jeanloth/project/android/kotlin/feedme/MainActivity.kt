@@ -85,6 +85,8 @@ class MainActivity : ComponentActivity() {
             val baskets by basketVM.baskets.collectAsState()
             val basketWrappers by commandVM.basketWrappers.collectAsState()
             val productWrappers by commandVM.productWrappers.collectAsState()
+            val commands by commandVM.commands.collectAsState()
+            val currentCommand by commandVM.currentCommand.collectAsState()
 
             val title = fromVal(navBackStackEntry?.destination?.route).title
             topBarState.value = fromVal(navBackStackEntry?.destination?.route).title != null
@@ -141,9 +143,17 @@ class MainActivity : ComponentActivity() {
                             composable(FooterRoute.HOME.route) { HomePage(navController) }
 
                             // List of commands page
-                            composable(FooterRoute.COMMAND_LIST.route) { CommandListPage() }
+                            composable(FooterRoute.COMMAND_LIST.route) { CommandListPage(commands, onClick = {
+                                commandVM.updateCurrentCommand(it)
+                                navController.navigate(FooterRoute.COMMAND_DETAIL.route)
+                            }) }
 
-                            // Add commad page
+                            // Detail of command
+                            composable(FooterRoute.COMMAND_DETAIL.route) { navBackStackEntry ->
+                                CommandDetailPage(currentCommand)
+                            }
+
+                            // Add command page
                             composable(FooterRoute.ADD_COMMAND_BUTTON.route) {
                                 AddCommandPage(
                                     parameters = CreateCommandParameters(
@@ -158,11 +168,12 @@ class MainActivity : ComponentActivity() {
                                         onProductQuantityChange = commandVM::setProductQuantityChange,
                                         onClientSelected = commandVM::updateClient,
                                         onCommandPriceSelected = commandVM::updateCommandPrice,
+                                        onDateChanged = commandVM::updateDeliveryDate,
                                         onCreateCommandClick = {
                                             navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
-                                            commandVM::saveCommand
-                                        },
-                                        onDateChanged = commandVM::updateDeliveryDate
+                                            val isSavingSuccess = commandVM.saveCommand()
+                                            Toast.makeText(this@MainActivity, if(isSavingSuccess)  "Votre commande a été enregistrée" else "Une erreur est survenue", Toast.LENGTH_SHORT)
+                                        }
                                     )
                                 )
                             }
@@ -206,9 +217,11 @@ class MainActivity : ComponentActivity() {
                                         onProductQuantityChange = commandVM::setProductQuantityChange,
                                         onClientSelected = commandVM::updateClient,
                                         onCommandPriceSelected = commandVM::updateCommandPrice,
+                                        onDateChanged = commandVM::updateDeliveryDate,
                                         onCreateCommandClick = {
                                             navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
-                                            commandVM.saveCommand()
+                                            val isSavingSuccess = commandVM.saveCommand()
+                                            Toast.makeText(this@MainActivity, if(isSavingSuccess)  "Votre commande a été enregistrée" else "Une erreur est survenue", Toast.LENGTH_SHORT)
                                         }
                                     )
                                 )

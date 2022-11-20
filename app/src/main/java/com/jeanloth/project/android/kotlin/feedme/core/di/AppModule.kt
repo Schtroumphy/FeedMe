@@ -7,6 +7,7 @@ import com.jeanloth.project.android.kotlin.feedme.core.database.AppRoomDatabase.
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.AppClientEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.BasketEntityMapper
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.CommandEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.ProductEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
@@ -15,6 +16,8 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecas
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.RemoveClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.SaveClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.*
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.GetCommandByIdUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveAllCommandsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.SaveCommandUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
@@ -58,6 +61,9 @@ object AppModule {
     @Provides
     fun provideBasketEntityMapper(): BasketEntityMapper = BasketEntityMapper()
 
+    @Provides
+    fun provideCommandEntityMapper(): CommandEntityMapper = CommandEntityMapper()
+
     /** --- DAOs --- **/
     @Provides
     fun provideAppClientDao(appDatabase: AppRoomDatabase): AppClientDao = appDatabase.appClientDao()
@@ -69,11 +75,13 @@ object AppModule {
     fun provideBasketDao(appDatabase: AppRoomDatabase): BasketDao = appDatabase.basketDao()
 
     @Provides
+    fun provideCommandDao(appDatabase: AppRoomDatabase): CommandDao = appDatabase.commandDao()
+
+    @Provides
     fun provideProductWrapperDao(appDatabase: AppRoomDatabase): ProductWrapperDao = appDatabase.productWrapperDao()
 
     @Provides
     fun provideBasketWrapperDao(appDatabase: AppRoomDatabase): BasketWrapperDao = appDatabase.basketWrapperDao()
-
 
     /** --- Use cases --- **/
 
@@ -102,6 +110,15 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSyncProducts(repository: ProductRepository) : SyncProductUseCase = SyncProductUseCase(repository)
+
+    // COmmand
+    @Provides
+    @Singleton
+    fun provideObserveCommands(repository: CommandRepository) : ObserveAllCommandsUseCase = ObserveAllCommandsUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideGetCommandById(repository: CommandRepository) : GetCommandByIdUseCase = GetCommandByIdUseCase(repository)
 
     /** --- Wrappers --- **/
     @Provides

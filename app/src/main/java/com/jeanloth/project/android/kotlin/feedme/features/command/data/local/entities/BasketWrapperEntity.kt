@@ -2,8 +2,12 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.e
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.jeanloth.project.android.kotlin.feedme.core.database.StatusConverter
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
 
 @Entity(tableName = "basket_wrapper")
+@TypeConverters(StatusConverter::class)
 class BasketWrapperEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
@@ -11,5 +15,5 @@ class BasketWrapperEntity(
     val commandId: Long = 0L,
 
     var quantity : Int,
-    val status : String
+    val status : Status = Status.TO_DO
 )

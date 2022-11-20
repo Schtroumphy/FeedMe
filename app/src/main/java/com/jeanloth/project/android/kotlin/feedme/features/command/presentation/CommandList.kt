@@ -2,8 +2,10 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +17,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandStatus
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PersonName
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PriceBox
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
@@ -22,31 +27,42 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 
 @Composable
 @Preview
-fun CommandListPage(){
+fun CommandListPage(
+    commands : List<Command> = emptyList(), onClick: ((Long)-> Unit)? = null
+){
     // List of commands
     LazyColumn(
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.padding(15.dp)
     ) {
-        CommandStatus.values().forEach {
+
+        items(commands){
+            CommandItem(it, onClick = {
+                onClick?.invoke(it)
+            })
+        }
+
+        /*CommandStatus.values().forEach {
             item {
                 CommandItem(it.label, it.color)
             }
-        }
+        }*/
     }
 }
 
 @Composable
 //@Preview
-fun CommandItem(status: String, color: Color) {
-    Box {
+fun CommandItem(command: Command, onClick: ((Long)-> Unit)? = null) {
+    Box{
         Box(
             modifier = Modifier
                 .padding(15.dp)
                 .clip(RoundedCornerShape(30.dp))
+                .clickable { onClick?.invoke(command.id) }
                 .background(Gray1)
-                .border(width = 2.dp, shape = RoundedCornerShape(30.dp), color = color)
+                .border(width = 2.dp, shape = RoundedCornerShape(30.dp), color = command.status.color)
                 .padding(15.dp)
+
         ){
             Column(
                 Modifier
@@ -54,21 +70,32 @@ fun CommandItem(status: String, color: Color) {
                     .align(Alignment.Center)
             ) {
                 // Client Name + Status row
-                CommandHeader(status = status, color = color)
+                CommandHeader(client = command.client.toNameString(), status = command.status.label, color = command.status.color)
 
-                // List of product with quantity
+                if(command.basketWrappers.isNotEmpty()) Text("Paniers", color = Orange1, modifier = Modifier.padding(top = 10.dp))
+                // List of baskets with quantity
                 Column(
-                    Modifier.padding(15.dp)
+                    Modifier.padding(horizontal = 10.dp)
+                ) {
+                    command.basketWrappers.forEach {
+                        CommandBasket(it.item.label, quantity = it.quantity)
+                    }
+                }
+
+                // List of products with quantity
+                if(command.basketWrappers.isNotEmpty()) Text("Produits", color = Orange1, modifier = Modifier.padding(top = 10.dp))
+                Column(
+                    Modifier.padding(horizontal = 10.dp, vertical = if(command.basketWrappers.isNotEmpty()) 0.dp else 10.dp)
                 ){
-                    CommandProduct("Orange")
-                    CommandProduct("Banane Jaune")
-                    CommandProduct("Igname")
+                    command.productWrappers.forEach {
+                        CommandProduct(it.item.label, quantity = it.quantity)
+                    }
                 }
             }
         }
         // Price box
         PriceBox(
-            color = color,
+            color = command.status.color,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 40.dp))
@@ -77,13 +104,25 @@ fun CommandItem(status: String, color: Color) {
 
 @Composable
 @Preview
-fun CommandProduct(productName:String = "Banane"){
+fun CommandProduct(productName: String = "Banane", quantity: Int = 2){
     Row(
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        QuantityBubble("10")
+        QuantityBubble(quantity.toString())
         Text(productName)
+    }
+}
+
+@Composable
+@Preview
+fun CommandBasket(basketName: String = "Gourmandises", quantity: Int = 2){
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        QuantityBubble(quantity.toString(), backgroundColor = Orange1)
+        Text(basketName)
     }
 }
 
@@ -92,14 +131,15 @@ fun CommandProduct(productName:String = "Banane"){
 fun CommandHeader(
     modifier: Modifier = Modifier,
     status: String = CommandStatus.LOADING.label,
-    color: Color = CommandStatus.LOADING.color
+    color: Color = CommandStatus.LOADING.color,
+    client: String = "Albert MANCHON"
 ){
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom
     ) {
-        PersonName(name = "Albert MANCHON")
+        PersonName(name = client)
         StatusCircle(color, status)
     }
 }

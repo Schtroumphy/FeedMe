@@ -12,6 +12,9 @@ interface ProductDao {
     @Query("SELECT * FROM product")
     fun all() : List<ProductEntity>
 
+    @Query("SELECT * FROM product WHERE id=:id ")
+    fun getById(id : Long) : ProductEntity
+
     @Insert
     fun insert(product: ProductEntity)
 
