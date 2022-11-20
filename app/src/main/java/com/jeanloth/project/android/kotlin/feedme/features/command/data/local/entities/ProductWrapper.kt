@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 class ProductWrapper(
-    @Embedded val wrapper: WrapperEntity,
+    @Embedded val wrapper: ProductWrapperEntity,
 
     @Relation(
         parentColumn = "productId",

@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.updateWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
@@ -22,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,6 +52,7 @@ class CommandVM @Inject constructor(
         initialValue = null
     )
     var commandPrice = 0
+    var deliveryDate = LocalDate.now().plusDays(1)
 
     init {
         viewModelScope.launch {
@@ -92,6 +95,10 @@ class CommandVM @Inject constructor(
         commandPrice = price
     }
 
+    fun updateDeliveryDate(date : LocalDate){
+        deliveryDate = date
+    }
+
     fun setProductQuantityChange(productId: Long, quantity : Int){
         val product = _products.value.firstOrNull { it.id == productId }
         product?.let { productNonNull ->
@@ -101,17 +108,6 @@ class CommandVM @Inject constructor(
                 }
                 Log.d("CommandVM", "Product wrappers : ${_productWrappers.value}")
             }
-        }
-    }
-
-    /**
-     * Update quantity map
-     * Mpa of product / quantity
-     * TODO Replace by product wrapper ?
-     */
-    fun updateProductQuantityMap(productQuantityMap: MutableMap<Product, Int?>, product: Product, quantity: Int?) : MutableMap<Product, Int?>{
-        return productQuantityMap.apply {
-            this[product] = quantity
         }
     }
 
@@ -128,7 +124,13 @@ class CommandVM @Inject constructor(
 
     fun saveCommand() {
         // TODO : Save command method
-
-
+        val command = Command(
+            totalPrice = commandPrice,
+            productWrappers = _productWrappers.value,
+            basketWrappers = _basketWrappers.value,
+            clientId = _client?.idClient ?: 0,
+            deliveryDate = deliveryDate
+        )
+        Log.d("CommandVM", "Command : $command")
     }
 }

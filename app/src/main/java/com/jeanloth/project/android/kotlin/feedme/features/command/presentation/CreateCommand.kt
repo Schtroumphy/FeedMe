@@ -52,6 +52,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandParameters
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductItem
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.RoundedProductItem
+import java.time.LocalDate
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -63,7 +64,11 @@ fun AddCommandPage(
     val maxStepCount = 3
     var currentStep by remember { mutableStateOf(if(parameters.basketWrappers.isEmpty()) 2 else 1) } // Go to step 2 directly if there is no baskets to display
     Log.d("CreateCommand", "Step $currentStep")
-    val displayPreviousButton = if (currentStep > 1) 1f else 0f
+    val displayPreviousButton = when(currentStep){
+        1 -> false
+        2 -> !parameters.basketWrappers.isEmpty()
+        else -> true
+    }
     var clientSelected by remember { mutableStateOf(parameters.selectedClient)}
     var selectedPrice by remember { mutableStateOf<Int?>(null)}
 
@@ -92,7 +97,8 @@ fun AddCommandPage(
             onClientSelected = {
                 clientSelected = it
                 callbacks.onClientSelected?.invoke(it)
-            }
+            },
+            onDateChanged = { callbacks.onDateChanged?.invoke(it) }
         )
 
         /**
@@ -218,12 +224,12 @@ fun AddCommandPage(
                     end.linkTo(parent.end)
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = CenterVertically
         ){
             // Previous button
             AppButton(
                 containerColor = Purple80,
-                modifier = Modifier.alpha(displayPreviousButton),
+                modifier = Modifier.alpha(if(displayPreviousButton) 1f else 0f),
                 icon = Icons.Filled.ArrowBackIos,
                 onClick = { if(currentStep > 0) currentStep -= 1 }
             )
@@ -248,6 +254,7 @@ fun ClientAndDeliveryDateRow(
     selectedClient : AppClient? = null,
     onNewClientAdded : ((String)-> Unit)? = null,
     onClientSelected : ((AppClient)-> Unit)? = null,
+    onDateChanged: ((LocalDate)-> Unit)? = null,
     isDeliverDateEnabled : Boolean = true,
 ){
     Row(
@@ -264,7 +271,9 @@ fun ClientAndDeliveryDateRow(
             clientSelected = {onClientSelected?.invoke(it) }
         )
         //Choose delivery date
-        DeliveryDateSpinner(isEnabled = isDeliverDateEnabled)
+        DeliveryDateSpinner(isEnabled = isDeliverDateEnabled, onDateSelected = {
+            onDateChanged?.invoke(it)
+        })
     }
 }
 

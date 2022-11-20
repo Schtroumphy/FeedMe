@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class SaveBasketUseCase @Inject constructor(
     private val repository: BasketRepository,
-    private val saveWrapperUseCase: SaveWrapperUseCase
+    private val saveProductWrapperUseCase: SaveProductWrapperUseCase
 ) {
     operator fun invoke(basket: Basket) : Boolean {
         Log.d("SaveBasketUseCase", "Basket to save : ${basket}")
@@ -15,10 +15,10 @@ class SaveBasketUseCase @Inject constructor(
         Log.d("SaveBasketUseCase", "Basket id : ${basketId}")
 
         val wrappers = basket.wrappers.onEach {
-            it.basketId = basketId
+            it.parentId = basketId
         }
-        Log.d("SaveBasketUseCase", "Saving wrappers : $wrappers")
-        val wrappersIds = saveWrapperUseCase(wrappers)
+        Log.d("SaveProductWrapperUseCase", "Saving product wrappers : $wrappers")
+        val wrappersIds = saveProductWrapperUseCase(wrappers)
 
         return basketId != 0L && wrappersIds.size == basket.wrappers.size
     }

@@ -3,7 +3,7 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.domain.model
 data class Wrapper<T : WrapperItem>(
     var id: Long = 0L,
     var item : T,
-    var basketId : Long = 0L,
+    var parentId : Long = 0L,
     var quantity : Int = 0,
     val status : ProductWrapperStatus = ProductWrapperStatus.TO_DO
 ){
@@ -14,7 +14,7 @@ data class Wrapper<T : WrapperItem>(
     }
 
     override fun toString(): String {
-        return "Wrapper : [id : $id, basketId: $basketId, quantity: $quantity, status: $status, item: $item]"
+        return "Wrapper : [id : $id, parentID: $parentId, quantity: $quantity, status: $status, item: $item]"
     }
 
     companion object{
@@ -25,6 +25,7 @@ data class Wrapper<T : WrapperItem>(
 }
 
 interface WrapperItem {
+    val id: Long
     val unitPrice: Float
 }
 

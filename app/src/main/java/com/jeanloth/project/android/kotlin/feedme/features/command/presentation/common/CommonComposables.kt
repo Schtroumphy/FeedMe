@@ -381,7 +381,7 @@ fun DeliveryDateSpinner(
     date : LocalDate?= null,
     isEnabled : Boolean = true,
     @StringRes labelId : Int = R.string.delivery_date,
-    onDateSelected : ((String)-> Unit)? = null
+    onDateSelected : ((LocalDate)-> Unit)? = null
 ){
     var selectedItem by remember { mutableStateOf<String>(LocalDate.now().plusDays(1).formatToShortDate())}
 
@@ -396,8 +396,9 @@ fun DeliveryDateSpinner(
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
             val date = "$mDayOfMonth/${mMonth+1}/$mYear"
             val dateFormatted = date.split("/").map { it.padStart(2, '0')}.joinToString("/")
-            selectedItem = LocalDate.parse(dateFormatted, DateTimeFormatter.ofPattern(SLASH_DATE_FORMAT)).formatToShortDate()
-            selectedItem?.let { onDateSelected?.invoke(it) }
+            val localDate = LocalDate.parse(dateFormatted, DateTimeFormatter.ofPattern(SLASH_DATE_FORMAT))
+            selectedItem = localDate.formatToShortDate()
+            selectedItem?.let { onDateSelected?.invoke(localDate) }
         }, mYear, mMonth, mDay
     )
 

@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 class BasketRepositoryImpl @Inject constructor(
     private val dao : BasketDao,
-    private val productEntityMapper: ProductEntityMapper,
+    //private val productEntityMapper: ProductEntityMapper,
 ) : BasketRepository {
 
     override fun save(basket: Basket) : Long {
@@ -35,7 +35,7 @@ class BasketRepositoryImpl @Inject constructor(
         return dao.observeBasketsWithWrappers().map { baskets ->
             baskets.map {
                 Basket(
-                    id = it.basketEntity.id,
+                    basketId = it.basketEntity.id,
                     label = it.basketEntity.label,
                     price = it.basketEntity.price,
                     wrappers = it.wrappers.map {

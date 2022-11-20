@@ -9,7 +9,7 @@ interface BaseRepository<T> {
 
     fun save(items : List<T>) : Array<Long>
 
-    fun observeProducts() : Flow<List<T>>
+    fun observeItems() : Flow<List<T>>
 
     fun remove(item : T)
 

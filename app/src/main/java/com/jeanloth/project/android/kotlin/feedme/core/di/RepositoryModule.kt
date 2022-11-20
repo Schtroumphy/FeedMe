@@ -1,15 +1,9 @@
 package com.jeanloth.project.android.kotlin.feedme.core.di
 
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.repositoryImpl.AppClientRepositoryImpl
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.repositoryImpl.BasketRepositoryImpl
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.repositoryImpl.ProductRepositoryImpl
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.repositoryImpl.WrapperProductRepositoryImpl
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.repositoryImpl.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.AppClientRepository
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.BaseRepository
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.BasketRepository
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.ProductRepository
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveBasketUseCase
 import dagger.Binds
 import dagger.Module
@@ -31,10 +25,19 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindWrapperProductRepository(impl : WrapperProductRepositoryImpl) : BaseRepository<Wrapper<Product>>
+    abstract fun bindBasketRepository(impl : BasketRepositoryImpl) : BasketRepository
 
     @Binds
     @Singleton
-    abstract fun bindBasketRepository(impl : BasketRepositoryImpl) : BasketRepository
+    abstract fun bindCommandRepository(impl : CommandRepositoryImpl) : CommandRepository
+
+    /** Wrappers **/
+    @Binds
+    @Singleton
+    abstract fun bindWrapperProductRepository(impl : WrapperProductRepositoryImpl) : ProductWrapperRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWrapperBasketRepository(impl : WrapperBasketRepositoryImpl) : BasketWrapperRepository
 
 }

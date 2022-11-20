@@ -161,7 +161,8 @@ class MainActivity : ComponentActivity() {
                                         onCreateCommandClick = {
                                             navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
                                             commandVM::saveCommand
-                                        }
+                                        },
+                                        onDateChanged = commandVM::updateDeliveryDate
                                     )
                                 )
                             }
@@ -207,7 +208,7 @@ class MainActivity : ComponentActivity() {
                                         onCommandPriceSelected = commandVM::updateCommandPrice,
                                         onCreateCommandClick = {
                                             navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
-                                            commandVM::saveCommand
+                                            commandVM.saveCommand()
                                         }
                                     )
                                 )

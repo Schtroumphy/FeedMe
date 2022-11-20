@@ -5,7 +5,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperItem
 
 data class Product(
-    val id: Long = 0,
+    val productId: Long = 0,
     val label:String,
     val image: String? = null,
     var imageId: Int = R.drawable.delicious_banana,
@@ -13,7 +13,10 @@ data class Product(
     override val unitPrice: Float = 0f
 ) : WrapperItem {
 
+    override val id: Long
+        get() = productId
+
     override fun toString(): String {
-        return "Product : [id: $id, label: $label, price : $unitPrice, image : $image, imageId: $imageId]"
+        return "Product : [id: $productId, label: $label, price : $unitPrice, image : $image, imageId: $imageId]"
     }
 }

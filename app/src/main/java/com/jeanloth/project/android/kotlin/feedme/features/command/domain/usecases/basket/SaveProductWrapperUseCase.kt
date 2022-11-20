@@ -4,9 +4,10 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperItem
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.BaseRepository
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.ProductWrapperRepository
 
-class SaveWrapperUseCase <T: WrapperItem>(
-    private val repository: BaseRepository<Wrapper<out T>>
+class SaveProductWrapperUseCase (
+    private val repository: ProductWrapperRepository
 ) {
-    operator fun invoke(wrappers: List<Wrapper<T>>) = repository.save(wrappers)
+    operator fun invoke(wrappers: List<Wrapper<Product>>) = repository.save(wrappers)
 }

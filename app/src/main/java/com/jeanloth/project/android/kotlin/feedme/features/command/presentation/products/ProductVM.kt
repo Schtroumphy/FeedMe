@@ -64,7 +64,6 @@ class ProductVM @Inject constructor(
 
     fun saveProduct(label : String, image: String?){
         viewModelScope.launch(Dispatchers.IO){
-
             saveProductUseCase.invoke(Product(
                 label = label,
                 image = image,

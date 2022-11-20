@@ -8,7 +8,7 @@ class BasketWithWrappers(
     @Relation(
         parentColumn = "id",
         entityColumn = "basketId",
-        entity = WrapperEntity::class
+        entity = ProductWrapperEntity::class
     )
     val wrappers: List<ProductWrapper>
 )

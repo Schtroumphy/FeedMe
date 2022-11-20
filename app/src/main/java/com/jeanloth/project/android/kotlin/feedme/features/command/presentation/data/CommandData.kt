@@ -4,6 +4,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import java.time.LocalDate
 
 class CreateCommandParameters(
     val selectedClient: AppClient? = null,
@@ -19,4 +20,5 @@ class CreateCommandCallbacks(
     val onProductQuantityChange: ((Long, Int) -> Unit)? = null,
     val onCommandPriceSelected: ((Int) -> Unit)? = null,
     val onCreateCommandClick: (() -> Unit)? = null,
+    val onDateChanged: ((LocalDate) -> Unit)? = null,
 )
