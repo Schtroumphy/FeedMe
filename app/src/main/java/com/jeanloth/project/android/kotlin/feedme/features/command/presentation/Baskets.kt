@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowRight
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -45,7 +44,7 @@ fun BasketList(
     Log.d("BasketList", "Baskets : $baskets")
     LazyColumn{
         items(baskets.map { it.toWrapper() }){
-            BasketItem(it)
+            BasketItem(it, displayQuantityBox = false)
         }
     }
 }
@@ -88,6 +87,7 @@ fun BasketItem(
     ))),
     onClick : ((Basket)-> Unit)? = null,
     editMode : Boolean = true,
+    displayQuantityBox : Boolean = true,
     onBasketQuantityChange : ((Pair<Long, Int>) -> Unit)? = null
 ){
     Row (
@@ -119,15 +119,18 @@ fun BasketItem(
             Text(basketWrapper.item.label, fontWeight = FontWeight.Bold)
             Text(basketWrapper.item.wrappers.toBasketDescription(), fontWeight = FontWeight.Light, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        if(editMode) AddQuantityBox(
-            modifier = Modifier.weight(2.5f),
-            quantity = basketWrapper.quantity,
-            onQuantityChange = {
-                onBasketQuantityChange?.invoke(basketWrapper.item.id to it)
+        if(displayQuantityBox){
+            if(editMode) AddQuantityBox(
+                modifier = Modifier.weight(2.5f),
+                quantity = basketWrapper.quantity,
+                onQuantityChange = {
+                    onBasketQuantityChange?.invoke(basketWrapper.item.id to it)
+                }
+            ) else {
+                Text("x ${basketWrapper.quantity}", fontWeight = FontWeight.Light, modifier = Modifier.padding(end = 10.dp))
             }
-        ) else {
-            Text("x ${basketWrapper.quantity}", fontWeight = FontWeight.Light, modifier = Modifier.padding(end = 10.dp))
         }
+
     }
 }
 

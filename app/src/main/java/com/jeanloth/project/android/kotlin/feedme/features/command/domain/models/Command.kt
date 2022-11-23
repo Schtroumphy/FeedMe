@@ -6,7 +6,7 @@ import java.time.LocalDate
 data class Command(
     var id : Long = 0L,
 
-    val status : CommandStatus = CommandStatus.TO_DO,
+    val status : Status = Status.TO_DO,
     val totalPrice : Int = 0,
 
     val productWrappers : List<Wrapper<Product>> = emptyList(),

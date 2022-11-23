@@ -10,6 +10,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.Snapshot.Companion.withMutableSnapshot
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortDate
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.updateWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
@@ -48,6 +49,9 @@ class CommandVM @Inject constructor(
 
     private val _commands : MutableStateFlow<List<Command>> = MutableStateFlow(emptyList())
     val commands : StateFlow<List<Command>> = _commands.asStateFlow()
+
+    private val _commandsByDate : MutableStateFlow<Map<String, List<Command>>> = MutableStateFlow(mutableMapOf())
+    val commandsByDate : StateFlow<Map<String, List<Command>>> = _commandsByDate.asStateFlow()
 
     private val _productWrappers : MutableStateFlow<List<Wrapper<Product>>> = MutableStateFlow(emptyList())
     val productWrappers = _productWrappers.asStateFlow()
@@ -88,6 +92,7 @@ class CommandVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             observeAllCommandsUseCase().collect {
                 _commands.emit(it)
+                _commandsByDate.emit(it.groupBy { it.deliveryDate }.toSortedMap().mapKeys { it.key.formatToShortDate() })
                 Log.d("CommandVM", "Commands observed : $it")
             }
         }

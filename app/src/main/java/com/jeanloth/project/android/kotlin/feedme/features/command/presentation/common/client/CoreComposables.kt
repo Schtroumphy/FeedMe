@@ -124,7 +124,7 @@ fun Header(
         }
     }
 
-    Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(20.dp)){
+    Row (horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)){
         if(displayBackOrClose) Icon(imageVector = if(isBackAllowed) Icons.Filled.ArrowBack else Icons.Filled.Close, contentDescription = "Close",
             modifier = Modifier
                 .clip(CircleShape)

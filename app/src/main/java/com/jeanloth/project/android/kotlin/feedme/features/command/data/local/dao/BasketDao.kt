@@ -29,4 +29,8 @@ interface BasketDao {
     @Transaction
     @Query("SELECT * FROM basket")
     fun observeBasketsWithWrappers(): Flow<List<BasketWithWrappers>>
+
+    @Transaction
+    @Query("SELECT * FROM basket")
+    fun getBasketsWithWrappers(): List<BasketWithWrappers>
 }

@@ -19,7 +19,7 @@ class CommandEntity (
     @PrimaryKey(autoGenerate = true)
     var id : Long = 0,
 
-    val status : CommandStatus = CommandStatus.TO_DO,
+    val status : Status = Status.TO_DO,
     val totalPrice : Int = 0,
 
     val clientId : Long,

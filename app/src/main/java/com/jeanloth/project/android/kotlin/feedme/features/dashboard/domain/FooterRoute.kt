@@ -19,7 +19,7 @@ enum class FooterRoute(val route: String, val title: String? =null, val icon: Im
     ADD_PRODUCTS("add_products", title = "Ajouter un produit", Icons.Filled.ShoppingCart, false, displayFooter = false, displayBackOrClose = true),
     ADD_BASKET("add_basket", title = "Créer un panier", Icons.Filled.ShoppingCart, false, displayFooter = false, displayBackOrClose = true),
 
-    COMMAND_DETAIL("command_detail/{commandId}", title = "Détails de commande", inFooter = false, displayFooter = false, displayBackOrClose = true);
+    COMMAND_DETAIL("command_detail/{commandId}", title = null, inFooter = false, displayFooter = false, displayBackOrClose = true);
 
     companion object{
         fun fromVal(route: String?) = values()

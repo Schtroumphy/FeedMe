@@ -36,6 +36,17 @@ class CommandRepositoryImpl @Inject constructor(
     override fun getCommandById(id: Long): Command? {
         val cw = dao.getCommandsWithWrappersById(id)
 
+        val bw = basketDao.getBasketsWithWrappers()
+
+        // Map with <BasketId, productAssociated>
+        val basketProductMap : Map<Long, List<Wrapper<Product>>> = bw.groupBy { it.basketEntity.id }.mapValues { it.value.flatMap { it.wrappers }.map { pw ->
+            Wrapper(
+                item = productMapper.from(productDao.getById(pw.product.id)),
+                quantity = pw.wrapper.quantity,
+                status = pw.wrapper.status
+            )
+        }}
+
         return if(cw == null) null else Command(
             id = cw.commandEntity.id,
             status = cw.commandEntity.status,
@@ -46,7 +57,7 @@ class CommandRepositoryImpl @Inject constructor(
                 status = pw.status
             ) },
             basketWrappers = cw.basketWrappers.map { bw -> Wrapper(
-                item = basketMapper.from(basketDao.getById(bw.basketId)),
+                item = basketMapper.from(basketDao.getById(bw.basketId)).apply { this.wrappers = basketProductMap[this.basketId] ?: emptyList() }, // TODO Retrieve separately all product linked to this basketId to add to this item
                 quantity = bw.quantity,
                 status = bw.status
             ) },

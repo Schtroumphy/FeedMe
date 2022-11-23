@@ -86,6 +86,7 @@ class MainActivity : ComponentActivity() {
             val basketWrappers by commandVM.basketWrappers.collectAsState()
             val productWrappers by commandVM.productWrappers.collectAsState()
             val commands by commandVM.commands.collectAsState()
+            val commandsByDate by commandVM.commandsByDate.collectAsState()
             val currentCommand by commandVM.currentCommand.collectAsState()
 
             val title = fromVal(navBackStackEntry?.destination?.route).title
@@ -138,12 +139,12 @@ class MainActivity : ComponentActivity() {
                     onDialogDismiss = { keyboardController?.hide() },
                     addButtonActionType = dialogType.value,
                     content = {
-                        NavHost(navController = navController, startDestination = FooterRoute.HOME.route, modifier = Modifier.padding(15.dp)) {
+                        NavHost(navController = navController, startDestination = FooterRoute.HOME.route, modifier = Modifier.padding(it)) {
                             // Home page
                             composable(FooterRoute.HOME.route) { HomePage(navController) }
 
                             // List of commands page
-                            composable(FooterRoute.COMMAND_LIST.route) { CommandListPage(commands, onClick = {
+                            composable(FooterRoute.COMMAND_LIST.route) { CommandListPage(commandsByDate, onClick = {
                                 commandVM.updateCurrentCommand(it)
                                 navController.navigate(FooterRoute.COMMAND_DETAIL.route)
                             }) }
@@ -201,7 +202,6 @@ class MainActivity : ComponentActivity() {
                                     onAddProduct = productVM::saveProduct
                                 )
                             }
-
                             // Add command page - Not in footer
                             composable(FooterRoute.ADD_COMMAND.route) {
                                 AddCommandPage(
