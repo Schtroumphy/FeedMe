@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Log
+import android.util.Size
 import android.widget.DatePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,6 +34,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -105,38 +107,40 @@ fun StatusCircle(color: Color, status: String) {
 
 // TODO Create specific Price bubble
 @Composable
+@Preview
 fun QuantityBubble(
     quantity: String = "20",
     backgroundColor: Color = White,
     padding: Dp = 2.dp,
-    modifier: Modifier =Modifier,
+    size: Dp = 22.dp,
+    modifier: Modifier = Modifier,
     onClick: ((Int) -> Unit)? = null,
 ) {
     val focusManager = LocalFocusManager.current
-    val text = if (quantity.filterNot{ it == '€'}.toIntOrNull() ?: 0 > 0) quantity else "?"
+    val text = if ((quantity.filterNot { it == '€' }.toIntOrNull() ?: 0) > 0) quantity else "?"
 
     Box(
         modifier
+            .size(size)
             .clip(CircleShape)
             .background(backgroundColor)
             .clickable {
-                focusManager.clearFocus()
+                focusManager.clearFocus() // TODO Really necessary ?
                 onClick?.invoke(quantity.toIntOrNull() ?: 0)
-            }
-            .padding(padding)
+            },
+        contentAlignment = Alignment.Center,
     ) {
-        Text(text, modifier = Modifier.align(Alignment.Center))
+        Text(text)
     }
 }
 
 @Composable
-fun PriceBox(modifier: Modifier = Modifier, color: Color = Orange1, price: String = "15€") {
+fun PriceBox(modifier: Modifier = Modifier, color: Color = Orange1, price: String = "15€", shape : Shape = RoundedCornerShape(15.dp)) {
     Box(
         modifier
-            .padding(top = 20.dp)
-            .clip(RoundedCornerShape(15.dp))
+            .clip(shape)
             .background(color)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
         Text(text = price, textAlign = TextAlign.Center)
     }

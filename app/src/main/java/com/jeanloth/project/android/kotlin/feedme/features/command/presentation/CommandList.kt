@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,14 +42,14 @@ fun CommandListPage(
 ){
     // List of commands
     LazyColumn(
-        verticalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier.padding(15.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.padding(15.dp).fillMaxSize()
     ) {
 
         commands.keys.forEach {
+            // Delivery date
             item {
-                // Delivery date
-                // TODO Make this and statutsText composable generic because same code
+                // TODO Make this and statusText composable generic because same code
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically){
                     Box(
                         Modifier
@@ -60,7 +61,9 @@ fun CommandListPage(
                 }
                 Spacer(Modifier.height(10.dp))
             }
-            items(commands[it] ?: emptyList()){
+
+            // Command summary
+            items(commands[it] ?: listOf(Command())){
                 CommandProductItem(it, onClick = {
                     onClick?.invoke(it)
                 })
@@ -70,32 +73,31 @@ fun CommandListPage(
 }
 
 @Composable
-fun CommandProductItem(command: Command, onClick: ((Long)-> Unit)? = null) {
-    Box{
-        Box(
-            modifier = Modifier
-                .padding(15.dp)
-                .clip(RoundedCornerShape(30.dp))
-                .clickable { onClick?.invoke(command.id) }
-                .background(Gray1)
-                .border(
-                    width = 2.dp,
-                    shape = RoundedCornerShape(30.dp),
-                    color = command.status.color
-                )
-                .padding(15.dp)
-
-        ){
+@Preview
+fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? = null) {
+    Card(
+        shape = RoundedCornerShape(30.dp),
+        elevation = 3.dp,
+        modifier = Modifier
+            .padding(bottom = 5.dp)
+            .border(
+                width = 2.dp,
+                shape = RoundedCornerShape(30.dp),
+                color = command.status.color)
+    ){
+        Box {
             Column(
                 Modifier
                     .fillMaxWidth()
                     .align(Alignment.Center)
+                    .clickable { onClick?.invoke(command.id) }
+                    .padding(10.dp)
             ) {
                 // Client Name + Status row
                 CommandHeader(client = command.client.toNameString(), status = command.status.value, color = command.status.color)
 
-                if(command.basketWrappers.isNotEmpty()) Text("Paniers", color = Orange1, modifier = Modifier.padding(top = 10.dp))
                 // List of baskets with quantity
+                if(command.basketWrappers.isNotEmpty()) Text("Paniers", color = Orange1, modifier = Modifier.padding(top = 10.dp))
                 Column(
                     Modifier.padding(horizontal = 10.dp)
                 ) {
@@ -107,21 +109,23 @@ fun CommandProductItem(command: Command, onClick: ((Long)-> Unit)? = null) {
                 // List of products with quantity
                 if(command.basketWrappers.isNotEmpty()) Text("Produits", color = Orange1, modifier = Modifier.padding(top = 10.dp))
                 Column(
-                    Modifier.padding(horizontal = 10.dp, vertical = if(command.basketWrappers.isNotEmpty()) 0.dp else 10.dp)
+                    Modifier.padding(horizontal = 10.dp, vertical = if(command.basketWrappers.isNotEmpty()) 0.dp else 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
                 ){
                     command.productWrappers.forEach {
                         CommandProduct(it.item.label, quantity = it.quantity)
                     }
                 }
             }
-        }
+
         // Price box
         PriceBox(
             price = stringResource(id = R.string.euro, command.totalPrice),
             color = command.status.color,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 40.dp))
+            modifier = Modifier.align(Alignment.BottomEnd),
+            shape = RoundedCornerShape(topStart = 30.dp, bottomEnd = 20.dp)
+        )
+        }
     }
 }
 
@@ -132,7 +136,7 @@ fun CommandProduct(productName: String = "Banane", quantity: Int = 2){
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        QuantityBubble(quantity.toString())
+        QuantityBubble(quantity.toString(), backgroundColor = Gray1)
         Text(productName)
     }
 }
