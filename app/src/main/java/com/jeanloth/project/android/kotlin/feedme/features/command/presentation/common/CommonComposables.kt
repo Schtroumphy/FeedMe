@@ -150,13 +150,17 @@ fun PriceBox(modifier: Modifier = Modifier, color: Color = Orange1, price: Strin
 fun IconBox(
     modifier: Modifier = Modifier,
     color: Color = Orange1,
-    icon: ImageVector = Icons.Filled.Edit
+    icon: ImageVector = Icons.Filled.Edit,
+    onClick : (()-> Unit)? = null
 ) {
     Box(
         modifier
             .padding(5.dp)
             .clip(CircleShape)
             .background(color)
+            .clickable {
+                onClick?.invoke()
+            }
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Icon(imageVector = icon, tint = White, contentDescription = "icon button")
@@ -458,7 +462,7 @@ fun PricesRow(
             QuantityBubble(
                 it.toString(),
                 if (selectedPrice == it) Jaune1 else Gray1,
-                12.dp
+                size = 32.dp
             ) { price ->
                 if(price == customQuantity) showCustomDialogWithResult.value = true else selectedPrice = price
                 onPriceSelected?.invoke(selectedPrice)

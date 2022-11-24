@@ -9,10 +9,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -20,8 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandStatus
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PersonName
@@ -29,6 +29,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.StatusCircle
 import com.jeanloth.project.android.kotlin.feedme.R
+import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 
 /**
  * Show commands list sorted by delivery date block
@@ -75,14 +76,15 @@ fun CommandListPage(
 @Composable
 @Preview
 fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? = null) {
+    val shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp, topEnd = 20.dp, bottomEnd = 30.dp)
     Card(
-        shape = RoundedCornerShape(30.dp),
+        shape = shape,
         elevation = 3.dp,
         modifier = Modifier
             .padding(bottom = 5.dp)
             .border(
                 width = 2.dp,
-                shape = RoundedCornerShape(30.dp),
+                shape = shape,
                 color = command.status.color)
     ){
         Box {
@@ -91,15 +93,16 @@ fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? =
                     .fillMaxWidth()
                     .align(Alignment.Center)
                     .clickable { onClick?.invoke(command.id) }
-                    .padding(10.dp)
+                    .padding(15.dp)
             ) {
                 // Client Name + Status row
                 CommandHeader(client = command.client.toNameString(), status = command.status.value, color = command.status.color)
 
                 // List of baskets with quantity
-                if(command.basketWrappers.isNotEmpty()) Text("Paniers", color = Orange1, modifier = Modifier.padding(top = 10.dp))
-                Column(
-                    Modifier.padding(horizontal = 10.dp)
+                if(command.basketWrappers.isNotEmpty())
+                    Column(
+                    Modifier.padding(15.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     command.basketWrappers.forEach {
                         CommandBasket(it.item.label, quantity = it.quantity)
@@ -107,9 +110,9 @@ fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? =
                 }
 
                 // List of products with quantity
-                if(command.basketWrappers.isNotEmpty()) Text("Produits", color = Orange1, modifier = Modifier.padding(top = 10.dp))
+                if(command.basketWrappers.isNotEmpty()) Divider(thickness = 1.dp, color = Gray1, modifier = Modifier.fillMaxWidth(0.7f).align(CenterHorizontally).padding(bottom = 10.dp))
                 Column(
-                    Modifier.padding(horizontal = 10.dp, vertical = if(command.basketWrappers.isNotEmpty()) 0.dp else 10.dp),
+                    Modifier.padding(start = 15.dp, end = 15.dp, top = if(command.basketWrappers.isNotEmpty()) 0.dp else 15.dp),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ){
                     command.productWrappers.forEach {

@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -65,6 +66,7 @@ fun ClientList(clients : List<AppClient>, onClientRemoved : ((AppClient) -> Unit
             if (dismissState.isDismissed(DismissDirection.EndToStart)) {
                 onClientRemoved?.invoke(client)
             }
+            // TODO Make swipe to dismiss generic -> Core/Common composable
             SwipeToDismiss(
                 state = dismissState,
                 modifier = Modifier
@@ -126,44 +128,27 @@ fun ClientRow(client: AppClient, color : Color = Orange1){
 
 @Composable
 @Preview
-fun ClientNameBox(modifier: Modifier = Modifier, name: String = "Mael DUMAT", color : Color = Orange1){
-    ConstraintLayout(
-        modifier = modifier
-    ) {
-        val (clientBox, editBox) = createRefs()
-
-        // Client box
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .padding(15.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Gray1)
-                .border(
-                    width = 2.dp,
-                    color = color,
-                    shape = RoundedCornerShape(20.dp)
-                )
-                .padding(horizontal = 15.dp, vertical = 10.dp)
-                .constrainAs(clientBox) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
-                }
-        ){
-            PersonName(name = name)
-        }
-        // Icon box
-        IconBox(
-            color = color,
-            modifier = Modifier
-                .padding(end = 30.dp)
-                .constrainAs(editBox) {
-                    end.linkTo(clientBox.end)
-                    bottom.linkTo(clientBox.bottom)
-                }
-        )
+fun ClientNameBox(
+    modifier: Modifier = Modifier,
+    name: String = "Mael DUMAT",
+    color : Color = Orange1,
+    onClick : (()->Unit)? = null
+){
+    Box(
+        modifier
+            .fillMaxWidth()
+            .padding(15.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .clickable {
+                onClick?.invoke()
+            }
+            .border(
+                width = 2.dp,
+                color = color,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(horizontal = 15.dp, vertical = 10.dp)
+    ){
+        PersonName(name = name)
     }
-
 }
