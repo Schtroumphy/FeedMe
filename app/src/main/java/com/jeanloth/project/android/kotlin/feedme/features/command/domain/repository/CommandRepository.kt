@@ -9,8 +9,11 @@ interface CommandRepository {
 
     fun getCommandById(id: Long) : Command?
 
+    fun observeCommandById(id: Long) : Flow<Command?>
+
     fun observeCommands() : Flow<List<Command>>
 
     fun remove(command : Command)
 
+    fun update(command: Command)
 }

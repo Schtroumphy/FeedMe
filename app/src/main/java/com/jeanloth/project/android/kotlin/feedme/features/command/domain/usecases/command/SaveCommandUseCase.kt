@@ -8,9 +8,6 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.CommandRepository
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveBasketWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveProductWrapperUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveWrapperUseCase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -19,7 +16,7 @@ class SaveCommandUseCase @Inject constructor(
     private val saveBasketWrapperUseCase: SaveBasketWrapperUseCase,
     private val saveProductWrapperUseCase: SaveProductWrapperUseCase,
 ) {
-    val TAG = "SaveCommandUseCase"
+    private val TAG = "SaveCommandUseCase"
 
     operator fun invoke(
         clientId : Long,
@@ -37,24 +34,24 @@ class SaveCommandUseCase @Inject constructor(
             clientId = clientId
         )
 
-       Log.d(TAG, "Command to save : ${command}")
-        var commandId = repository.save(command)
-        Log.d(TAG, "Command id : ${commandId}")
+       Log.d(TAG, "Command to save : $command")
+        val commandId = repository.save(command)
+        Log.d(TAG, "Command id : $commandId")
 
         // Save basket wrappers
         val basketWrappers = command.basketWrappers.onEach {
             it.parentId = commandId
         }
         Log.d(TAG, "Saving basket wrappers : $basketWrappers")
-        val basketWrappersIds = saveBasketWrapperUseCase(basketWrappers)
+        saveBasketWrapperUseCase(basketWrappers)
 
         // Save product wrappers
         val productWrappers = command.productWrappers.onEach {
             it.parentId = commandId
         }
-        Log.d(TAG, "Saving basket wrappers : $basketWrappers")
-        val productWrappersIds = saveProductWrapperUseCase(productWrappers, true)
+        Log.d(TAG, "Saving product wrappers : $basketWrappers")
+        saveProductWrapperUseCase(productWrappers, true)
 
-        return commandId != 0L && basketWrappersIds.size == basketWrappers.size && productWrappersIds.size == productWrappers.size
+        return commandId != 0L
     }
 }

@@ -10,10 +10,16 @@ interface ProductWrapperDao {
     @Query("SELECT * FROM product_wrapper")
     fun all() : List<ProductWrapperEntity>
 
-    @Insert
+    @Update
+    fun update(wrappers : List<ProductWrapperEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(product: ProductWrapperEntity) : Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun inserts(products: List<ProductWrapperEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(products: List<ProductWrapperEntity>) : Array<Long>
 
     @Query("SELECT * FROM product_wrapper")
@@ -24,5 +30,5 @@ interface ProductWrapperDao {
 
     @Transaction
     @Query("SELECT * FROM product_wrapper")
-    fun getDogsAndOwners(): List<ProductWrapper>
+    fun observeProdctWrappers(): Flow<List<ProductWrapper>>
 }

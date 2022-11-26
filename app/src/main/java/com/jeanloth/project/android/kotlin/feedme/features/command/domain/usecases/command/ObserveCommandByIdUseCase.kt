@@ -2,13 +2,22 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.domain.useca
 
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.CommandRepository
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.ProductWrapperRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 
-class GetCommandByIdUseCase(
+class ObserveCommandByIdUseCase(
     private val repository: CommandRepository
 ) {
 
-    operator fun invoke(id: Long): Command? {
-        return repository.getCommandById(id)
+    operator fun invoke(commandId : Long): Flow<Command?> {
+        return repository.observeCommandById(commandId)
     }
+
+    // If not ok, try to :
+    // Combine
+    // Observe command by id
+    // Observe product wrappers by command id
+    // Observe basket wrappers by command id
+
 }

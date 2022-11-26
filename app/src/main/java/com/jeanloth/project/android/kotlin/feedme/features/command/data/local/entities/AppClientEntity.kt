@@ -3,6 +3,7 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.e
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 
 @Entity(tableName = "app_client")
 class AppClientEntity(
@@ -15,3 +16,11 @@ class AppClientEntity(
     @ColumnInfo(name = "phone_number")
     var phoneNumber : Int? = null
 )
+
+fun AppClientEntity.asPojo() : AppClient{
+    return AppClient(
+        idClient = idClient,
+        firstname = firstname,
+        phoneNumber = phoneNumber
+    )
+}

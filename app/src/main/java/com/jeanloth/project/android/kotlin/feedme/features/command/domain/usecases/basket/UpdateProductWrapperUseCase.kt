@@ -6,8 +6,8 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.BaseRepository
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.ProductWrapperRepository
 
-class SaveProductWrapperUseCase (
+class UpdateProductWrapperUseCase (
     private val repository: ProductWrapperRepository
 ) {
-    operator fun invoke(wrappers: List<Wrapper<Product>>, isAssociatedToCommand : Boolean = false ) = repository.save(wrappers, isAssociatedToCommand)
+    operator fun invoke(wrappers: List<Wrapper<Product>>) = repository.update(wrappers)
 }

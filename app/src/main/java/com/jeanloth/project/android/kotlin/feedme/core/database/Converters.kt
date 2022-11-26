@@ -2,6 +2,7 @@ package com.jeanloth.project.android.kotlin.feedme.core.database
 
 import androidx.room.TypeConverter
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandStatus
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.ProductCategory
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
 import java.time.LocalDate
 
@@ -14,6 +15,18 @@ class DateTypeConverter {
     @TypeConverter
     fun dateToTimestamp(date: LocalDate?): String? {
         return date.toString()
+    }
+}
+
+class ProductCategoryConverter {
+    @TypeConverter
+    fun fromCode(code: Int): ProductCategory {
+        return ProductCategory.values().first { it.code.equals(code) } ?: ProductCategory.FRUIT
+    }
+
+    @TypeConverter
+    fun categoryToInt(category: ProductCategory): Int {
+        return category.code
     }
 }
 

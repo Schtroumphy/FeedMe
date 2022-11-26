@@ -11,10 +11,10 @@ interface BasketWrapperDao {
     @Query("SELECT * FROM basket_wrapper")
     fun all() : List<BasketWrapperEntity>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(product: BasketWrapperEntity) : Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(products: List<BasketWrapperEntity>) : Array<Long>
 
     @Query("SELECT * FROM basket_wrapper")

@@ -13,8 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,12 +34,19 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
 
+class CommandQuantityInfo(val newQuantity: Int, val wrapperId : Long, val parentId : Long, var itemType : CommandItemType = CommandItemType.INDIVIDUAL_PRODUCT)
+enum class CommandItemType {
+    INDIVIDUAL_PRODUCT,
+    BASKET
+}
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun CommandDetailPage(
-    command : Command ?= null
+    command : Command ?= null,
+    onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
 ){
     val client = command?.client?.toNameString() ?: "Albert"
 
@@ -64,7 +70,12 @@ fun CommandDetailPage(
                     item {
                         CommandBasketItem(
                             label = it.item.label,
-                            productWrappers = it.item.wrappers
+                            productWrappers = it.item.wrappers,
+                            onQuantityChange = {
+                                onQuantityChange?.invoke(it.apply {
+                                    itemType = CommandItemType.BASKET
+                                })
+                            }
                         )
                     }
                 }
@@ -74,7 +85,12 @@ fun CommandDetailPage(
                     item {
                         CommandBasketItem(
                             label = "Produits individuels",
-                            productWrappers = it
+                            productWrappers = it,
+                            onQuantityChange = {
+                                onQuantityChange?.invoke(it.apply {
+                                    itemType = CommandItemType.INDIVIDUAL_PRODUCT
+                                })
+                            }
                         )
                     }
                 }
@@ -86,7 +102,8 @@ fun CommandDetailPage(
 @Composable
 fun CommandBasketItem(
     label : String? = "Panier Label",
-    productWrappers : List<Wrapper<Product>> = emptyList()
+    productWrappers : List<Wrapper<Product>> = emptyList(),
+    onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
 ){
     Row(
         modifier = Modifier
@@ -115,7 +132,9 @@ fun CommandBasketItem(
                 Spacer(Modifier.height(12.dp))
             }
             productWrappers.forEach {
-                CommandProductItem(it)
+                CommandProductItem(it, onQuantityChange = {
+                    onQuantityChange?.invoke(it)
+                })
             }
         }
     }
@@ -125,7 +144,9 @@ fun CommandBasketItem(
 fun CommandProductItem(
     productWrapper : Wrapper<Product>,
     isEditMode : Boolean = true,
+    onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
 ){
+    var quantityEdit by remember { mutableStateOf(productWrapper.realQuantity) }
     Row(
         Modifier
             .fillMaxWidth()
@@ -134,9 +155,18 @@ fun CommandProductItem(
         verticalAlignment = Alignment.CenterVertically
     ){
         Text(productWrapper.item.label, style = MaterialTheme.typography.labelMedium, color = Color.LightGray, modifier = Modifier.weight(1f), overflow = TextOverflow.Ellipsis)
-        Text("0 / ${productWrapper.quantity}", style = MaterialTheme.typography.labelMedium, color = Color.LightGray,modifier = Modifier.padding(end = 10.dp))
+        Text("${productWrapper.realQuantity} / ${productWrapper.quantity}", style = MaterialTheme.typography.labelMedium, color = Color.LightGray,modifier = Modifier.padding(end = 10.dp))
         if(isEditMode){
-            AddQuantityBox(modifier = Modifier.width(80.dp))
+            AddQuantityBox(modifier = Modifier.width(80.dp),
+                quantity = quantityEdit,
+                onQuantityChange = {
+                    quantityEdit = it
+                    onQuantityChange?.invoke(CommandQuantityInfo(
+                        newQuantity = it,
+                        wrapperId = productWrapper.id,
+                        parentId = productWrapper.parentId
+                    ))
+            })
         }
     }
 }

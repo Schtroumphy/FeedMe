@@ -14,6 +14,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -31,6 +32,10 @@ class BasketRepositoryImpl @Inject constructor(
         return dao.insert(entity)
     }
 
+    override fun observeBaskets(commandId: Long): Flow<List<Basket>> {
+        return observeBaskets().map { it.filter { it.wrappers.any { it.parentId == commandId } } }
+    }
+
     override fun observeBaskets(): Flow<List<Basket>> {
         return dao.observeBasketsWithWrappers().map { baskets ->
             baskets.map {
@@ -45,6 +50,7 @@ class BasketRepositoryImpl @Inject constructor(
                                 label = it.product.label,
                                 unitPrice = it.product.unitPrice
                             ),
+                            realQuantity = it.wrapper.realQuantity,
                             quantity = it.wrapper.quantity
                         )
                     }

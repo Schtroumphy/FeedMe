@@ -16,9 +16,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecas
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.RemoveClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.SaveClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.GetCommandByIdUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveAllCommandsUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.SaveCommandUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
@@ -120,6 +118,10 @@ object AppModule {
     @Singleton
     fun provideGetCommandById(repository: CommandRepository) : GetCommandByIdUseCase = GetCommandByIdUseCase(repository)
 
+    @Provides
+    @Singleton
+    fun provideObserveCommandById(repository: CommandRepository) : ObserveCommandByIdUseCase = ObserveCommandByIdUseCase(repository)
+
     /** --- Wrappers --- **/
     @Provides
     @Singleton
@@ -138,6 +140,16 @@ object AppModule {
     @Singleton
     fun provideSaveCommand(repository: CommandRepository, saveBasketWrapperUseCase: SaveBasketWrapperUseCase, saveProductWrapperUseCase: SaveProductWrapperUseCase) : SaveCommandUseCase
     = SaveCommandUseCase(repository, saveBasketWrapperUseCase, saveProductWrapperUseCase)
+
+    @Provides
+    @Singleton
+    fun provideUpdateCommand(repository: CommandRepository, saveBasketWrapperUseCase: SaveBasketWrapperUseCase, updateProductWrapperUseCase: UpdateProductWrapperUseCase) : UpdateCommandUseCase
+    = UpdateCommandUseCase(repository, saveBasketWrapperUseCase, updateProductWrapperUseCase)
+
+    @Provides
+    @Singleton
+    fun provideUpdateProductWrappers(repository: ProductWrapperRepository) : UpdateProductWrapperUseCase
+    = UpdateProductWrapperUseCase(repository)
 
     /** --- Others --- **/
     @Provides

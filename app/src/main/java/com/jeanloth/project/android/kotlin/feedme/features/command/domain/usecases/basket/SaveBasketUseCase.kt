@@ -20,6 +20,6 @@ class SaveBasketUseCase @Inject constructor(
         Log.d("SaveProductWrapperUseCase", "Saving product wrappers : $wrappers")
         val wrappersIds = saveProductWrapperUseCase(wrappers)
 
-        return basketId != 0L && wrappersIds.size == basket.wrappers.size
+        return basketId != 0L
     }
 }

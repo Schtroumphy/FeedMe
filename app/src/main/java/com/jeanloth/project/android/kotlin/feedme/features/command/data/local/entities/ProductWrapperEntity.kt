@@ -14,9 +14,12 @@ class ProductWrapperEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val productId: Long = 0L,
+
+    // Parent id, wrapper associated to basket or command directly
     val basketId: Long = 0L,
     val commandId: Long = 0L,
 
+    var realQuantity : Int,
     var quantity : Int,
     val status : Status = Status.TO_DO
 )

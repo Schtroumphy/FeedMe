@@ -4,8 +4,6 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.da
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.BasketDao
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.CommandDao
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.ProductDao
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.AppClientEntity
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.CommandWithWrappers
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.AppClientEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.BasketEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.CommandEntityMapper
@@ -14,8 +12,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.CommandRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class CommandRepositoryImpl @Inject constructor(
@@ -33,37 +30,52 @@ class CommandRepositoryImpl @Inject constructor(
         return dao.insert(commandEntityMapper.to(command))
     }
 
-    override fun getCommandById(id: Long): Command? {
-        val cw = dao.getCommandsWithWrappersById(id)
+    override fun update(command: Command) {
+        dao.update(commandEntityMapper.to(command))
+    }
 
+    override fun getCommandById(id: Long): Command? {
+        return null
+    }
+
+    override fun observeCommandById(id: Long): Flow<Command?> {
         val bw = basketDao.getBasketsWithWrappers()
 
         // Map with <BasketId, productAssociated>
         val basketProductMap : Map<Long, List<Wrapper<Product>>> = bw.groupBy { it.basketEntity.id }.mapValues { it.value.flatMap { it.wrappers }.map { pw ->
             Wrapper(
                 item = productMapper.from(productDao.getById(pw.product.id)),
+                realQuantity = pw.wrapper.realQuantity,
                 quantity = pw.wrapper.quantity,
                 status = pw.wrapper.status
             )
         }}
 
-        return if(cw == null) null else Command(
-            id = cw.commandEntity.id,
-            status = cw.commandEntity.status,
-            totalPrice = cw.commandEntity.totalPrice,
-            productWrappers = cw.productWrappers.map { pw -> Wrapper(
-                item = productMapper.from(productDao.getById(pw.productId)),
-                quantity = pw.quantity,
-                status = pw.status
-            ) },
-            basketWrappers = cw.basketWrappers.map { bw -> Wrapper(
-                item = basketMapper.from(basketDao.getById(bw.basketId)).apply { this.wrappers = basketProductMap[this.basketId] ?: emptyList() }, // TODO Retrieve separately all product linked to this basketId to add to this item
-                quantity = bw.quantity,
-                status = bw.status
-            ) },
-            deliveryDate = cw.commandEntity.deliveryDate,
-            client = clientMapper.from(clientDao.getById(cw.commandEntity.clientId))
-        )
+        return dao.observeCommandsWithWrappersById(id).filterNotNull().map {
+            Command(
+                id = it.commandEntity.id,
+                status = it.commandEntity.status,
+                totalPrice = it.commandEntity.totalPrice,
+                productWrappers = it.productWrappers.map { pw -> Wrapper(
+                    id = pw.id,
+                    parentId = pw.commandId,
+                    item = productMapper.from(productDao.getById(pw.productId)),
+                    realQuantity = pw.realQuantity,
+                    quantity = pw.quantity,
+                    status = pw.status
+                ) },
+                basketWrappers = it.basketWrappers.map { bw -> Wrapper(
+                    id = bw.id,
+                    parentId = bw.commandId,
+                    item = basketMapper.from(basketDao.getById(bw.basketId)).apply { this.wrappers = basketProductMap[this.basketId] ?: emptyList() }, // TODO Retrieve separately all product linked to this basketId to add to this item
+                    realQuantity = bw.realQuantity,
+                    quantity = bw.quantity,
+                    status = bw.status
+                ) },
+                deliveryDate = it.commandEntity.deliveryDate,
+                client = clientMapper.from(clientDao.getById(it.commandEntity.clientId))
+            )
+        }
     }
 
     override fun observeCommands(): Flow<List<Command>> {
@@ -75,11 +87,13 @@ class CommandRepositoryImpl @Inject constructor(
                     totalPrice = it.commandEntity.totalPrice,
                     productWrappers = it.productWrappers.map { pw -> Wrapper(
                         item = productMapper.from(productDao.getById(pw.productId)),
+                        realQuantity = pw.realQuantity,
                         quantity = pw.quantity,
                         status = pw.status
                     ) },
                     basketWrappers = it.basketWrappers.map { bw -> Wrapper(
                         item = basketMapper.from(basketDao.getById(bw.basketId)),
+                        realQuantity = bw.realQuantity,
                         quantity = bw.quantity,
                         status = bw.status
                     ) },

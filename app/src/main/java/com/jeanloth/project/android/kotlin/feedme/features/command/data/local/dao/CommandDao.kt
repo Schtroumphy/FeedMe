@@ -1,8 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao
 
 import androidx.room.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.BasketEntity
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.BasketWithWrappers
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.CommandEntity
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.CommandWithWrappers
 import kotlinx.coroutines.flow.Flow
@@ -12,10 +10,13 @@ interface CommandDao {
     @Query("SELECT * FROM command")
     fun all() : List<CommandEntity>
 
-    @Insert
+    @Update
+    fun update(command: CommandEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(command: CommandEntity) : Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(commands: List<CommandEntity>) : Array<Long>
 
     @Query("SELECT * FROM command")
@@ -31,5 +32,9 @@ interface CommandDao {
     @Transaction
     @Query("SELECT * FROM command WHERE id=:id")
     fun getCommandsWithWrappersById(id : Long): CommandWithWrappers?
+
+    @Transaction
+    @Query("SELECT * FROM command WHERE id=:id")
+    fun observeCommandsWithWrappersById(id : Long): Flow<CommandWithWrappers?>
 
 }

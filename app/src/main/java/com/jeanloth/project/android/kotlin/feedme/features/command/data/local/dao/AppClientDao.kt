@@ -1,9 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.AppClientEntity
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.BasketEntity
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AppClientDao{
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(client: AppClientEntity)
 
     @Query("SELECT * FROM app_client WHERE idClient=:id ")

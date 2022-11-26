@@ -8,9 +8,9 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.en
 
 @Database(
     entities = [AppClientEntity::class, ProductEntity::class, BasketEntity::class, ProductWrapperEntity::class, BasketWrapperEntity::class, CommandEntity::class],  // Add all new entity to the list there
-    version = 2
+    version = 1
 )
-@TypeConverters(DateTypeConverter::class, StatusConverter::class, CommandStatusConverter::class)
+@TypeConverters(DateTypeConverter::class, StatusConverter::class, CommandStatusConverter::class, ProductCategoryConverter::class)
 abstract class AppRoomDatabase : RoomDatabase() {
 
     companion object {

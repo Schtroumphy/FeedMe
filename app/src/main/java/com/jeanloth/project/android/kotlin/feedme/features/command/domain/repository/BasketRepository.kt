@@ -10,6 +10,8 @@ interface BasketRepository {
 
     fun observeBaskets() : Flow<List<Basket>>
 
+    fun observeBaskets(comandId : Long) : Flow<List<Basket>>
+
     fun remove(basket : Basket)
 
 }

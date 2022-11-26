@@ -14,7 +14,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import java.time.LocalDate
 
 @Entity(tableName = "command")
-@TypeConverters(DateTypeConverter::class, CommandStatusConverter::class)
+@TypeConverters(DateTypeConverter::class, StatusConverter::class)
 class CommandEntity (
     @PrimaryKey(autoGenerate = true)
     var id : Long = 0,

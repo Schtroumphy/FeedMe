@@ -25,6 +25,7 @@ class WrapperBasketRepositoryImpl @Inject constructor(
         return dao.insert(BasketWrapperEntity(
             basketId = wrapper.item.id,
             commandId = wrapper.parentId,
+            realQuantity = wrapper.realQuantity,
             quantity = wrapper.quantity,
             status = wrapper.status
         ))
@@ -35,6 +36,7 @@ class WrapperBasketRepositoryImpl @Inject constructor(
             BasketWrapperEntity(
                 basketId = wrapper.item.id,
                 commandId = wrapper.parentId,
+                realQuantity = wrapper.realQuantity,
                 quantity = wrapper.quantity,
                 status = wrapper.status
             )
@@ -46,6 +48,7 @@ class WrapperBasketRepositoryImpl @Inject constructor(
             BasketWrapperEntity(
             id = wrapper.id,
             basketId = wrapper.item.id,
+            realQuantity = wrapper.realQuantity,
             quantity = wrapper.quantity,
             status = wrapper.status
             )

@@ -10,6 +10,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.Snapshot.Companion.withMutableSnapshot
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortDate
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.updateWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
@@ -19,13 +20,14 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveAllBasketsUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.GetCommandByIdUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveAllCommandsUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.SaveCommandUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CommandItemType
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CommandQuantityInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -37,8 +39,9 @@ class CommandVM @Inject constructor(
     private val observeAllBasketsUseCase: ObserveAllBasketsUseCase,
     private val observeAllProductsUseCase: ObserveAllProductsUseCase,
     private val observeAllCommandsUseCase: ObserveAllCommandsUseCase,
-    private val getCommandByIdUseCase: GetCommandByIdUseCase,
-    private val saveCommandUseCase: SaveCommandUseCase
+    private val observeCommandByIdUseCase: ObserveCommandByIdUseCase,
+    private val saveCommandUseCase: SaveCommandUseCase,
+    private val updateCommandUseCase: UpdateCommandUseCase,
 ) : ViewModel() {
 
     private val _baskets : MutableStateFlow<List<Basket>> = MutableStateFlow(emptyList())
@@ -66,6 +69,7 @@ class CommandVM @Inject constructor(
         initialValue = null
     )
 
+    private val _currentCommandId : MutableStateFlow<Long?> = MutableStateFlow(null)
     private val _currentCommand : MutableStateFlow<Command?> = MutableStateFlow(null)
     val currentCommand : StateFlow<Command?> = _currentCommand.asStateFlow()
 
@@ -78,6 +82,17 @@ class CommandVM @Inject constructor(
             observeAllBasketsUseCase().collect {
                 _baskets.emit(it)
                 _basketWrappers.emit(it.map { it.toWrapper() })
+            }
+        }
+
+        // TODO Observe current command id
+        viewModelScope.launch(Dispatchers.IO) {
+            _currentCommandId.collect {
+                it?.let {
+                    observeCommandByIdUseCase(it).collect {
+                        _currentCommand.emit(it)
+                    }
+                }
             }
         }
 
@@ -152,6 +167,9 @@ class CommandVM @Inject constructor(
         }
     }
 
+    /**
+     * Save command to database
+     */
     fun saveCommand() : Boolean {
         viewModelScope.launch(Dispatchers.IO) {
             saveCommandUseCase(
@@ -166,9 +184,41 @@ class CommandVM @Inject constructor(
         return true
     }
 
+    /**
+     * Get current command by given id
+     *
+     * @param id of the command to fetch
+     */
     fun updateCurrentCommand(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            _currentCommand.value = getCommandByIdUseCase(id)
+        }
+    }
+
+    fun updateCurrentCommandId(id:Long){
+        _currentCommandId.value = id
+    }
+
+
+
+    /**
+     * Clear client, basket wrappers and product quantity map
+     */
+    fun updateRealCommandQuantity(info : CommandQuantityInfo){
+        // Search wrapper concerned in current command
+        when(info.itemType){
+            CommandItemType.INDIVIDUAL_PRODUCT -> _currentCommand.value?.productWrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
+            CommandItemType.BASKET -> _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
+        }
+
+        when(info.itemType){
+            CommandItemType.INDIVIDUAL_PRODUCT ->  Log.i("CommandVM", _currentCommand.value?.productWrappers?.map { "${it.realQuantity}" }?.joinToString(",") ?: "" )
+            CommandItemType.BASKET -> Log.i("CommandVM", _currentCommand.value?.basketWrappers?.map { "${it.realQuantity}" }?.joinToString(",") ?: "" )
+        }
+
+        // TODO Rework save command use case call to pass a command as parameter
+        // Save it to database
+        viewModelScope.launch(Dispatchers.IO) {
+            updateCommandUseCase(_currentCommand.value)
         }
     }
 }

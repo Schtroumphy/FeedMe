@@ -145,13 +145,18 @@ class MainActivity : ComponentActivity() {
 
                             // List of commands page
                             composable(FooterRoute.COMMAND_LIST.route) { CommandListPage(commandsByDate, onClick = {
-                                commandVM.updateCurrentCommand(it)
+                                commandVM.updateCurrentCommandId(it)
                                 navController.navigate(FooterRoute.COMMAND_DETAIL.route)
                             }) }
 
                             // Detail of command
                             composable(FooterRoute.COMMAND_DETAIL.route) { navBackStackEntry ->
-                                CommandDetailPage(currentCommand)
+                                CommandDetailPage(
+                                    currentCommand,
+                                    onQuantityChange = {
+                                        commandVM.updateRealCommandQuantity(it)
+                                    }
+                                )
                             }
 
                             // Add command page

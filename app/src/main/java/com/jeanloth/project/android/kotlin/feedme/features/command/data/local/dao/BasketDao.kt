@@ -14,10 +14,10 @@ interface BasketDao {
     @Query("SELECT * FROM basket WHERE id=:id ")
     fun getById(id : Long) : BasketEntity
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(basket: BasketEntity) : Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(baskets: List<BasketEntity>) : Array<Long>
 
     @Query("SELECT * FROM basket")
