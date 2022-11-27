@@ -4,6 +4,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.da
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.BasketDao
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.CommandDao
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.ProductDao
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations.asPojo
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.AppClientEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.BasketEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.CommandEntityMapper
@@ -44,7 +45,9 @@ class CommandRepositoryImpl @Inject constructor(
         // Map with <BasketId, productAssociated>
         val basketProductMap : Map<Long, List<Wrapper<Product>>> = bw.groupBy { it.basketEntity.id }.mapValues { it.value.flatMap { it.wrappers }.map { pw ->
             Wrapper(
+                id = pw.wrapper.id,
                 item = productMapper.from(productDao.getById(pw.product.id)),
+                parentId = pw.wrapper.commandId,
                 realQuantity = pw.wrapper.realQuantity,
                 quantity = pw.wrapper.quantity,
                 status = pw.wrapper.status
@@ -65,12 +68,12 @@ class CommandRepositoryImpl @Inject constructor(
                     status = pw.status
                 ) },
                 basketWrappers = it.basketWrappers.map { bw -> Wrapper(
-                    id = bw.id,
-                    parentId = bw.commandId,
-                    item = basketMapper.from(basketDao.getById(bw.basketId)).apply { this.wrappers = basketProductMap[this.basketId] ?: emptyList() }, // TODO Retrieve separately all product linked to this basketId to add to this item
-                    realQuantity = bw.realQuantity,
-                    quantity = bw.quantity,
-                    status = bw.status
+                    id = bw.wrapper.id,
+                    parentId = bw.wrapper.commandId,
+                    item = bw.populatedBasket.asPojo(), // TODO Retrieve separately all product linked to this basketId to add to this item
+                    realQuantity = bw.wrapper.realQuantity,
+                    quantity = bw.wrapper.quantity,
+                    status = bw.wrapper.status
                 ) },
                 deliveryDate = it.commandEntity.deliveryDate,
                 client = clientMapper.from(clientDao.getById(it.commandEntity.clientId))
@@ -92,10 +95,12 @@ class CommandRepositoryImpl @Inject constructor(
                         status = pw.status
                     ) },
                     basketWrappers = it.basketWrappers.map { bw -> Wrapper(
-                        item = basketMapper.from(basketDao.getById(bw.basketId)),
-                        realQuantity = bw.realQuantity,
-                        quantity = bw.quantity,
-                        status = bw.status
+                        id = bw.wrapper.id,
+                        parentId = bw.wrapper.commandId,
+                        item = bw.populatedBasket.asPojo(), // TODO Retrieve separately all product linked to this basketId to add to this item
+                        realQuantity = bw.wrapper.realQuantity,
+                        quantity = bw.wrapper.quantity,
+                        status = bw.wrapper.status
                     ) },
                     deliveryDate = it.commandEntity.deliveryDate,
                     client = clientMapper.from(clientDao.getById(it.commandEntity.clientId))

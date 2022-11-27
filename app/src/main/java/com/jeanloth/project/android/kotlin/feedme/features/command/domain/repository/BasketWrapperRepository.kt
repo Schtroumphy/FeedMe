@@ -11,7 +11,11 @@ interface BasketWrapperRepository {
 
     fun save(basketWrappers : List<Wrapper<Basket>>) : Array<Long>
 
+    fun update(basketWrappers : List<Wrapper<Basket>>)
+
     fun observeBasketWrappers() : Flow<List<Wrapper<Basket>>>
+
+    fun observeBasketWrappersByCommandId(commandId: Long) : Flow<List<Wrapper<Basket>>>
 
     fun remove(basketWrapper : Wrapper<Basket>)
 

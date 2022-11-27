@@ -20,6 +20,8 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveAllBasketsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateBasketWrapperUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CommandItemType
@@ -42,6 +44,8 @@ class CommandVM @Inject constructor(
     private val observeCommandByIdUseCase: ObserveCommandByIdUseCase,
     private val saveCommandUseCase: SaveCommandUseCase,
     private val updateCommandUseCase: UpdateCommandUseCase,
+    private val updateProductWrapperUseCase: UpdateProductWrapperUseCase,
+    private val updateBasketWrapperUseCase: UpdateBasketWrapperUseCase
 ) : ViewModel() {
 
     private val _baskets : MutableStateFlow<List<Basket>> = MutableStateFlow(emptyList())
@@ -185,40 +189,37 @@ class CommandVM @Inject constructor(
     }
 
     /**
-     * Get current command by given id
+     * Update current command id whith given id
      *
-     * @param id of the command to fetch
+     * @param id of the command
      */
-    fun updateCurrentCommand(id: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-        }
-    }
-
     fun updateCurrentCommandId(id:Long){
         _currentCommandId.value = id
     }
 
-
-
     /**
-     * Clear client, basket wrappers and product quantity map
+     * Update product/basket wrapper when quantity change
      */
     fun updateRealCommandQuantity(info : CommandQuantityInfo){
-        // Search wrapper concerned in current command
         when(info.itemType){
-            CommandItemType.INDIVIDUAL_PRODUCT -> _currentCommand.value?.productWrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
-            CommandItemType.BASKET -> _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
-        }
+            CommandItemType.INDIVIDUAL_PRODUCT -> {
+                _currentCommand.value?.productWrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
+                Log.i("CommandVM", _currentCommand.value?.productWrappers?.map { "${it.realQuantity}" }?.joinToString(",") ?: "" )
+                viewModelScope.launch(Dispatchers.IO) {
+                    updateProductWrapperUseCase(_currentCommand.value?.productWrappers, true)
+                }
+            }
+            CommandItemType.BASKET -> {
+                _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.basketId }?.item?.wrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
+                viewModelScope.launch(Dispatchers.IO) {
+                    _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.basketId }?.item?.wrappers?.let {
+                        updateProductWrapperUseCase(_currentCommand.value?.productWrappers, isAssociatedToCommand = false)
 
-        when(info.itemType){
-            CommandItemType.INDIVIDUAL_PRODUCT ->  Log.i("CommandVM", _currentCommand.value?.productWrappers?.map { "${it.realQuantity}" }?.joinToString(",") ?: "" )
-            CommandItemType.BASKET -> Log.i("CommandVM", _currentCommand.value?.basketWrappers?.map { "${it.realQuantity}" }?.joinToString(",") ?: "" )
-        }
-
-        // TODO Rework save command use case call to pass a command as parameter
-        // Save it to database
-        viewModelScope.launch(Dispatchers.IO) {
-            updateCommandUseCase(_currentCommand.value)
+                        // TO DO update realQuantity ok basketWrapper if all product wrappers realQuantity >= quantity
+                        //updateBasketWrapperUseCase(_currentCommand.value?.basketWrappers)
+                    }
+                }
+            }
         }
     }
 }

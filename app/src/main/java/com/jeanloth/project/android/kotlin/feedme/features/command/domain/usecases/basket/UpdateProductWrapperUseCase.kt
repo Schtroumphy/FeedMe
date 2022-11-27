@@ -9,5 +9,5 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.reposi
 class UpdateProductWrapperUseCase (
     private val repository: ProductWrapperRepository
 ) {
-    operator fun invoke(wrappers: List<Wrapper<Product>>) = repository.update(wrappers)
+    operator fun invoke(wrappers: List<Wrapper<Product>>?,isAssociatedToCommand: Boolean) = wrappers?.let { repository.update(wrappers, isAssociatedToCommand) }
 }

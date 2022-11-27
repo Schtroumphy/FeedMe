@@ -36,7 +36,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
 
-class CommandQuantityInfo(val newQuantity: Int, val wrapperId : Long, val parentId : Long, var itemType : CommandItemType = CommandItemType.INDIVIDUAL_PRODUCT)
+class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var itemType : CommandItemType = CommandItemType.INDIVIDUAL_PRODUCT)
 enum class CommandItemType {
     INDIVIDUAL_PRODUCT,
     BASKET
@@ -66,13 +66,14 @@ fun CommandDetailPage(
             ) {
 
                 // Basket list
-                command?.basketWrappers?.forEach {
+                command?.basketWrappers?.forEach { bw ->
                     item {
                         CommandBasketItem(
-                            label = it.item.label,
-                            productWrappers = it.item.wrappers,
+                            label = bw.item.label,
+                            productWrappers = bw.item.wrappers,
                             onQuantityChange = {
                                 onQuantityChange?.invoke(it.apply {
+                                    basketId = bw.id
                                     itemType = CommandItemType.BASKET
                                 })
                             }

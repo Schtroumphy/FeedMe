@@ -1,7 +1,7 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers
 
 import com.jeanloth.project.android.kotlin.feedme.core.interfaces.Mapper
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.CommandEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple.CommandEntity
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 
 class CommandEntityMapper : Mapper<CommandEntity, Command> {

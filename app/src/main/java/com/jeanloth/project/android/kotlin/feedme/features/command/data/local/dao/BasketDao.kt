@@ -1,9 +1,8 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao
 
 import androidx.room.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.BasketEntity
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.BasketWithWrappers
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.ProductEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple.BasketEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations.PopulatedBasket
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -28,9 +27,9 @@ interface BasketDao {
 
     @Transaction
     @Query("SELECT * FROM basket")
-    fun observeBasketsWithWrappers(): Flow<List<BasketWithWrappers>>
+    fun observeBasketsWithWrappers(): Flow<List<PopulatedBasket>>
 
     @Transaction
     @Query("SELECT * FROM basket")
-    fun getBasketsWithWrappers(): List<BasketWithWrappers>
+    fun getBasketsWithWrappers(): List<PopulatedBasket>
 }

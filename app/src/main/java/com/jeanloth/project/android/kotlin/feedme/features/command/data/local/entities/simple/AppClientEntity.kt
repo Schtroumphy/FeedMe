@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities
+package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

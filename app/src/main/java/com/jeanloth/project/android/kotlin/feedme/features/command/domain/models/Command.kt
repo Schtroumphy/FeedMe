@@ -10,7 +10,7 @@ data class Command(
     val totalPrice : Int = 0,
 
     val productWrappers : List<Wrapper<Product>> = emptyList(),
-    val basketWrappers : List<Wrapper<Basket>> = emptyList(),
+    var basketWrappers : List<Wrapper<Basket>> = emptyList(),
 
     val clientId : Long = 0,
     val client : AppClient? = null,

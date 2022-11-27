@@ -1,7 +1,10 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities
+package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.ProductWrapperEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple.ProductEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple.asPojo
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 
@@ -16,7 +19,7 @@ class ProductWrapper(
     val product: ProductEntity
 )
 
-fun ProductWrapper.asPojoWithCommand() : Wrapper<Product> {
+fun ProductWrapper.asPojo() : Wrapper<Product> {
     return Wrapper(
         id = wrapper.id,
         parentId = wrapper.commandId,

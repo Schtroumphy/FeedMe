@@ -9,8 +9,6 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.BasketEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.CommandEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.ProductEntityMapper
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.GetAllClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.RemoveClientUseCase
@@ -120,7 +118,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideObserveCommandById(repository: CommandRepository) : ObserveCommandByIdUseCase = ObserveCommandByIdUseCase(repository)
+    fun provideObserveCommandById(repository: CommandRepository, basketWrapperRepository: BasketWrapperRepository) : ObserveCommandByIdUseCase = ObserveCommandByIdUseCase(repository, basketWrapperRepository)
 
     /** --- Wrappers --- **/
     @Provides
@@ -148,8 +146,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUpdateProductWrappers(repository: ProductWrapperRepository) : UpdateProductWrapperUseCase
-    = UpdateProductWrapperUseCase(repository)
+    fun provideUpdateProductWrappers(repository: ProductWrapperRepository) : UpdateProductWrapperUseCase = UpdateProductWrapperUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideUpdateBasketWrapperUseCase(repository: BasketWrapperRepository) : UpdateBasketWrapperUseCase = UpdateBasketWrapperUseCase(repository)
 
     /** --- Others --- **/
     @Provides

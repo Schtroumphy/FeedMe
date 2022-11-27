@@ -1,7 +1,7 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao
 
 import androidx.room.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.ProductWrapper
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations.ProductWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.ProductWrapperEntity
 import kotlinx.coroutines.flow.Flow
 

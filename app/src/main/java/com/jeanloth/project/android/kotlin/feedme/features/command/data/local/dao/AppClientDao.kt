@@ -1,8 +1,7 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao
 
 import androidx.room.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.AppClientEntity
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.BasketEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple.AppClientEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

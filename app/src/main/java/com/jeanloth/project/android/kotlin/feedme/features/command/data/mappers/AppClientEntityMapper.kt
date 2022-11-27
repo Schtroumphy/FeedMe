@@ -1,7 +1,7 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers
 
 import com.jeanloth.project.android.kotlin.feedme.core.interfaces.Mapper
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.AppClientEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple.AppClientEntity
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 
 class AppClientEntityMapper : Mapper<AppClientEntity, AppClient> {

@@ -27,12 +27,6 @@ class UpdateCommandUseCase @Inject constructor(
         Log.d(TAG, "Command to save : ${command}")
         //repository.update(command) // TODO To uncomment when user will be able to edit command info
 
-        // Update basket wrappers
-        //saveBasketWrapperUseCase(command.basketWrappers)
-
-        // Update product wrappers
-        updateProductWrapperUseCase(command.productWrappers)
-
         return true
     }
 }

@@ -8,7 +8,7 @@ interface ProductWrapperRepository {
 
     fun save(product : Wrapper<Product>) : Long
 
-    fun update(product : List<Wrapper<Product>>)
+    fun update(product : List<Wrapper<Product>>, isAssociatedToCommand: Boolean = true)
 
     fun saveAndGetIds(products : List<Wrapper<Product>>, isAssociatedToCommand: Boolean = false): Array<Long>
 

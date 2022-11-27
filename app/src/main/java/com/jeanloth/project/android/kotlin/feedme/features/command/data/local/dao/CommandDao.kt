@@ -1,8 +1,8 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao
 
 import androidx.room.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.CommandEntity
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.CommandWithWrappers
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple.CommandEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations.CommandWithWrappers
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -1,10 +1,12 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities
+package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.ProductWrapperEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.simple.BasketEntity
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 
-class BasketWithWrappers(
+class PopulatedBasket(
     @Embedded val basketEntity: BasketEntity,
     @Relation(
         parentColumn = "id",
@@ -14,9 +16,10 @@ class BasketWithWrappers(
     val wrappers: List<ProductWrapper>
 )
 
-fun BasketWithWrappers.asPojo() = Basket(
+fun PopulatedBasket.asPojo() = Basket(
     basketId = basketEntity.id,
     label = basketEntity.label,
     price = basketEntity.price,
-    wrappers = wrappers.map { it.asPojoWithCommand() }
+    wrappers = wrappers.map { it.asPojo() }
 )
+
