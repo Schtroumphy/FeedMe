@@ -24,16 +24,16 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortDate
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailsVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
 
 class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var itemType : CommandItemType = CommandItemType.INDIVIDUAL_PRODUCT)
@@ -45,9 +45,10 @@ enum class CommandItemType {
 @Composable
 @Preview
 fun CommandDetailPage(
-    command : Command ?= null,
+    commandDetailVM : CommandDetailsVM,
     onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
 ){
+    val command by commandDetailVM.currentCommand.collectAsState()
     val client = command?.client?.toNameString() ?: "Albert"
 
     // TODO Primary and second color in function of command status to transfer to all sub cmposables
@@ -148,6 +149,11 @@ fun CommandProductItem(
     onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
 ){
     var quantityEdit by remember { mutableStateOf(productWrapper.realQuantity) }
+    var backgroundColor by remember { mutableStateOf(when {
+        quantityEdit > productWrapper.quantity -> Orange1
+        quantityEdit > 0 -> Vert0
+        else -> Gray1
+    }) }
     Row(
         Modifier
             .fillMaxWidth()
@@ -160,8 +166,14 @@ fun CommandProductItem(
         if(isEditMode){
             AddQuantityBox(modifier = Modifier.width(80.dp),
                 quantity = quantityEdit,
+                backgroundColor = backgroundColor,
                 onQuantityChange = {
                     quantityEdit = it
+                    backgroundColor = when {
+                        quantityEdit > productWrapper.quantity -> Orange1
+                        quantityEdit > 0 -> Vert0
+                        else -> Gray1
+                    }
                     onQuantityChange?.invoke(CommandQuantityInfo(
                         newQuantity = it,
                         wrapperId = productWrapper.id,

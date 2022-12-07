@@ -14,13 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.jeanloth.project.android.kotlin.feedme.core.theme.FeedMeTheme
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AddButtonActionType
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.*
@@ -79,15 +82,17 @@ class MainActivity : ComponentActivity() {
             val scope = rememberCoroutineScope()
             val displayYesNoDialog = remember { mutableStateOf(false) }
 
-            val selectedClient by commandVM.client.collectAsState()
+
             val clients by clientVM.allSF.collectAsState()
+
             val basketItems by productVM.basketItems.collectAsState()
+
             val baskets by basketVM.baskets.collectAsState()
+
+            val selectedClient by commandVM.client.collectAsState()
             val basketWrappers by commandVM.basketWrappers.collectAsState()
             val productWrappers by commandVM.productWrappers.collectAsState()
-            val commands by commandVM.commands.collectAsState()
             val commandsByDate by commandVM.commandsByDate.collectAsState()
-            val currentCommand by commandVM.currentCommand.collectAsState()
 
             val title = fromVal(navBackStackEntry?.destination?.route).title
             topBarState.value = fromVal(navBackStackEntry?.destination?.route).title != null
@@ -145,14 +150,13 @@ class MainActivity : ComponentActivity() {
 
                             // List of commands page
                             composable(FooterRoute.COMMAND_LIST.route) { CommandListPage(commandsByDate, onClick = {
-                                commandVM.updateCurrentCommandId(it)
-                                navController.navigate(FooterRoute.COMMAND_DETAIL.route)
+                                navController.navigate(FooterRoute.buildCommandDetailRoute(it.toString()))
                             }) }
 
                             // Detail of command
-                            composable(FooterRoute.COMMAND_DETAIL.route) { navBackStackEntry ->
+                            composable(FooterRoute.COMMAND_DETAIL.route, arguments = listOf(navArgument("commandId") { type = NavType.LongType })) { navBackStackEntry ->
                                 CommandDetailPage(
-                                    currentCommand,
+                                    commandDetailVM = hiltViewModel(),
                                     onQuantityChange = {
                                         commandVM.updateRealCommandQuantity(it)
                                     }

@@ -5,6 +5,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AddButtonActionType
 
+const val CommandDetailIdArgument = "commandId"
+
 enum class FooterRoute(val route: String, val title: String? =null, val icon: ImageVector? = null, val inFooter: Boolean = false, val actionButton: Boolean = false, val displayFooter : Boolean = true, val displayBackOrClose : Boolean = false, val displayAddButton : Boolean = false, val dialogType: AddButtonActionType? = null) {
     HOME("home", icon = Icons.Filled.Home, inFooter = true, displayFooter = true),
     COMMAND_LIST("command_list", title = "Commandes", icon = Icons.Filled.List, inFooter = true, displayFooter = true),
@@ -19,10 +21,12 @@ enum class FooterRoute(val route: String, val title: String? =null, val icon: Im
     ADD_PRODUCTS("add_products", title = "Ajouter un produit", Icons.Filled.ShoppingCart, false, displayFooter = false, displayBackOrClose = true),
     ADD_BASKET("add_basket", title = "Créer un panier", Icons.Filled.ShoppingCart, false, displayFooter = false, displayBackOrClose = true),
 
-    COMMAND_DETAIL("command_detail/{commandId}", title = null, inFooter = false, displayFooter = false, displayBackOrClose = true);
+    COMMAND_DETAIL("command_detail/{$CommandDetailIdArgument}", title = null, inFooter = false, displayFooter = false, displayBackOrClose = true);
 
     companion object{
         fun fromVal(route: String?) = values()
             .firstOrNull { it.route == route } ?: HOME
+
+        fun buildCommandDetailRoute(argument: String) = "command_detail/$argument"
     }
 }

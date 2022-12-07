@@ -1,10 +1,8 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command
 
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.BasketRepository
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.BasketWrapperRepository
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.CommandRepository
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.ProductWrapperRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
