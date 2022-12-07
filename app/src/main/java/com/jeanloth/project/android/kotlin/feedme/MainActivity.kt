@@ -37,6 +37,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandCallbacks
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandParameters
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.ProductVM
+import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.CommandDetailIdArgument
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute.Companion.fromVal
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.presentation.HomePage
@@ -149,17 +150,19 @@ class MainActivity : ComponentActivity() {
                             composable(FooterRoute.HOME.route) { HomePage(navController) }
 
                             // List of commands page
-                            composable(FooterRoute.COMMAND_LIST.route) { CommandListPage(commandsByDate, onClick = {
-                                navController.navigate(FooterRoute.buildCommandDetailRoute(it.toString()))
-                            }) }
+                            composable(FooterRoute.COMMAND_LIST.route) {
+                                CommandListPage(
+                                    commandsByDate,
+                                    onClick = {
+                                        navController.navigate(FooterRoute.buildCommandDetailRoute(it.toString()))
+                                    }
+                                )
+                            }
 
                             // Detail of command
-                            composable(FooterRoute.COMMAND_DETAIL.route, arguments = listOf(navArgument("commandId") { type = NavType.LongType })) { navBackStackEntry ->
+                            composable(FooterRoute.COMMAND_DETAIL.route, arguments = listOf(navArgument(CommandDetailIdArgument) { type = NavType.LongType })) { navBackStackEntry ->
                                 CommandDetailPage(
-                                    commandDetailVM = hiltViewModel(),
-                                    onQuantityChange = {
-                                        commandVM.updateRealCommandQuantity(it)
-                                    }
+                                    commandDetailVM = hiltViewModel()
                                 )
                             }
 

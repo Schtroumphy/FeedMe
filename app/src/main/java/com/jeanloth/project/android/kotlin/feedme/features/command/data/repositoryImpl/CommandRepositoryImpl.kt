@@ -23,8 +23,7 @@ class CommandRepositoryImpl @Inject constructor(
     private val basketDao : BasketDao,
     private val clientMapper: AppClientEntityMapper,
     private val commandEntityMapper : CommandEntityMapper,
-    private val productMapper : ProductEntityMapper,
-    private val basketMapper : BasketEntityMapper,
+    private val productMapper : ProductEntityMapper
 ) : CommandRepository {
 
     override fun save(command: Command) : Long {
@@ -35,24 +34,8 @@ class CommandRepositoryImpl @Inject constructor(
         dao.update(commandEntityMapper.to(command))
     }
 
-    override fun getCommandById(id: Long): Command? {
-        return null
-    }
-
     override fun observeCommandById(id: Long): Flow<Command?> {
         val bw = basketDao.getBasketsWithWrappers()
-
-        // Map with <BasketId, productAssociated>
-        val basketProductMap : Map<Long, List<Wrapper<Product>>> = bw.groupBy { it.basketEntity.id }.mapValues { it.value.flatMap { it.wrappers }.map { pw ->
-            Wrapper(
-                id = pw.wrapper.id,
-                item = productMapper.from(productDao.getById(pw.product.id)),
-                parentId = pw.wrapper.commandId,
-                realQuantity = pw.wrapper.realQuantity,
-                quantity = pw.wrapper.quantity,
-                status = pw.wrapper.status
-            )
-        }}
 
         return dao.observeCommandsWithWrappersById(id).filterNotNull().map {
             Command(
@@ -76,7 +59,8 @@ class CommandRepositoryImpl @Inject constructor(
                     status = bw.wrapper.status
                 ) },
                 deliveryDate = it.commandEntity.deliveryDate,
-                client = clientMapper.from(clientDao.getById(it.commandEntity.clientId))
+                client = clientMapper.from(clientDao.getById(it.commandEntity.clientId)),
+                clientId = it.commandEntity.clientId
             )
         }
     }
@@ -103,7 +87,8 @@ class CommandRepositoryImpl @Inject constructor(
                         status = bw.wrapper.status
                     ) },
                     deliveryDate = it.commandEntity.deliveryDate,
-                    client = clientMapper.from(clientDao.getById(it.commandEntity.clientId))
+                    client = clientMapper.from(clientDao.getById(it.commandEntity.clientId)),
+                    clientId = it.commandEntity.clientId
                 )
             }
         }

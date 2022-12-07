@@ -3,14 +3,9 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.e
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.jeanloth.project.android.kotlin.feedme.core.database.CommandStatusConverter
 import com.jeanloth.project.android.kotlin.feedme.core.database.DateTypeConverter
 import com.jeanloth.project.android.kotlin.feedme.core.database.StatusConverter
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandStatus
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.*
 import java.time.LocalDate
 
 @Entity(tableName = "command")
@@ -26,4 +21,12 @@ class CommandEntity (
     val deliveryDate : LocalDate = LocalDate.now().plusDays(1)
 )
 
-// TODO Add wrapper entity ? or table for relation one-to-many with wrapperEntity
+fun CommandEntity.toPojo(): Command{
+    return Command(
+        id = this.id,
+        status = this.status,
+        totalPrice = this.totalPrice,
+        clientId = this.clientId,
+        deliveryDate = this.deliveryDate
+    )
+}

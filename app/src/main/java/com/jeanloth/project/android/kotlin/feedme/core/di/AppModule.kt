@@ -142,7 +142,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideUpdateCommand(repository: CommandRepository, saveBasketWrapperUseCase: SaveBasketWrapperUseCase, updateProductWrapperUseCase: UpdateProductWrapperUseCase) : UpdateCommandUseCase
-    = UpdateCommandUseCase(repository, saveBasketWrapperUseCase, updateProductWrapperUseCase)
+    = UpdateCommandUseCase(repository)
 
     @Provides
     @Singleton

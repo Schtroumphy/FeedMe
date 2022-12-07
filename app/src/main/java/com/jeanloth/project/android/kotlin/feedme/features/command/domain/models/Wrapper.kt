@@ -30,6 +30,7 @@ data class Wrapper<T : WrapperItem>(
 
 fun Wrapper<Product>.asProductWrapperEntity(isAssociatedToCommand: Boolean) : ProductWrapperEntity {
     return ProductWrapperEntity(
+        id = this.id,
         productId = this.item.id,
         basketId = if(isAssociatedToCommand) 0 else this.parentId,
         commandId = if(isAssociatedToCommand) this.parentId else 0,

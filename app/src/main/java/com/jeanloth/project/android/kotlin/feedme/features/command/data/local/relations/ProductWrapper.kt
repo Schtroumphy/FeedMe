@@ -19,10 +19,10 @@ class ProductWrapper(
     val product: ProductEntity
 )
 
-fun ProductWrapper.asPojo() : Wrapper<Product> {
+fun ProductWrapper.asPojo(isAssociatedToCommand : Boolean = true) : Wrapper<Product> {
     return Wrapper(
         id = wrapper.id,
-        parentId = wrapper.commandId,
+        parentId = if(isAssociatedToCommand) wrapper.commandId else wrapper.basketId,
         item = product.asPojo(),
         realQuantity = wrapper.realQuantity,
         quantity = wrapper.quantity,

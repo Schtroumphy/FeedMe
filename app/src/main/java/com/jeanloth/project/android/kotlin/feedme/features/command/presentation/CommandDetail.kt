@@ -36,22 +36,25 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailsVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
 
-class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var itemType : CommandItemType = CommandItemType.INDIVIDUAL_PRODUCT)
+data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var itemType : CommandItemType = CommandItemType.INDIVIDUAL_PRODUCT){
+    override fun toString(): String {
+        return "Infos | newQuantity : $newQuantity, basketId : $basketId, wrapperId : $wrapperId, parentId : $parentId, itemType : ${itemType.name}"
+    }
+}
+
 enum class CommandItemType {
     INDIVIDUAL_PRODUCT,
     BASKET
 }
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-@Preview
 fun CommandDetailPage(
-    commandDetailVM : CommandDetailsVM,
-    onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
+    commandDetailVM : CommandDetailsVM
 ){
     val command by commandDetailVM.currentCommand.collectAsState()
     val client = command?.client?.toNameString() ?: "Albert"
 
-    // TODO Primary and second color in function of command status to transfer to all sub cmposables
+    // TODO Primary and second color in function of command status to transfer to all sub composables
 
     Scaffold(
         topBar = { CommandDetailHeader(client = client, command?.deliveryDate.formatToShortDate(), price = command?.totalPrice ?: 0, status = command?.status ?: Status.TO_DO) }
@@ -73,11 +76,12 @@ fun CommandDetailPage(
                             label = bw.item.label,
                             productWrappers = bw.item.wrappers,
                             onQuantityChange = {
-                                onQuantityChange?.invoke(it.apply {
+                                commandDetailVM.updateRealCommandQuantity(it.apply {
                                     basketId = bw.id
                                     itemType = CommandItemType.BASKET
                                 })
-                            }
+                            },
+                            status = command?.status ?: Status.TO_DO
                         )
                     }
                 }
@@ -89,10 +93,11 @@ fun CommandDetailPage(
                             label = "Produits individuels",
                             productWrappers = it,
                             onQuantityChange = {
-                                onQuantityChange?.invoke(it.apply {
+                                commandDetailVM.updateRealCommandQuantity(it.apply {
                                     itemType = CommandItemType.INDIVIDUAL_PRODUCT
                                 })
-                            }
+                            },
+                            status = command?.status ?: Status.TO_DO
                         )
                     }
                 }
@@ -105,7 +110,8 @@ fun CommandDetailPage(
 fun CommandBasketItem(
     label : String? = "Panier Label",
     productWrappers : List<Wrapper<Product>> = emptyList(),
-    onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
+    onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null,
+    status : Status = Status.TO_DO
 ){
     Row(
         modifier = Modifier
@@ -125,7 +131,7 @@ fun CommandBasketItem(
                 .fillMaxHeight(0.8f)
                 .width(10.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(Orange1))
+                .background(status.color))
         }
 
         Column{
@@ -242,9 +248,12 @@ fun CommandDetailHeader(
                 contentAlignment = Alignment.Center
             ){
                 ClientCommandBox(client)
-                DateRoundedBox(modifier = Modifier
+                DateRoundedBox(
+                    modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .offset(y = 10.dp), deliveryDate)
+                    .offset(y = 10.dp), deliveryDate,
+                    backgroundColor = status.color
+                )
             }
 
             // Delivery date rounded box
@@ -255,7 +264,7 @@ fun CommandDetailHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
-                SemiRoundedBox(stringResource(id = R.string.euro, price))
+                SemiRoundedBox(stringResource(id = R.string.euro, price), backgroundColor = status.color)
                 StatusText(status = status)
             }
 

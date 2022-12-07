@@ -1,5 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.repositoryImpl
 
+import android.util.Log
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.ProductWrapperDao
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations.asPojo
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
@@ -34,6 +35,7 @@ class WrapperProductRepositoryImpl @Inject constructor(
      * Update product wrapper - By editing command quantity products
      */
     override fun update(wrappers: List<Wrapper<Product>>, isAssociatedToCommand: Boolean) {
+        Log.i("WrapperProductImpl", "Update PW ${wrappers.forEach(::println)}")
         dao.update(wrappers.map { wrapper -> wrapper.asProductWrapperEntity(isAssociatedToCommand) })
     }
 

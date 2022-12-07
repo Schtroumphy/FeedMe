@@ -282,6 +282,7 @@ fun ClientAndDeliveryDateRow(
 fun AddQuantityBox(
     modifier: Modifier = Modifier,
     quantity : Int = 0,
+    backgroundColor : Color = Gray1,
     onQuantityChange : ((Int)-> Unit)? = null
 ){
     val interactionSource = remember { MutableInteractionSource() }
@@ -292,7 +293,7 @@ fun AddQuantityBox(
             verticalAlignment = CenterVertically,
             modifier = modifier
                 .clip(RoundedCornerShape(5.dp))
-                .background(if (quantity > 0) Vert0 else Gray1),
+                .background(backgroundColor),
         ){
             Icon(imageVector = Icons.Filled.Remove, contentDescription = "", modifier = Modifier
                 .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
@@ -318,7 +319,7 @@ fun AddQuantityBox(
                 .clip(RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp))
                 .clickable {
                     val quantityToSend = quantity + 1
-                    Log.d("AddQuantity", "Quantity + : $quantity")
+                    Log.d("AddQuantity", "Quantity + : $quantityToSend")
                     onQuantityChange?.invoke(quantityToSend)
                 }
                 .indication(

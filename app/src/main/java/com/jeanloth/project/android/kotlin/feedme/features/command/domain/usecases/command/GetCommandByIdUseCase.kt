@@ -9,6 +9,6 @@ class GetCommandByIdUseCase(
 ) {
 
     operator fun invoke(id: Long): Command? {
-        return repository.getCommandById(id)
+        return null // TODO if needed
     }
 }

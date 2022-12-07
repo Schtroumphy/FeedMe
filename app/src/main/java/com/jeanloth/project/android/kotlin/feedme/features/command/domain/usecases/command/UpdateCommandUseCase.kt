@@ -9,9 +9,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecas
 import javax.inject.Inject
 
 class UpdateCommandUseCase @Inject constructor(
-    private val repository: CommandRepository,
-    private val saveBasketWrapperUseCase: SaveBasketWrapperUseCase,
-    private val updateProductWrapperUseCase: UpdateProductWrapperUseCase,
+    private val repository: CommandRepository
 ) {
     val TAG = "SaveCommandUseCase"
 
@@ -19,14 +17,10 @@ class UpdateCommandUseCase @Inject constructor(
         command: Command?
     ): Boolean {
 
-        if(command == null) {
-            Log.e(TAG, "Command to save is null")
-            return false
-        }
-
         Log.d(TAG, "Command to save : ${command}")
-        //repository.update(command) // TODO To uncomment when user will be able to edit command info
+        command ?: return false
 
+        repository.update(command)
         return true
     }
 }

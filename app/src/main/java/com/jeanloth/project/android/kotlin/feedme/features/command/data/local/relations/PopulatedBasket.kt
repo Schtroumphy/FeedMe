@@ -20,6 +20,6 @@ fun PopulatedBasket.asPojo() = Basket(
     basketId = basketEntity.id,
     label = basketEntity.label,
     price = basketEntity.price,
-    wrappers = wrappers.map { it.asPojo() }
+    wrappers = wrappers.map { it.asPojo(isAssociatedToCommand = false) }
 )
 
