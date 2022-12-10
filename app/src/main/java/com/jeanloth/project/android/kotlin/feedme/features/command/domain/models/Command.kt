@@ -39,7 +39,7 @@ data class Command(
                 Status.TO_DO -> this.status == Status.IN_PROGRESS
                 Status.IN_PROGRESS -> {
                     // Check if there is realQuantity > 0
-                    this.status == Status.TO_DO && (this.productWrappers.any { it.realQuantity > 0 } || this.basketWrappers.flatMap { it.item.wrappers }.any { it.realQuantity > 0 })
+                    (this.status == Status.TO_DO|| this.status == Status.DONE) && (!this.productWrappers.all { it.realQuantity >= it.quantity } || !this.basketWrappers.flatMap { it.item.wrappers }.all { it.realQuantity >= it.quantity })
                 }
                 Status.DONE -> this.status == Status.IN_PROGRESS && this.productWrappers.all { it.realQuantity >= it.quantity } && this.basketWrappers.flatMap { it.item.wrappers }.all { it.realQuantity >= it.quantity }
                 Status.DELIVERED -> this.status == Status.DONE

@@ -87,13 +87,13 @@ class CommandDetailsVM @Inject constructor(
             }
 
             // Update command status to in progress if possible
-            if(_currentCommand.value?.changeStatus(Status.IN_PROGRESS) == true){
-                updateCommandUseCase(_currentCommand.value?.apply {
-                    status = Status.IN_PROGRESS
-                })
-            } else if(_currentCommand.value?.changeStatus(Status.DONE) == true){
+            if(_currentCommand.value?.changeStatus(Status.DONE) == true){
                 updateCommandUseCase(_currentCommand.value?.apply {
                     status = Status.DONE
+                })
+            } else if(_currentCommand.value?.changeStatus(Status.IN_PROGRESS) == true){
+                updateCommandUseCase(_currentCommand.value?.apply {
+                    status = Status.IN_PROGRESS
                 })
             }
         }
