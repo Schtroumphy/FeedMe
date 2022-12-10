@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command.Companion.changeStatus
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveCommandByIdUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.UpdateCommandUseCase
@@ -72,12 +73,12 @@ class CommandDetailsVM @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
 
-            when(info.itemType) {
-                CommandItemType.INDIVIDUAL_PRODUCT -> {
+            when(info.wrapperType) {
+                WrapperType.COMMAND_INDIVIDUAL_PRODUCT -> {
                     _currentCommand.value?.productWrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
                     updateProductWrapperUseCase(_currentCommand.value?.productWrappers)
                 }
-                CommandItemType.BASKET -> {
+                WrapperType.COMMAND_BASKET_PRODUCT -> {
                     _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.basketId }?.item?.wrappers?.apply{
                         firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
                         updateProductWrapperUseCase(this)

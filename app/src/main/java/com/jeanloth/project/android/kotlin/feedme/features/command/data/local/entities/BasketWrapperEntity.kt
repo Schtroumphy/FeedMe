@@ -33,6 +33,7 @@ fun Wrapper<Basket>.asEntity() : BasketWrapperEntity {
         commandId = this.parentId,
         realQuantity = this.realQuantity,
         quantity = this.quantity,
+        wrapperType = this.wrapperType,
         status = this.status
     )
 }

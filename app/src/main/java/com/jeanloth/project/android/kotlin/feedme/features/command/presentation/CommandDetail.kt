@@ -32,13 +32,14 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command.Companion.toString2
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailsVM
 
-data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var itemType : CommandItemType = CommandItemType.INDIVIDUAL_PRODUCT){
+data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var wrapperType : WrapperType = WrapperType.COMMAND_INDIVIDUAL_PRODUCT){
     override fun toString(): String {
-        return "Infos | newQuantity : $newQuantity, basketId : $basketId, wrapperId : $wrapperId, parentId : $parentId, itemType : ${itemType.name}"
+        return "Infos | newQuantity : $newQuantity, basketId : $basketId, wrapperId : $wrapperId, parentId : $parentId, wrapperType : ${wrapperType.name}"
     }
 }
 
@@ -59,7 +60,16 @@ fun CommandDetailPage(
     // TODO Primary and second color in function of command status to transfer to all sub composables
 
     Scaffold(
-        topBar = { CommandDetailHeader(client = client, command?.deliveryDate.formatToShortDate(), price = command?.totalPrice ?: 0, status = command?.status ?: Status.TO_DO) }
+        topBar = {
+            CommandDetailHeader(
+                client = client,
+                deliveryDate = command?.deliveryDate.formatToShortDate(),
+                price = command?.totalPrice ?: 0,
+                status = command?.status ?: Status.TO_DO
+            )
+         }, bottomBar = {
+
+        }
     ) {
         CompositionLocalProvider(
             LocalOverScrollConfiguration provides null
@@ -78,10 +88,7 @@ fun CommandDetailPage(
                             label = bw.item.label,
                             productWrappers = bw.item.wrappers,
                             onQuantityChange = {
-                                commandDetailVM.updateRealCommandQuantity(it.apply {
-                                    basketId = bw.id
-                                    itemType = CommandItemType.BASKET
-                                })
+                                commandDetailVM.updateRealCommandQuantity(it.apply { basketId = bw.id })
                             },
                             status = command?.status ?: Status.TO_DO
                         )
@@ -95,9 +102,7 @@ fun CommandDetailPage(
                             label = "Produits individuels",
                             productWrappers = it,
                             onQuantityChange = {
-                                commandDetailVM.updateRealCommandQuantity(it.apply {
-                                    itemType = CommandItemType.INDIVIDUAL_PRODUCT
-                                })
+                                commandDetailVM.updateRealCommandQuantity(it)
                             },
                             status = command?.status ?: Status.TO_DO
                         )
@@ -180,7 +185,8 @@ fun CommandProductItem(
                     onQuantityChange?.invoke(CommandQuantityInfo(
                         newQuantity = it,
                         wrapperId = productWrapper.id,
-                        parentId = productWrapper.parentId
+                        parentId = productWrapper.parentId,
+                        wrapperType = productWrapper.wrapperType
                     ))
             })
         }
