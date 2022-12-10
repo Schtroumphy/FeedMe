@@ -15,9 +15,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.CommandDetailIdArgument
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +27,10 @@ class CommandDetailsVM @Inject constructor(
     private val updateProductWrapperUseCase: UpdateProductWrapperUseCase,
 ) : ViewModel() {
 
+    val TAG = javaClass.simpleName
+
     private val _currentCommand : MutableStateFlow<Command?> = MutableStateFlow(null)
-    val currentCommand : StateFlow<Command?> = _currentCommand.asStateFlow()
+    val currentCommand = _currentCommand.asSharedFlow()
 
     // Get current command id from nav args
     val commandId = savedStateHandle.get<Long>(CommandDetailIdArgument) ?: 0L
@@ -40,7 +40,25 @@ class CommandDetailsVM @Inject constructor(
         // Observe current command by id
         viewModelScope.launch(Dispatchers.IO) {
             observeCommandByIdUseCase(commandId).collect {
-                _currentCommand.emit(it)
+                val pws = it?.productWrappers
+                val bws = it?.basketWrappers
+
+                val isEquals = _currentCommand.value == it?.copy(
+                    productWrappers = pws ?: emptyList(),
+                    basketWrappers = bws ?: emptyList()
+                )
+                Log.d(TAG, "Is Equals : $isEquals")
+                _currentCommand.emit(it?.copy(
+                    productWrappers = pws ?: emptyList(),
+                    basketWrappers = bws ?: emptyList()
+                )) // Maybe do not emit because considering no changes occured
+                Log.d("Details VM", "Observed : $it")
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _currentCommand.collect {
+                Log.d(TAG, "Collected : $it")
             }
         }
     }
@@ -49,19 +67,20 @@ class CommandDetailsVM @Inject constructor(
      * Update product/basket wrapper when quantity change
      */
     fun updateRealCommandQuantity(info : CommandQuantityInfo){
-        Log.i("CommandVM", "Update real quantity : $info")
+
+        Log.i(TAG, "Update real quantity : $info")
+
         viewModelScope.launch(Dispatchers.IO) {
 
             when(info.itemType) {
                 CommandItemType.INDIVIDUAL_PRODUCT -> {
                     _currentCommand.value?.productWrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
-                    Log.i("CommandVM", _currentCommand.value?.productWrappers?.map { "${it.realQuantity}" }?.joinToString(",") ?: "")
-                    updateProductWrapperUseCase(_currentCommand.value?.productWrappers, true)
+                    updateProductWrapperUseCase(_currentCommand.value?.productWrappers)
                 }
                 CommandItemType.BASKET -> {
-                    _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.basketId }?.item?.wrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
-                    _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.basketId }?.item?.wrappers?.let {
-                        updateProductWrapperUseCase(it, isAssociatedToCommand = false)
+                    _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.basketId }?.item?.wrappers?.apply{
+                        firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
+                        updateProductWrapperUseCase(this)
                     }
                 }
             }

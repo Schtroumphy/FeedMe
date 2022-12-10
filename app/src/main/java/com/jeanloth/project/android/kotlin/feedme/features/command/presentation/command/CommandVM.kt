@@ -17,7 +17,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveAllBasketsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveBasketsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateBasketWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveAllCommandsUseCase
@@ -38,7 +38,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CommandVM @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
-    private val observeAllBasketsUseCase: ObserveAllBasketsUseCase,
+    private val observeAllBasketsUseCase: ObserveBasketsUseCase,
     private val observeAllProductsUseCase: ObserveAllProductsUseCase,
     private val observeAllCommandsUseCase: ObserveAllCommandsUseCase,
     private val observeCommandByIdUseCase: ObserveCommandByIdUseCase,
@@ -120,7 +120,6 @@ class CommandVM @Inject constructor(
     fun canAskUserToSaveCommand() : Boolean = client.value != null && _basketWrappers.value.any { it.quantity > 0 }
 
     fun updateClient(client : AppClient?){
-        Log.d("CommandVM", "Client selected : ${this.client}")
         withMutableSnapshot {
             _client = client
         }
@@ -197,29 +196,4 @@ class CommandVM @Inject constructor(
         _currentCommandId.value = id
     }
 
-    /**
-     * Update product/basket wrapper when quantity change
-     */
-    fun updateRealCommandQuantity(info : CommandQuantityInfo){
-        when(info.itemType){
-            CommandItemType.INDIVIDUAL_PRODUCT -> {
-                _currentCommand.value?.productWrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
-                Log.i("CommandVM", _currentCommand.value?.productWrappers?.map { "${it.realQuantity}" }?.joinToString(",") ?: "" )
-                viewModelScope.launch(Dispatchers.IO) {
-                    updateProductWrapperUseCase(_currentCommand.value?.productWrappers, true)
-                }
-            }
-            CommandItemType.BASKET -> {
-                _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.basketId }?.item?.wrappers?.firstOrNull { it.id == info.wrapperId }?.realQuantity = info.newQuantity
-                viewModelScope.launch(Dispatchers.IO) {
-                    _currentCommand.value?.basketWrappers?.firstOrNull { it.id == info.basketId }?.item?.wrappers?.let {
-                        updateProductWrapperUseCase(_currentCommand.value?.productWrappers, isAssociatedToCommand = false)
-
-                        // TO DO update realQuantity ok basketWrapper if all product wrappers realQuantity >= quantity
-                        //updateBasketWrapperUseCase(_currentCommand.value?.basketWrappers)
-                    }
-                }
-            }
-        }
-    }
 }

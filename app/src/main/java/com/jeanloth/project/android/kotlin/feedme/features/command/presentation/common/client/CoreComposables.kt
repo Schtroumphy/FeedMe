@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,11 +59,9 @@ fun PageTemplate(
                 title?.let {
                     Header(context, it, onCloseOrBackClick, isBackAllowed, displayBackOrClose = displayBackOrClose, displayAddButton= displayAddButton, addButtonActionType = addButtonActionType,
                         onNewClientAdded = {
-                            Log.d("Header", "Click on add button")
                             onNewClientAdded?.invoke(it)
                         },
                         onAddBasketClicked = {
-                            Log.d("Header", "Navigate to add basket page")
                             navController.navigate(FooterRoute.ADD_BASKET.route)
                         },
                         onDialogDismiss = {
@@ -135,7 +132,6 @@ fun Header(
                 .padding(top = dimensionResource(id = R.dimen.vertical_margin)), maxLines = 1, overflow = TextOverflow.Ellipsis)
         if(displayAddButton) FloatingActionButton(
             onClick = {
-                Log.d("Header", "Click on add button in header")
                 when(addButtonActionType){
                     AddButtonActionType.ADD_CLIENT -> showCustomDialogWithResult.value = true
                     AddButtonActionType.ADD_BASKET -> onAddBasketClicked?.invoke()

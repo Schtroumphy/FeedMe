@@ -6,18 +6,24 @@ import androidx.room.TypeConverters
 import com.jeanloth.project.android.kotlin.feedme.core.database.CommandStatusConverter
 import com.jeanloth.project.android.kotlin.feedme.core.database.DateTypeConverter
 import com.jeanloth.project.android.kotlin.feedme.core.database.StatusConverter
+import com.jeanloth.project.android.kotlin.feedme.core.database.WrapperTypeConverter
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
 
 @Entity(tableName = "product_wrapper")
-@TypeConverters(StatusConverter::class)
+@TypeConverters(StatusConverter::class, WrapperTypeConverter::class)
 class ProductWrapperEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val productId: Long = 0L,
 
     // Parent id, wrapper associated to basket or command directly
-    val basketId: Long = 0L,
+    var basketId: Long = 0L,
+    var commandBasketId: Long = 0L,
     val commandId: Long = 0L,
+
+    // Wrapper type
+    val wrapperType : WrapperType = WrapperType.NONE,
 
     var realQuantity : Int,
     var quantity : Int,

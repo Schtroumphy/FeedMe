@@ -13,7 +13,7 @@ class CommandWithWrappers(
         entityColumn = "commandId",
         entity = BasketWrapperEntity::class
     )
-    val basketWrappers: List<PopulatedBasketWrapper>,
+    val basketWrappers: List<PopulatedCommandBasketWrapper>,
 
     @Relation(
         parentColumn = "id",

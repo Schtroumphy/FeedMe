@@ -1,6 +1,5 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -63,7 +62,6 @@ fun AddCommandPage(
 ){
     val maxStepCount = 3
     var currentStep by remember { mutableStateOf(if(parameters.basketWrappers.isEmpty()) 2 else 1) } // Go to step 2 directly if there is no baskets to display
-    Log.d("CreateCommand", "Step $currentStep")
     val displayPreviousButton = when(currentStep){
         1 -> false
         2 -> !parameters.basketWrappers.isEmpty()
@@ -151,7 +149,6 @@ fun AddCommandPage(
                             quantity = it.quantity,
                             modifier = Modifier,
                             onQuantityChange = { quantity ->
-                                Log.d("Create Basket", "Quantity received : $quantity")
                                 callbacks.onProductQuantityChange?.invoke(it.item.id, quantity ?: 0)
                             }
                         )
@@ -300,7 +297,6 @@ fun AddQuantityBox(
                 .clickable(enabled = quantity > 0) {
                     if (quantity > 0) {
                         val quantityToSend = quantity - 1
-                        Log.d("AddQuantity", "Quantity - : $quantity")
                         onQuantityChange?.invoke(quantityToSend)
                     }
                 }
@@ -319,7 +315,6 @@ fun AddQuantityBox(
                 .clip(RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp))
                 .clickable {
                     val quantityToSend = quantity + 1
-                    Log.d("AddQuantity", "Quantity + : $quantityToSend")
                     onQuantityChange?.invoke(quantityToSend)
                 }
                 .indication(

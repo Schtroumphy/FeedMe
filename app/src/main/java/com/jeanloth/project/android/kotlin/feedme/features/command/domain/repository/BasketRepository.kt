@@ -8,10 +8,15 @@ interface BasketRepository {
 
     fun save(basket : Basket) : Long
 
+    fun saveCommandBasket(basket : Basket) : Long
+
+    fun remove(basket : Basket)
+
+    // Associated to commands
     fun observeBaskets() : Flow<List<Basket>>
 
     fun observeBaskets(comandId : Long) : Flow<List<Basket>>
 
-    fun remove(basket : Basket)
+
 
 }

@@ -35,3 +35,4 @@ output.json
 #NDK
 obj/
 .externalNativeBuild
+app/src/main/java/com/jeanloth/project/android/kotlin/feedme/features/command/presentation/Test.kt

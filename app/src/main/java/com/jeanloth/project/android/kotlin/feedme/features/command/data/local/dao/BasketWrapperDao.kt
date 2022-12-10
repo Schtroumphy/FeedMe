@@ -3,6 +3,7 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.d
 import androidx.room.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations.PopulatedBasketWrapper
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations.PopulatedCommandBasketWrapper
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,7 +18,7 @@ interface BasketWrapperDao {
     fun insertAll(products: List<BasketWrapperEntity>) : Array<Long>
 
     @Query("SELECT * FROM basket_wrapper WHERE commandId=:commandId ")
-    fun observeByCommandId(commandId : Long) : Flow<List<PopulatedBasketWrapper>>
+    fun observeByCommandId(commandId : Long) : Flow<List<PopulatedCommandBasketWrapper>>
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(products: List<BasketWrapperEntity>)

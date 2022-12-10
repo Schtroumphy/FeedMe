@@ -96,7 +96,6 @@ fun CreateBasketPage(
                                     modifier = Modifier.weight(1f),
                                     product = item.product,
                                     onQuantityChange = { quantity ->
-                                        Log.d("Create Basket", "Quantity received : $quantity")
                                         if (quantity == null) productQuantity.remove(item.product) else productQuantity.put(
                                             item.product,
                                             quantity

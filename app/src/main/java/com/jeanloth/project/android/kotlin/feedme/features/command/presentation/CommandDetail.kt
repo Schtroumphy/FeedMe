@@ -1,13 +1,12 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
-import androidx.compose.foundation.layout.Arrangement.SpaceEvenly
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,24 +16,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortDate
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.progession
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.toQuantityEditColor
 import com.jeanloth.project.android.kotlin.feedme.core.theme.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command.Companion.toString2
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailsVM
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
 
 data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var itemType : CommandItemType = CommandItemType.INDIVIDUAL_PRODUCT){
     override fun toString(): String {
@@ -51,8 +51,10 @@ enum class CommandItemType {
 fun CommandDetailPage(
     commandDetailVM : CommandDetailsVM
 ){
-    val command by commandDetailVM.currentCommand.collectAsState()
+    val command by commandDetailVM.currentCommand.collectAsState(null)
     val client = command?.client?.toNameString() ?: "Albert"
+
+    Log.d("Details", "Command ${command.toString2()}")
 
     // TODO Primary and second color in function of command status to transfer to all sub composables
 
@@ -113,6 +115,9 @@ fun CommandBasketItem(
     onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null,
     status : Status = Status.TO_DO
 ){
+
+    val progress = productWrappers.progession()
+
     Row(
         modifier = Modifier
             .height(IntrinsicSize.Min)
@@ -128,10 +133,10 @@ fun CommandBasketItem(
             )
             Box(modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxHeight(0.8f)
+                .fillMaxHeight(if(progress.isNaN()) 0f else progress)
                 .width(10.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(status.color))
+                .background(status.secondaryColor))
         }
 
         Column{
@@ -155,11 +160,7 @@ fun CommandProductItem(
     onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
 ){
     var quantityEdit by remember { mutableStateOf(productWrapper.realQuantity) }
-    var backgroundColor by remember { mutableStateOf(when {
-        quantityEdit > productWrapper.quantity -> Orange1
-        quantityEdit > 0 -> Vert0
-        else -> Gray1
-    }) }
+    var backgroundColor by remember { mutableStateOf(quantityEdit.toQuantityEditColor(productWrapper.quantity)) }
     Row(
         Modifier
             .fillMaxWidth()
@@ -175,11 +176,7 @@ fun CommandProductItem(
                 backgroundColor = backgroundColor,
                 onQuantityChange = {
                     quantityEdit = it
-                    backgroundColor = when {
-                        quantityEdit > productWrapper.quantity -> Orange1
-                        quantityEdit > 0 -> Vert0
-                        else -> Gray1
-                    }
+                    backgroundColor = quantityEdit.toQuantityEditColor(productWrapper.quantity)
                     onQuantityChange?.invoke(CommandQuantityInfo(
                         newQuantity = it,
                         wrapperId = productWrapper.id,
@@ -240,7 +237,7 @@ fun CommandDetailHeader(
             modifier = Modifier.padding(vertical = 10.dp),
         ) {
 
-            // Client Name Box
+            // Client Name Box + Delivery date rounded box
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -252,11 +249,11 @@ fun CommandDetailHeader(
                     modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .offset(y = 10.dp), deliveryDate,
-                    backgroundColor = status.color
+                    backgroundColor = status.secondaryColor
                 )
             }
 
-            // Delivery date rounded box
+            // Rounded price + Status text in row
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -264,7 +261,7 @@ fun CommandDetailHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
-                SemiRoundedBox(stringResource(id = R.string.euro, price), backgroundColor = status.color)
+                SemiRoundedBox(stringResource(id = R.string.euro, price), backgroundColor = status.secondaryColor, textColor = if(status != Status.TO_DO) White else Black)
                 StatusText(status = status)
             }
 
@@ -284,7 +281,7 @@ fun StatusText(
             Modifier
                 .clip(CircleShape)
                 .size(10.dp)
-                .background(status.color))
+                .background(status.secondaryColor))
         Text(status.value, style = MaterialTheme.typography.labelMedium, fontStyle = FontStyle.Italic)
     }
 }

@@ -83,9 +83,9 @@ fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? =
         modifier = Modifier
             .padding(bottom = 5.dp)
             .border(
-                width = 2.dp,
+                width = 1.5.dp,
                 shape = shape,
-                color = command.status.color)
+                color = command.status.secondaryColor)
     ){
         Box {
             Column(
@@ -96,7 +96,7 @@ fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? =
                     .padding(15.dp)
             ) {
                 // Client Name + Status row
-                CommandHeader(client = command.client.toNameString(), status = command.status.value, color = command.status.color)
+                CommandHeader(client = command.client.toNameString(), status = command.status.value, color = command.status.secondaryColor)
 
                 // List of baskets with quantity
                 if(command.basketWrappers.isNotEmpty())
@@ -124,7 +124,7 @@ fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? =
         // Price box
         PriceBox(
             price = stringResource(id = R.string.euro, command.totalPrice),
-            color = command.status.color,
+            color = command.status.secondaryColor,
             modifier = Modifier.align(Alignment.BottomEnd),
             shape = RoundedCornerShape(topStart = 30.dp, bottomEnd = 20.dp)
         )

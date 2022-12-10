@@ -1,8 +1,34 @@
 package com.jeanloth.project.android.kotlin.feedme.core.extensions
 
+import android.util.Log
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.ProductWrapperEntity
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperItem
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+
+fun Wrapper<Product>.asProductWrapperEntity() : ProductWrapperEntity {
+
+    var (commandId, basketId, commandBasketId) = listOf(0L, 0L, 0L)
+    when(this.wrapperType){
+        WrapperType.COMMAND_INDIVIDUAL_PRODUCT -> commandId = this.parentId
+        WrapperType.COMMAND_BASKET_PRODUCT -> commandBasketId = this.parentId
+        WrapperType.BASKET_PRODUCT -> basketId = this.parentId
+        else -> { /* Do nothing for non product types */ }
+    }
+
+    return ProductWrapperEntity(
+        id = this.id,
+        productId = this.item.id,
+        wrapperType = this.wrapperType,
+        basketId = basketId,
+        commandBasketId = commandBasketId,
+        commandId = commandId,
+        realQuantity = this.realQuantity,
+        quantity = this.quantity,
+        status = this.status
+    )
+}
 
 fun MutableList<Wrapper<Product>>.updateProductWrapper(product: Product, quantity : Int): MutableList<Wrapper<Product>> {
     if(this.any { it.item == product }){
@@ -43,6 +69,14 @@ fun <T : WrapperItem> MutableList<Wrapper<T>>.updateWrapper(item: T, quantity : 
         )
     }
     return temp
+}
+
+
+fun <T : WrapperItem> List<Wrapper<T>>.progession() : Float {
+    val quantityTotal = this.sumOf { it.quantity }
+    val realQuantity = this.sumOf { it.realQuantityMajored }.toFloat()
+    Log.i("PROGRESS", "${realQuantity / quantityTotal}")
+    return realQuantity / quantityTotal
 }
 
 

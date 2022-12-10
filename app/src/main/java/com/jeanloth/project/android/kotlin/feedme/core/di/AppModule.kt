@@ -74,6 +74,9 @@ object AppModule {
     fun provideCommandDao(appDatabase: AppRoomDatabase): CommandDao = appDatabase.commandDao()
 
     @Provides
+    fun provideCommandBasketDao(appDatabase: AppRoomDatabase): CommandBasketDao = appDatabase.commandBasketDao()
+
+    @Provides
     fun provideProductWrapperDao(appDatabase: AppRoomDatabase): ProductWrapperDao = appDatabase.productWrapperDao()
 
     @Provides
@@ -118,7 +121,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideObserveCommandById(repository: CommandRepository, basketWrapperRepository: BasketWrapperRepository) : ObserveCommandByIdUseCase = ObserveCommandByIdUseCase(repository, basketWrapperRepository)
+    fun provideObserveCommandById(repository: CommandRepository) : ObserveCommandByIdUseCase = ObserveCommandByIdUseCase(repository)
 
     /** --- Wrappers --- **/
     @Provides
@@ -129,19 +132,23 @@ object AppModule {
     @Singleton
     fun provideSaveBasketWrapper(repository: BasketWrapperRepository) : SaveBasketWrapperUseCase = SaveBasketWrapperUseCase(repository)
 
-    /** --- Objects : Basket --- **/
+    /** --- Objects : Basket, Command, Wrappers --- **/
     @Provides
     @Singleton
     fun provideSaveBasket(repository: BasketRepository, saveProductWrapperUseCase: SaveProductWrapperUseCase) : SaveBasketUseCase = SaveBasketUseCase(repository, saveProductWrapperUseCase)
 
     @Provides
     @Singleton
-    fun provideSaveCommand(repository: CommandRepository, saveBasketWrapperUseCase: SaveBasketWrapperUseCase, saveProductWrapperUseCase: SaveProductWrapperUseCase) : SaveCommandUseCase
-    = SaveCommandUseCase(repository, saveBasketWrapperUseCase, saveProductWrapperUseCase)
+    fun provideSaveCommandBasket(repository: BasketRepository, saveProductWrapperUseCase: SaveProductWrapperUseCase) : SaveCommandBasketUseCase = SaveCommandBasketUseCase(repository, saveProductWrapperUseCase)
 
     @Provides
     @Singleton
-    fun provideUpdateCommand(repository: CommandRepository, saveBasketWrapperUseCase: SaveBasketWrapperUseCase, updateProductWrapperUseCase: UpdateProductWrapperUseCase) : UpdateCommandUseCase
+    fun provideSaveCommand(repository: CommandRepository, saveBasketCommandBasketUseCase: SaveCommandBasketUseCase, saveBasketWrapperUseCase: SaveBasketWrapperUseCase, saveProductWrapperUseCase: SaveProductWrapperUseCase) : SaveCommandUseCase
+    = SaveCommandUseCase(repository, saveBasketCommandBasketUseCase, saveBasketWrapperUseCase, saveProductWrapperUseCase)
+
+    @Provides
+    @Singleton
+    fun provideUpdateCommand(repository: CommandRepository) : UpdateCommandUseCase
     = UpdateCommandUseCase(repository)
 
     @Provides
@@ -155,7 +162,7 @@ object AppModule {
     /** --- Others --- **/
     @Provides
     @Singleton
-    fun provideObserveAllBaskets(repository: BasketRepository) : ObserveAllBasketsUseCase = ObserveAllBasketsUseCase(repository)
+    fun provideObserveAllBaskets(repository: BasketRepository) : ObserveBasketsUseCase = ObserveBasketsUseCase(repository)
 
 
 }

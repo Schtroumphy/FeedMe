@@ -35,8 +35,6 @@ class CommandRepositoryImpl @Inject constructor(
     }
 
     override fun observeCommandById(id: Long): Flow<Command?> {
-        val bw = basketDao.getBasketsWithWrappers()
-
         return dao.observeCommandsWithWrappersById(id).filterNotNull().map {
             Command(
                 id = it.commandEntity.id,
@@ -48,6 +46,7 @@ class CommandRepositoryImpl @Inject constructor(
                     item = productMapper.from(productDao.getById(pw.productId)),
                     realQuantity = pw.realQuantity,
                     quantity = pw.quantity,
+                    wrapperType = pw.wrapperType,
                     status = pw.status
                 ) },
                 basketWrappers = it.basketWrappers.map { bw -> Wrapper(
@@ -56,6 +55,7 @@ class CommandRepositoryImpl @Inject constructor(
                     item = bw.populatedBasket.asPojo(), // TODO Retrieve separately all product linked to this basketId to add to this item
                     realQuantity = bw.wrapper.realQuantity,
                     quantity = bw.wrapper.quantity,
+                    wrapperType = bw.wrapper.wrapperType,
                     status = bw.wrapper.status
                 ) },
                 deliveryDate = it.commandEntity.deliveryDate,
@@ -73,9 +73,12 @@ class CommandRepositoryImpl @Inject constructor(
                     status = it.commandEntity.status,
                     totalPrice = it.commandEntity.totalPrice,
                     productWrappers = it.productWrappers.map { pw -> Wrapper(
+                        id = pw.id,
+                        parentId = pw.commandId,
                         item = productMapper.from(productDao.getById(pw.productId)),
                         realQuantity = pw.realQuantity,
                         quantity = pw.quantity,
+                        wrapperType = pw.wrapperType,
                         status = pw.status
                     ) },
                     basketWrappers = it.basketWrappers.map { bw -> Wrapper(
@@ -84,6 +87,7 @@ class CommandRepositoryImpl @Inject constructor(
                         item = bw.populatedBasket.asPojo(), // TODO Retrieve separately all product linked to this basketId to add to this item
                         realQuantity = bw.wrapper.realQuantity,
                         quantity = bw.wrapper.quantity,
+                        wrapperType = bw.wrapper.wrapperType,
                         status = bw.wrapper.status
                     ) },
                     deliveryDate = it.commandEntity.deliveryDate,

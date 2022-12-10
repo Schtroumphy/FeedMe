@@ -9,5 +9,5 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.reposi
 class SaveProductWrapperUseCase (
     private val repository: ProductWrapperRepository
 ) {
-    operator fun invoke(wrappers: List<Wrapper<Product>>, isAssociatedToCommand : Boolean = false ) = repository.save(wrappers, isAssociatedToCommand)
+    operator fun invoke(wrappers: List<Wrapper<Product>>) = repository.save(wrappers)
 }

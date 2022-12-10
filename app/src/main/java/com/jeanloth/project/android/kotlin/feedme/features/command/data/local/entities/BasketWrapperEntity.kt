@@ -7,14 +7,18 @@ import com.jeanloth.project.android.kotlin.feedme.core.database.StatusConverter
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
 
 @Entity(tableName = "basket_wrapper")
 @TypeConverters(StatusConverter::class)
 class BasketWrapperEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
-    val basketId: Long = 0L,
+    val commandBasketId: Long = 0L,
     val commandId: Long = 0L,
+
+    // Wrapper type
+    val wrapperType : WrapperType = WrapperType.NONE,
 
     var realQuantity : Int,
     var quantity : Int,
@@ -25,7 +29,7 @@ class BasketWrapperEntity(
 fun Wrapper<Basket>.asEntity() : BasketWrapperEntity {
     return BasketWrapperEntity(
         id = this.id,
-        basketId = this.item.id,
+        commandBasketId = this.item.id,
         commandId = this.parentId,
         realQuantity = this.realQuantity,
         quantity = this.quantity,

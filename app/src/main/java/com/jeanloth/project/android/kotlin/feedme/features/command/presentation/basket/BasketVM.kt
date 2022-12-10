@@ -1,21 +1,13 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket
 
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jeanloth.project.android.kotlin.feedme.BuildConfig
-import com.jeanloth.project.android.kotlin.feedme.core.AppPreferences
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveAllBasketsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveBasketsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveBasketUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BasketVM @Inject constructor(
-    private val observeAllBasketsUseCase: ObserveAllBasketsUseCase,
+    private val observeBasketsUseCase: ObserveBasketsUseCase,
     private val saveBasketUseCase: SaveBasketUseCase,
 ) : ViewModel() {
 
@@ -36,7 +28,7 @@ class BasketVM @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeAllBasketsUseCase.invoke().collect {
+            observeBasketsUseCase.invoke().collect {
                 _baskets.value = it
             }
         }
@@ -59,17 +51,10 @@ class BasketVM @Inject constructor(
             price = price.toFloat(),
             wrappers = wrapperList
         )
-        Log.d("ProductVM", "Basket to save : $basket")
         val job = viewModelScope.launch(Dispatchers.IO){
             result = saveBasketUseCase(basket)
         }
         job.join()
         return  result
-    }
-
-    fun removebasket(basket: Basket){
-        viewModelScope.launch(Dispatchers.IO){
-            //removeBasketUseCase.invoke(basket)
-        }
     }
 }

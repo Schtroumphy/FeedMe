@@ -1,6 +1,7 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.data.repositoryImpl
 
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.BasketWrapperDao
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.dao.CommandBasketDao
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.asEntity
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.relations.asPojo
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
@@ -12,7 +13,8 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class WrapperBasketRepositoryImpl @Inject constructor(
-    private val dao : BasketWrapperDao
+    private val dao : BasketWrapperDao,
+    private val commandBasketDao: CommandBasketDao,
 ) : BasketWrapperRepository {
 
     override fun observeBasketWrappers(): Flow<List<Wrapper<Basket>>> {

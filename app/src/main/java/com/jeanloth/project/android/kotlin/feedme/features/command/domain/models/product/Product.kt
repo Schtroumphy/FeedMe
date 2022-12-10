@@ -17,6 +17,6 @@ data class Product(
         get() = productId
 
     override fun toString(): String {
-        return "Product : [id: $productId, label: $label, price : $unitPrice, image : $image, imageId: $imageId]"
+        return "Product : $label]" //"Product : [id: $productId, label: $label, price : $unitPrice, image : $image, imageId: $imageId]"
     }
 }

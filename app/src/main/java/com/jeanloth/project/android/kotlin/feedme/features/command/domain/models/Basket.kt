@@ -15,6 +15,6 @@ data class Basket(
         get() = price
 
     override fun toString(): String {
-        return "Basket : [Id : $id, Label : $label, price : $price, wrappers: $wrappers]"
+        return "Basket : label" //"Basket : [Id : $id, Label : $label, price : $price, wrappers: $wrappers]"
     }
 }

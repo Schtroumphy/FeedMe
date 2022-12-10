@@ -40,8 +40,6 @@ fun BasketList(
     baskets: List<Basket> = listOf(),
     onClick : ((Basket) -> Unit)?= null
 ){
-
-    Log.d("BasketList", "Baskets : $baskets")
     LazyColumn{
         items(baskets.map { it.toWrapper() }){
             BasketItem(it, displayQuantityBox = false)
