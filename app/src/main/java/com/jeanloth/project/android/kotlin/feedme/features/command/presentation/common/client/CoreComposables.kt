@@ -34,7 +34,6 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.Vert1
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AddButtonActionType
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.FooterRoute
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PageTemplate(

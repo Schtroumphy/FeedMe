@@ -1,5 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command
 
+import android.util.Log
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
@@ -34,6 +35,7 @@ class SaveCommandUseCase @Inject constructor(
             deliveryDate = deliveryDate,
             clientId = clientId
         )
+        Log.i("SaveCommandUC", "Command to save : $command § client id : $clientId")
         val commandId = repository.save(command)
 
 

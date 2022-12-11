@@ -81,8 +81,6 @@ class MainActivity : ComponentActivity() {
             val displayAddButtonState = rememberSaveable { (mutableStateOf(false)) }
             val dialogType = rememberSaveable { (mutableStateOf<AddButtonActionType?>(null)) }
             val scope = rememberCoroutineScope()
-            val displayYesNoDialog = remember { mutableStateOf(false) }
-
 
             val clients by clientVM.allSF.collectAsState()
 
@@ -104,21 +102,6 @@ class MainActivity : ComponentActivity() {
 
             val keyboardController = LocalSoftwareKeyboardController.current
 
-            if(displayYesNoDialog.value){
-                YesNoDialog(
-                    onYesClicked = {
-                        displayYesNoDialog.value = false
-                        navController.navigate(FooterRoute.COMMAND_LIST.route)
-                        splitties.toast.toast(R.string.current_command_saved)
-                    },
-                    onNoClicked = {
-                        commandVM.clearCurrentCommand()
-                        displayYesNoDialog.value = false
-                        navController.navigate(FooterRoute.COMMAND_LIST.route)
-                    }
-                )
-            }
-
             FeedMeTheme {
                 PageTemplate(
                     context = this,
@@ -134,10 +117,8 @@ class MainActivity : ComponentActivity() {
                         when(navController.currentDestination?.route){
                             FooterRoute.ADD_BASKET.route -> navController.popBackStack(FooterRoute.BASKETS.route, false)
                             FooterRoute.ADD_COMMAND_BUTTON.route, FooterRoute.ADD_COMMAND.route -> {
-                                // Display dialog to know if the user want to keep current command saved to edit it later
-                                if(commandVM.canAskUserToSaveCommand()) displayYesNoDialog.value = true else {
-                                    navController.navigate(FooterRoute.COMMAND_LIST.route)
-                                }
+                                commandVM.clearCurrentCommand()
+                                navController.navigate(FooterRoute.COMMAND_LIST.route)
                             }
                             else -> navController.popBackStack(FooterRoute.HOME.route, false)
                         }

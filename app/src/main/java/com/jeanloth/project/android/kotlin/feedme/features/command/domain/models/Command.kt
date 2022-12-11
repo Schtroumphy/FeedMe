@@ -32,20 +32,5 @@ data class Command(
         fun Command?.toString2(): String {
             return "Command : [status : $this.status, product: $this.productWrappers, basketwrappers : $this.basketWrappers ]"
         }
-
-        fun Command?.changeStatus(newStatus : Status) : Boolean {
-            if(this == null) return false
-            return when(newStatus) {
-                Status.TO_DO -> this.status == Status.IN_PROGRESS
-                Status.IN_PROGRESS -> {
-                    // Check if there is realQuantity > 0
-                    (this.status == Status.TO_DO|| this.status == Status.DONE) && (!this.productWrappers.all { it.realQuantity >= it.quantity } || !this.basketWrappers.flatMap { it.item.wrappers }.all { it.realQuantity >= it.quantity })
-                }
-                Status.DONE -> this.status == Status.IN_PROGRESS && this.productWrappers.all { it.realQuantity >= it.quantity } && this.basketWrappers.flatMap { it.item.wrappers }.all { it.realQuantity >= it.quantity }
-                Status.DELIVERED -> this.status == Status.DONE
-                Status.CANCELED -> this.status.order < Status.DELIVERED.order
-                Status.PAYED -> this.status == Status.DELIVERED
-            }
-        }
     }
 }

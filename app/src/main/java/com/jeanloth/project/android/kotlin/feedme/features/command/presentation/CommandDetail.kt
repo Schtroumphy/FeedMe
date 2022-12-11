@@ -11,11 +11,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Motorcycle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -29,12 +31,9 @@ import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortD
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.progession
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.toQuantityEditColor
 import com.jeanloth.project.android.kotlin.feedme.core.theme.*
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command.Companion.toString2
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailsVM
 
 data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var wrapperType : WrapperType = WrapperType.COMMAND_INDIVIDUAL_PRODUCT){
@@ -43,10 +42,8 @@ data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, va
     }
 }
 
-enum class CommandItemType {
-    INDIVIDUAL_PRODUCT,
-    BASKET
-}
+
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CommandDetailPage(
@@ -57,8 +54,6 @@ fun CommandDetailPage(
 
     Log.d("Details", "Command ${command.toString2()}")
 
-    // TODO Primary and second color in function of command status to transfer to all sub composables
-
     Scaffold(
         topBar = {
             CommandDetailHeader(
@@ -68,7 +63,9 @@ fun CommandDetailPage(
                 status = command?.status ?: Status.TO_DO
             )
          }, bottomBar = {
-
+            ActionCommandDetailButton(command?.status){ action ->
+                commandDetailVM.onDetailActionClick(action)
+            }
         }
     ) {
         CompositionLocalProvider(
@@ -99,7 +96,7 @@ fun CommandDetailPage(
                 command?.productWrappers?.let {
                     item {
                         CommandBasketItem(
-                            label = "Produits individuels",
+                            label = stringResource(id = R.string.individual_products),
                             productWrappers = it,
                             onQuantityChange = {
                                 commandDetailVM.updateRealCommandQuantity(it)
@@ -109,6 +106,35 @@ fun CommandDetailPage(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun ActionCommandDetailButton(currentStatus : Status? = Status.TO_DO, onClick : ((CommandAction) -> Unit)? = null){
+    currentStatus?.potentialAction?.let { action ->
+        Column(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            FloatingActionButton(
+                modifier = Modifier.scale(0.7f),
+                containerColor = currentStatus.primaryColor,
+                onClick = {
+                    onClick?.invoke(action)
+                }
+            ) {
+                Icon(
+                    tint = White,
+                    imageVector = action.iconButton,
+                    contentDescription = ""
+                )
+            }
+            Text(stringResource(id = action.detailText), style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -138,7 +164,7 @@ fun CommandBasketItem(
             )
             Box(modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxHeight(if(progress.isNaN()) 0f else progress)
+                .fillMaxHeight(if (progress.isNaN()) 0f else progress)
                 .width(10.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(status.secondaryColor))
@@ -150,9 +176,13 @@ fun CommandBasketItem(
                 Spacer(Modifier.height(12.dp))
             }
             productWrappers.forEach {
-                CommandProductItem(it, onQuantityChange = {
-                    onQuantityChange?.invoke(it)
-                })
+                CommandProductItem(
+                    isEditMode = status.order < Status.DELIVERING.order, // Can edit quantities only if not delivered yet
+                    productWrapper = it,
+                    onQuantityChange = {
+                        onQuantityChange?.invoke(it)
+                    }
+                )
             }
         }
     }
@@ -165,7 +195,11 @@ fun CommandProductItem(
     onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
 ){
     var quantityEdit by remember { mutableStateOf(productWrapper.realQuantity) }
-    var backgroundColor by remember { mutableStateOf(quantityEdit.toQuantityEditColor(productWrapper.quantity)) }
+    var backgroundColor by remember { mutableStateOf(Gray1) }
+
+    quantityEdit = productWrapper.realQuantity
+    backgroundColor = quantityEdit.toQuantityEditColor(productWrapper.quantity)
+
     Row(
         Modifier
             .fillMaxWidth()
@@ -173,8 +207,19 @@ fun CommandProductItem(
         horizontalArrangement = SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Text(productWrapper.item.label, style = MaterialTheme.typography.labelMedium, color = Color.LightGray, modifier = Modifier.weight(1f), overflow = TextOverflow.Ellipsis)
-        Text("${productWrapper.realQuantity} / ${productWrapper.quantity}", style = MaterialTheme.typography.labelMedium, color = Color.LightGray,modifier = Modifier.padding(end = 10.dp))
+        Text(
+            text = productWrapper.item.label,
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.LightGray,
+            modifier = Modifier.weight(1f),
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = "${productWrapper.realQuantity} / ${productWrapper.quantity}",
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.LightGray,
+            modifier = Modifier.padding(end = 10.dp)
+        )
         if(isEditMode){
             AddQuantityBox(modifier = Modifier.width(80.dp),
                 quantity = quantityEdit,
@@ -203,8 +248,17 @@ fun CommandAddress(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Icon(imageVector = Icons.Filled.LocationOn, contentDescription = "", tint = Color.LightGray)
-        Text(address ?: "Adresse inconnue. Merci de la renseigner", style = MaterialTheme.typography.labelSmall, fontStyle = FontStyle.Italic, color = if(address == null) Color.LightGray else color)
+        Icon(
+            imageVector = Icons.Filled.LocationOn,
+            contentDescription = "",
+            tint = Color.LightGray
+        )
+        Text(
+            text = address ?: stringResource(id = R.string.unknown_address),
+            style = MaterialTheme.typography.labelSmall,
+            fontStyle = FontStyle.Italic,
+            color = if (address == null) Color.LightGray else color
+        )
     }
 }
 
@@ -253,8 +307,8 @@ fun CommandDetailHeader(
                 ClientCommandBox(client)
                 DateRoundedBox(
                     modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .offset(y = 10.dp), deliveryDate,
+                        .align(Alignment.BottomCenter)
+                        .offset(y = 10.dp), deliveryDate,
                     backgroundColor = status.secondaryColor
                 )
             }

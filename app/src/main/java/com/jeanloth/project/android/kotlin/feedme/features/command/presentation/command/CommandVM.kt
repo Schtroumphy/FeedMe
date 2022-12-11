@@ -25,8 +25,6 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecas
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.SaveCommandUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.UpdateCommandUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CommandItemType
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CommandQuantityInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -42,10 +40,7 @@ class CommandVM @Inject constructor(
     private val observeAllProductsUseCase: ObserveAllProductsUseCase,
     private val observeAllCommandsUseCase: ObserveAllCommandsUseCase,
     private val observeCommandByIdUseCase: ObserveCommandByIdUseCase,
-    private val saveCommandUseCase: SaveCommandUseCase,
-    private val updateCommandUseCase: UpdateCommandUseCase,
-    private val updateProductWrapperUseCase: UpdateProductWrapperUseCase,
-    private val updateBasketWrapperUseCase: UpdateBasketWrapperUseCase
+    private val saveCommandUseCase: SaveCommandUseCase
 ) : ViewModel() {
 
     private val _baskets : MutableStateFlow<List<Basket>> = MutableStateFlow(emptyList())
@@ -124,6 +119,7 @@ class CommandVM @Inject constructor(
             _client = client
         }
         selectedClient = client
+        Log.i("CommandVM", "Client selected : $selectedClient")
     }
 
     fun setBasketQuantityChange(basketId: Long, quantity : Int){
@@ -175,25 +171,18 @@ class CommandVM @Inject constructor(
      */
     fun saveCommand() : Boolean {
         viewModelScope.launch(Dispatchers.IO) {
-            saveCommandUseCase(
-                clientId = selectedClient?.idClient ?: 0,
-                deliveryDate = deliveryDate,
-                price = commandPrice,
-                basketWrappers = _basketWrappers.value.filter { it.quantity > 0 },
-                productWrappers = _productWrappers.value.filter { it.quantity > 0 }
-            )
+            selectedClient?.idClient?.let {
+                if(it == 0L) Log.e("CommandVm", "Command to save idClient == 0")
+                saveCommandUseCase(
+                    clientId = selectedClient?.idClient ?: 0,
+                    deliveryDate = deliveryDate,
+                    price = commandPrice,
+                    basketWrappers = _basketWrappers.value.filter { it.quantity > 0 },
+                    productWrappers = _productWrappers.value.filter { it.quantity > 0 }
+                )
+            }
         }
         clearCurrentCommand()
         return true
     }
-
-    /**
-     * Update current command id whith given id
-     *
-     * @param id of the command
-     */
-    fun updateCurrentCommandId(id:Long){
-        _currentCommandId.value = id
-    }
-
 }

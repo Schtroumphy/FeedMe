@@ -18,9 +18,19 @@
     <string name="no">Non</string>
     <string name="euro">%1$s€</string>
 
+    <string name="individual_products">Produits individuels</string>
+
+    <string name="unknown_address">Adresse inconnue. Merci de la renseigner</string>
+
     <!-- Dialog texts -->
     <string name="save_state">Sauvegarde de l\'avancée</string>
     <string name="save_current_command">Voulez-vous garder la commande en cours pour la reprendre plus tard ?</string>
+
+    <!-- Status text descriptions -->
+    <string name="preparation_end_details_text">Fin de préparation</string>
+    <string name="delivery_details_text">Passer en livraison</string>
+    <string name="payment_details_text">Paiement</string>
+    <string name="cancel_details_text">Annuler la commande</string>
 
     <!-- Fruits et Légumes -->
     <string name="banane_jaune">Banane jaune</string>
