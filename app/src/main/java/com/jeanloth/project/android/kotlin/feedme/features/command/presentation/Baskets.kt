@@ -1,6 +1,5 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,15 +33,15 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.QuantityBubble
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PriceBubble
 
 @Composable
 fun BasketList(
     baskets: List<Basket> = listOf(),
-    onClick : ((Basket) -> Unit)?= null
-){
-    LazyColumn{
-        items(baskets.map { it.toWrapper() }){
+    onClick: ((Basket) -> Unit)? = null
+) {
+    LazyColumn {
+        items(baskets.map { it.toWrapper() }) {
             BasketItem(it, displayQuantityBox = false)
         }
     }
@@ -49,7 +49,7 @@ fun BasketList(
 
 @Composable
 @Preview
-fun Button(){
+fun Button() {
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = Color.White,
@@ -58,19 +58,28 @@ fun Button(){
             .fillMaxWidth()
             .height(80.dp)
     ) {
-        Box(modifier = Modifier.fillMaxSize()){
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(Modifier.padding(10.dp)) {
                 Text("Ma première gare")
                 Text("Ma deuxième gare")
             }
-            Box(modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .clip(RoundedCornerShape(topStart = 20.dp))
-                .background(Purple40)
-                .size(25.dp)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .clip(RoundedCornerShape(topStart = 20.dp))
+                    .background(Purple40)
+                    .size(25.dp)
 
             ) {
-                Icon(imageVector = Icons.Filled.ChevronRight, contentDescription = "", modifier = Modifier.align(Alignment.Center).size(18.dp).rotate(45f), tint = Color.White)
+                Icon(
+                    imageVector = Icons.Filled.ChevronRight,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(18.dp)
+                        .rotate(45f),
+                    tint = Color.White
+                )
             }
 
         }
@@ -80,52 +89,77 @@ fun Button(){
 @Composable
 @Preview
 fun BasketItem(
-    basketWrapper: Wrapper<Basket> = Wrapper(quantity= 3, item = Basket(label = "Mon panier", wrappers = listOf(
-        Wrapper(item = Product(label = "Banane", unitPrice = 12f), quantity = 2)
-    ))),
-    onClick : ((Basket)-> Unit)? = null,
-    editMode : Boolean = true,
-    displayQuantityBox : Boolean = true,
-    onBasketQuantityChange : ((Pair<Long, Int>) -> Unit)? = null
-){
-    Row (
+    basketWrapper: Wrapper<Basket> = Wrapper(
+        quantity = 3, item = Basket(
+            label = "Mon panier", wrappers = listOf(
+                Wrapper(item = Product(label = "Banane", unitPrice = 12f), quantity = 2)
+            )
+        )
+    ),
+    onClick: ((Basket) -> Unit)? = null,
+    editMode: Boolean = true,
+    displayQuantityBox: Boolean = true,
+    onBasketQuantityChange: ((Pair<Long, Int>) -> Unit)? = null
+) {
+    Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
-            .padding(vertical = 5.dp)
-    ){
+            .padding(15.dp)
+    ) {
         Box(
             modifier = Modifier
-                .weight(1.5f)
-                .padding(5.dp)
-        ){
-            Image(painter = painterResource(id = R.drawable.fruits), contentDescription = "", modifier = Modifier
-                .clip(RoundedCornerShape(15.dp)))
-            QuantityBubble(modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(top = 8.dp), quantity = stringResource(id = R.string.euro, basketWrapper.item.price.toInt()),
-                backgroundColor = Jaune1, padding = 5.dp)
+                .weight(1.2f)
+                .clip(RoundedCornerShape(15.dp))
+                .background(Color.Yellow)
+                //.padding(5.dp)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.fruits),
+                contentDescription = "",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.FillBounds
+            )
+
+            PriceBubble(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(top = 8.dp),
+                price = stringResource(id = R.string.euro, basketWrapper.item.price.toInt()),
+                backgroundColor = Jaune1,
+                padding = 5.dp
+            )
         }
 
         Column(
             Modifier
                 .padding(10.dp)
-                .weight(4f)
+                .weight(if(displayQuantityBox) 3f else 4f)
         ) {
             Text(basketWrapper.item.label, fontWeight = FontWeight.Bold)
-            Text(basketWrapper.item.wrappers.toBasketDescription(), fontWeight = FontWeight.Light, fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(
+                basketWrapper.item.wrappers.toBasketDescription(),
+                fontWeight = FontWeight.Light,
+                fontSize = 10.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
-        if(displayQuantityBox){
-            if(editMode) AddQuantityBox(
-                modifier = Modifier.weight(2.5f),
+        if (displayQuantityBox) {
+            if (editMode) AddQuantityBox(
+                modifier = Modifier.weight(1.5f),
                 quantity = basketWrapper.quantity,
                 onQuantityChange = {
                     onBasketQuantityChange?.invoke(basketWrapper.item.id to it)
                 }
             ) else {
-                Text("x ${basketWrapper.quantity}", fontWeight = FontWeight.Light, modifier = Modifier.padding(end = 10.dp))
+                Text(
+                    "x ${basketWrapper.quantity}",
+                    fontWeight = FontWeight.Light,
+                    modifier = Modifier.padding(end = 10.dp)
+                )
             }
         }
 

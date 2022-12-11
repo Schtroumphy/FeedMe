@@ -13,6 +13,13 @@ val fontFamily = FontFamily (
         Font(R.font.rosario_semi_bold, FontWeight.SemiBold),
         Font(R.font.rosario_light, FontWeight.Light),
 )
+
+val secondFontFamily = FontFamily (
+    Font(R.font.roboto),
+    Font(R.font.roboto_light, FontWeight.Light),
+    Font(R.font.roboto, FontWeight.Medium),
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
@@ -44,22 +51,22 @@ val Typography = Typography(
         letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = fontFamily,
-        fontWeight = FontWeight.Light,
+        fontFamily = secondFontFamily,
+        fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     ),
     labelMedium = TextStyle(
-        fontFamily = fontFamily,
-        fontWeight = FontWeight.Light,
+        fontFamily = secondFontFamily,
+        fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     ),
     labelLarge = TextStyle(
-        fontFamily = fontFamily,
-        fontWeight = FontWeight.Light,
+        fontFamily = secondFontFamily,
+        fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp

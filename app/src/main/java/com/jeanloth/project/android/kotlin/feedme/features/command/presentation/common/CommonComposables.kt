@@ -19,16 +19,14 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -52,10 +50,7 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.SLASH_DATE_FORMAT
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortDate
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
-import com.jeanloth.project.android.kotlin.feedme.core.theme.Purple80
+import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -105,6 +100,25 @@ fun StatusCircle(color: Color, status: String) {
     }
 }
 
+@Composable
+@Preview
+fun PriceBubble(
+    price: String = "20€",
+    backgroundColor: Color = White,
+    padding: Dp = 2.dp,
+    size: Dp = 22.dp,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier
+        .fillMaxSize(0.4f)
+        .clip(RoundedCornerShape(topStart = 8.dp))
+        .background(backgroundColor)
+        //.size(25.dp)
+    ) {
+        Text(price, style = MaterialTheme.typography.labelSmall, modifier = Modifier.align(Alignment.Center))
+    }
+}
+
 // TODO Create specific Price bubble
 @Composable
 @Preview
@@ -130,7 +144,7 @@ fun QuantityBubble(
             },
         contentAlignment = Alignment.Center,
     ) {
-        Text(text)
+        Text(text, style = MaterialTheme.typography.labelMedium)
     }
 }
 
