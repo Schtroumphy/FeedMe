@@ -1,6 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.core.di
 
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.external.services.GooglePlacesApi
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.external.services.NominatimApi
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.repositoryImpl.GoogleMapRepositoryImpl
 import dagger.Module
 import dagger.Provides
@@ -15,7 +15,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
-    private const val BASE_URL = "https://maps.googleapis.com/"
+
+    private const val BASE_URL = "https://nominatim.openstreetmap.org/"
 
     @Singleton
     @Provides
@@ -42,9 +43,9 @@ object ApiModule {
 
     @Singleton
     @Provides
-    fun provideApiService(retrofit: Retrofit): GooglePlacesApi = retrofit.create(GooglePlacesApi::class.java)
+    fun provideNominatimApiService(retrofit: Retrofit): NominatimApi = retrofit.create(NominatimApi::class.java)
 
     @Singleton
     @Provides
-    fun providesRepository(apiService: GooglePlacesApi) = GoogleMapRepositoryImpl(apiService)
+    fun providesRepository(nominatimApi: NominatimApi) = GoogleMapRepositoryImpl(nominatimApi)
 }

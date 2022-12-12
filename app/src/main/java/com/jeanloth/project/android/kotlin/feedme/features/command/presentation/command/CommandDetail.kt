@@ -104,6 +104,7 @@ fun CommandDetailPage(
                     deliveryDate = command?.deliveryDate.formatToShortDate(),
                     price = command?.totalPrice ?: 0,
                     status = command?.status ?: Status.TO_DO,
+                    address = command?.deliveryAddress,
                     onAddressClick = {
                         // TODO If command address unknown, display bottom sheet to add it, else display map
                         coroutineScope.launch {
@@ -173,7 +174,7 @@ fun BottomSheet(
     onAddressValidate: ((String) -> Unit)? = null,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var selectedAddress by remember { mutableStateOf<String>(address) }
+    var selectedAddress by remember { mutableStateOf(address) }
 
     Column(
         modifier = Modifier
@@ -199,7 +200,6 @@ fun BottomSheet(
             autoFocus = false,
             onTextEntered = {
                 keyboardController?.hide()
-                onAddressValidate?.invoke(it)
             },
             onValueChange = {
                 onAddressChange?.invoke(it)
@@ -211,12 +211,18 @@ fun BottomSheet(
             horizontalAlignment = CenterHorizontally
         ) {
             predictions.forEach { prediction ->
-                Text(text = prediction, Modifier.padding(bottom = 10.dp).clickable {
-                    selectedAddress = prediction
+                Text(
+                    text = prediction,
+                    modifier = Modifier
+                        .padding(vertical = 10.dp)
+                        .clickable {
+                            selectedAddress = prediction
 
-                    // Close keyboard
-                    keyboardController?.hide()
-                })
+                            // Close keyboard
+                            keyboardController?.hide()
+                        },
+                    overflow = TextOverflow.Clip
+                )
                 Divider(color =  Gray1, thickness = 1.5.dp)
             }
         }
@@ -226,7 +232,7 @@ fun BottomSheet(
                 .align(End),
             containerColor = validateButtonColor,
             onClick = {
-                onAddressValidate?.invoke("")
+                onAddressValidate?.invoke(selectedAddress)
             }
         ) {
             Icon(
@@ -246,7 +252,7 @@ fun ActionCommandDetailButton(currentStatus : Status? = Status.TO_DO, onClick : 
             modifier = Modifier
                 .padding(vertical = 10.dp)
                 .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             FloatingActionButton(
@@ -307,8 +313,8 @@ fun CommandBasketItem(
                 CommandProductItem(
                     isEditMode = status.order < Status.DELIVERING.order, // Can edit quantities only if not delivered yet
                     productWrapper = it,
-                    onQuantityChange = {
-                        onQuantityChange?.invoke(it)
+                    onQuantityChange = { info ->
+                        onQuantityChange?.invoke(info)
                     }
                 )
             }
@@ -377,6 +383,7 @@ fun CommandAddress(
     Row(
         Modifier
             .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 10.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
@@ -392,7 +399,7 @@ fun CommandAddress(
             tint = Color.LightGray
         )
         Text(
-            text = address ?: stringResource(id = R.string.unknown_address),
+            text = if(address.isNullOrEmpty()) stringResource(id = R.string.unknown_address) else address,
             style = MaterialTheme.typography.labelSmall,
             fontStyle = FontStyle.Italic,
             color = if (address == null) Color.LightGray else color
@@ -403,7 +410,7 @@ fun CommandAddress(
 @Composable
 fun SemiRoundedBox(
     text : String,
-    textColor: Color = Color.White,
+    textColor: Color = White,
     backgroundColor : Color = Orange1
 ){
     Text(
@@ -458,7 +465,7 @@ fun CommandDetailHeader(
                     .fillMaxWidth()
                     .padding(end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = SpaceBetween
             ){
                 SemiRoundedBox(stringResource(id = R.string.euro, price), backgroundColor = status.secondaryColor, textColor = if(status != Status.TO_DO) White else Black)
                 StatusText(status = status)
@@ -477,7 +484,11 @@ fun StatusText(
     modifier: Modifier = Modifier,
     status : Status
 ){
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically){
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ){
         Box(
             Modifier
                 .clip(CircleShape)

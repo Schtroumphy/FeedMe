@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jeanloth.project.android.kotlin.feedme.features.command.data.external.services.GooglePrediction
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandAction
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
@@ -13,7 +12,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveCommandByIdUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.UpdateCommandUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.googleApis.GetGooglePredictionsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.googleApis.GetNominatimPredictionsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.CommandDetailIdArgument
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +26,7 @@ class CommandDetailsVM @Inject constructor(
     private val observeCommandByIdUseCase: ObserveCommandByIdUseCase,
     private val updateCommandUseCase: UpdateCommandUseCase,
     private val updateProductWrapperUseCase: UpdateProductWrapperUseCase,
-    private val getGooglePredictionsUseCase: GetGooglePredictionsUseCase
+    private val getNominatimPredictionsUseCase: GetNominatimPredictionsUseCase
 ) : ViewModel() {
 
     val TAG = javaClass.simpleName
@@ -158,14 +157,18 @@ class CommandDetailsVM @Inject constructor(
 
     fun getPredictions(input : String){
         viewModelScope.launch(Dispatchers.IO) {
-            val liste = getGooglePredictionsUseCase(input)
+            val liste = getNominatimPredictionsUseCase(input)
             Log.i("CommandDetailsVM", "Predictions : $liste")
-            predictions.value = liste.map { it.description }
+            predictions.value = liste
         }
     }
 
     fun updateCommandAddress(address: String) {
+        // Clear predictions
+        predictions.value = emptyList()
+
         _currentCommand.value?.deliveryAddress = address
+
         viewModelScope.launch(Dispatchers.IO){
             updateCommandUseCase(_currentCommand.value)
         }

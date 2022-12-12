@@ -15,7 +15,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecas
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.client.SaveClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.googleApis.GetGooglePredictionsUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.googleApis.GetNominatimPredictionsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
@@ -166,10 +166,10 @@ object AppModule {
     fun provideObserveAllBaskets(repository: BasketRepository) : ObserveBasketsUseCase = ObserveBasketsUseCase(repository)
 
 
-    /** --- Google map apis --- **/
+    /** --- Service apis --- **/
 
     @Provides
     @Singleton
-    fun provideGetGooglePredictionUseCase(repository: GoogleMapRepository) : GetGooglePredictionsUseCase = GetGooglePredictionsUseCase(repository)
+    fun provideNominatimPredictionUseCase(repository: GoogleMapRepository) : GetNominatimPredictionsUseCase = GetNominatimPredictionsUseCase(repository)
 
 }
