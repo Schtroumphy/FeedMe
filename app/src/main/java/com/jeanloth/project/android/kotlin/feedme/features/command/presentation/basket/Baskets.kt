@@ -158,7 +158,7 @@ fun BasketItem(
                 Text(
                     "x ${basketWrapper.quantity}",
                     fontWeight = FontWeight.Light,
-                    modifier = Modifier.padding(end = 10.dp)
+                    modifier = Modifier.weight(1.5f).padding(end = 10.dp)
                 )
             }
         }

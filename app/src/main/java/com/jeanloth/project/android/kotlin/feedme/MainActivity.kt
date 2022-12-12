@@ -12,7 +12,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -28,11 +27,12 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.FeedMeTheme
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AddButtonActionType
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.BasketVM
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.CreateBasketPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.AddClientPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientListPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientVM
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.YesNoDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandCallbacks
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandParameters
@@ -173,7 +173,12 @@ class MainActivity : ComponentActivity() {
                             }
 
                             // Client list page
-                            composable(FooterRoute.CLIENT.route) { ClientListPage(clientVM, onClientRemoved = clientVM::removeClient) }
+                            composable(FooterRoute.CLIENT.route) {
+                                ClientListPage(
+                                    viewModel = clientVM,
+                                    onClientRemoved = clientVM::removeClient
+                                )
+                            }
 
                             // Basket list page
                             composable(FooterRoute.BASKETS.route){ BasketList(baskets) }
@@ -222,7 +227,9 @@ class MainActivity : ComponentActivity() {
                             // Add client page - Not in footer
                             composable(FooterRoute.ADD_CLIENT.route) {
                                 AddClientPage(
-                                    onValidateClick = { Toast.makeText(this@MainActivity, "Clic sur valider", Toast.LENGTH_SHORT) }
+                                    onValidateClick = {
+                                        Toast.makeText(this@MainActivity, "Clic sur valider", Toast.LENGTH_SHORT)
+                                    }
                                 )
                             }
                         }

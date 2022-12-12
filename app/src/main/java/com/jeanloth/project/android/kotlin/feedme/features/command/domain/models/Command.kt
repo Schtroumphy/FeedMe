@@ -15,11 +15,12 @@ data class Command(
     val clientId : Long = 0,
     val client : AppClient? = null,
     val deliveryDate : LocalDate = LocalDate.now(),
+    var deliveryAddress : String = ""
 ) {
 
     override fun toString(): String {
         return "Command : [Id : $id, status : $status, price : $totalPrice, product: $productWrappers, basketwrappers : $basketWrappers, " +
-                "client : ${client.toNameString()}, deliverydate: $deliveryDate]"
+                "client : ${client.toNameString()}, deliverydate: $deliveryDate, Address : $deliveryAddress]"
     }
 
     override fun equals(other: Any?): Boolean {

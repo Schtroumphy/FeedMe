@@ -40,4 +40,8 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindWrapperBasketRepository(impl : WrapperBasketRepositoryImpl) : BasketWrapperRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindGoogleMapRepository(impl : GoogleMapRepositoryImpl) : GoogleMapRepository
+
 }

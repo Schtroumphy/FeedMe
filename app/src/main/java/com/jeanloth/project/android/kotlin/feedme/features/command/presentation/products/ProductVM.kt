@@ -14,6 +14,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecas
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.BasketItem
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.BasketItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers

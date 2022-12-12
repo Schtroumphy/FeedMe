@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
@@ -185,14 +186,20 @@ fun IconBox(
 @Composable
 @Preview
 fun AppTextField(
+    initialValue : String = "",
     modifier: Modifier = Modifier,
     widthPercentage: Float = 0.6f,
     @StringRes labelId: Int = R.string.label,
     keyboardType: KeyboardType = KeyboardType.Text,
+    displayLabelText : Boolean = true,
+    autoFocus : Boolean = true,
     onValueChange: ((String) -> Unit)? = null,
     onTextEntered: ((String) -> Unit)? = null
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(initialValue) }
+    LaunchedEffect(key1 = initialValue ){
+        text = initialValue
+    }
     val textFieldRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
@@ -231,12 +238,16 @@ fun AppTextField(
                 )
             )
         }
-        Text(stringResource(id = labelId), modifier = Modifier.align(Alignment.TopStart))
+        if(displayLabelText) Text(
+            text = stringResource(id = labelId),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.align(Alignment.TopStart)
+        )
     }
 
-    LaunchedEffect(true){
+    LaunchedEffect(autoFocus){
         delay(100)
-        textFieldRequester.requestFocus()
+        if(autoFocus) textFieldRequester.requestFocus()
     }
 }
 

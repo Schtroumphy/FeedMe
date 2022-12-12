@@ -11,7 +11,8 @@ class CommandEntityMapper : Mapper<CommandEntity, Command> {
             status = entity.status,
             totalPrice = entity.totalPrice,
             clientId = entity.clientId,
-            deliveryDate = entity.deliveryDate
+            deliveryDate = entity.deliveryDate,
+            deliveryAddress = entity.deliveryAddress
         )
     }
 
@@ -21,7 +22,8 @@ class CommandEntityMapper : Mapper<CommandEntity, Command> {
             status = pojo.status,
             totalPrice = pojo.totalPrice,
             clientId = pojo.clientId,
-            deliveryDate = pojo.deliveryDate
+            deliveryDate = pojo.deliveryDate,
+            deliveryAddress = pojo.deliveryAddress
         )
     }
 }

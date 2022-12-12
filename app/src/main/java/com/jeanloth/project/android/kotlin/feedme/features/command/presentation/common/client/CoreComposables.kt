@@ -83,7 +83,6 @@ fun PageTemplate(
     }
 }
 
-
 @Composable
 fun Header(
     context : Context,

@@ -17,7 +17,7 @@ class UpdateCommandUseCase @Inject constructor(
         command: Command?
     ): Boolean {
 
-        Log.d(TAG, "Command to save : ${command}")
+        Log.d(TAG, "Command to save : $command")
         command ?: return false
 
         repository.update(command)

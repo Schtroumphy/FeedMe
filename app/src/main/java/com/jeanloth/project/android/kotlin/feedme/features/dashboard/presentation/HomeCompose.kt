@@ -4,15 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,7 +92,9 @@ fun HomeCards(
                     .weight(2f)
                     .fillMaxWidth(),
                 cardType = HomeCardType.CA,
-                count = 25)
+                count = 25,
+                shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp, topEnd = 20.dp, bottomEnd = 5.dp)
+            )
             HomeCard(
                 onClick = {
                     navController.navigate(FooterRoute.COMMAND_LIST.route)
@@ -98,7 +103,8 @@ fun HomeCards(
                     .weight(3f)
                     .fillMaxWidth(),
                 cardType = HomeCardType.SALES,
-                count = 25)
+                count = 25,
+                shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp, topEnd = 5.dp, bottomEnd = 20.dp))
         }
         Column(
             Modifier
@@ -113,7 +119,8 @@ fun HomeCards(
                     .weight(3f)
                     .fillMaxWidth(),
                 cardType = HomeCardType.CLIENT,
-                count = 5
+                count = 5,
+                shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 5.dp, topEnd = 20.dp, bottomEnd = 20.dp)
             )
             HomeCard(
                 onClick = {
@@ -122,28 +129,29 @@ fun HomeCards(
                 modifier = Modifier
                     .weight(2f)
                     .fillMaxWidth(),
-                cardType = HomeCardType.TODO
+                cardType = HomeCardType.TODO,
+                shape = RoundedCornerShape(topStart = 5.dp, bottomStart = 20.dp, topEnd = 20.dp, bottomEnd = 20.dp)
             )
         }
     }
 }
 
 @Composable
-fun HomeCard(modifier: Modifier = Modifier, cardType: HomeCardType = HomeCardType.CA, count: Int = 10, onClick : (() -> Unit)? = null){
-    Box(modifier = modifier
+fun HomeCard(modifier: Modifier = Modifier, cardType: HomeCardType = HomeCardType.CA, count: Int = 10, shape : Shape = RoundedCornerShape(20.dp), onClick : (() -> Unit)? = null){
+    Card(modifier = modifier
         .padding(10.dp)
-        .clip(RoundedCornerShape(20.dp))
-        .background(cardType.color)
         .clickable {
             println("Click on ${cardType.label}")
             onClick?.invoke()
-        }
+        },
+        elevation = 3.dp,
+        shape = shape,
+        backgroundColor = cardType.color
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier
-                .align(Alignment.Center)
                 .fillMaxSize()
         ) {
             Icon(
@@ -154,10 +162,10 @@ fun HomeCard(modifier: Modifier = Modifier, cardType: HomeCardType = HomeCardTyp
             )
             Text(
                 text = count.toString(),
-                style = Typography.titleLarge,
+                style = Typography.headlineLarge,
                 modifier = Modifier.padding(12.dp)
             )
-            Text(text = cardType.label, fontStyle = FontStyle.Italic, color = Color.Black.copy(alpha = 0.6f))
+            Text(text = cardType.label, style = MaterialTheme.typography.titleSmall, color = Color.Black.copy(alpha = 0.6f))
         }
     }
 }

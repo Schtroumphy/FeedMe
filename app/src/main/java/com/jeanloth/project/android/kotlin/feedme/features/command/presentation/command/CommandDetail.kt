@@ -1,26 +1,38 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
+package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Motorcycle
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.End
+import androidx.compose.ui.Alignment.Companion.Start
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,7 +46,9 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command.Companion.toString2
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailsVM
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.AddQuantityBox
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
+import kotlinx.coroutines.launch
 
 data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var wrapperType : WrapperType = WrapperType.COMMAND_INDIVIDUAL_PRODUCT){
     override fun toString(): String {
@@ -42,9 +56,9 @@ data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, va
     }
 }
 
-
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun CommandDetailPage(
     commandDetailVM : CommandDetailsVM
@@ -52,60 +66,174 @@ fun CommandDetailPage(
     val command by commandDetailVM.currentCommand.collectAsState(null)
     val client = command?.client?.toNameString() ?: "Albert"
 
+    val predictions by commandDetailVM.predictions
+
     Log.d("Details", "Command ${command.toString2()}")
 
-    Scaffold(
-        topBar = {
-            CommandDetailHeader(
-                client = client,
-                deliveryDate = command?.deliveryDate.formatToShortDate(),
-                price = command?.totalPrice ?: 0,
-                status = command?.status ?: Status.TO_DO
-            )
-         }, bottomBar = {
-            ActionCommandDetailButton(command?.status){ action ->
-                commandDetailVM.onDetailActionClick(action)
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+    )
+    val coroutineScope = rememberCoroutineScope()
+
+    BackHandler(sheetState.isVisible) {
+        coroutineScope.launch { sheetState.hide() }
+    }
+
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = { BottomSheet(
+            predictions = predictions,
+            onAddressValidate = { address ->
+                commandDetailVM.updateCommandAddress(address)
+                coroutineScope.launch {
+                    sheetState.hide()
+                }
+            },
+            onAddressChange = {
+                commandDetailVM.getPredictions(it)
+            }
+        ) },
+        modifier = Modifier.fillMaxSize(),
+        sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+    ) {
+        Scaffold(
+            topBar = {
+                CommandDetailHeader(
+                    client = client,
+                    deliveryDate = command?.deliveryDate.formatToShortDate(),
+                    price = command?.totalPrice ?: 0,
+                    status = command?.status ?: Status.TO_DO,
+                    onAddressClick = {
+                        // TODO If command address unknown, display bottom sheet to add it, else display map
+                        coroutineScope.launch {
+                            if (sheetState.isVisible) sheetState.hide()
+                            else sheetState.show()
+                        }
+                    }
+                )
+            }, bottomBar = {
+                ActionCommandDetailButton(command?.status) { action ->
+                    commandDetailVM.onDetailActionClick(action)
+                }
+            }
+        ) {
+            CompositionLocalProvider(
+                LocalOverScrollConfiguration provides null
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(it)
+                        .padding(top = 30.dp, start = 15.dp, end = 15.dp),
+                    verticalArrangement = Arrangement.spacedBy(30.dp)
+                ) {
+
+                    // Basket list
+                    command?.basketWrappers?.forEach { bw ->
+                        item {
+                            CommandBasketItem(
+                                label = bw.item.label,
+                                productWrappers = bw.item.wrappers,
+                                onQuantityChange = {
+                                    commandDetailVM.updateRealCommandQuantity(it.apply {
+                                        basketId = bw.id
+                                    })
+                                },
+                                status = command?.status ?: Status.TO_DO
+                            )
+                        }
+                    }
+
+                    // Product list
+                    command?.productWrappers?.let {
+                        item {
+                            CommandBasketItem(
+                                label = stringResource(id = R.string.individual_products),
+                                productWrappers = it,
+                                onQuantityChange = {
+                                    commandDetailVM.updateRealCommandQuantity(it)
+                                },
+                                status = command?.status ?: Status.TO_DO
+                            )
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun BottomSheet(
+    predictions: List<String>,
+    address: String = "",
+    validateButtonColor: Color = Orange1,
+    onAddressChange: ((String) -> Unit)? = null,
+    onAddressValidate: ((String) -> Unit)? = null,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var selectedAddress by remember { mutableStateOf<String>(address) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        CompositionLocalProvider(
-            LocalOverScrollConfiguration provides null
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(it)
-                    .padding(top = 30.dp, start = 15.dp, end = 15.dp),
-                verticalArrangement = Arrangement.spacedBy(30.dp)
-            ) {
-
-                // Basket list
-                command?.basketWrappers?.forEach { bw ->
-                    item {
-                        CommandBasketItem(
-                            label = bw.item.label,
-                            productWrappers = bw.item.wrappers,
-                            onQuantityChange = {
-                                commandDetailVM.updateRealCommandQuantity(it.apply { basketId = bw.id })
-                            },
-                            status = command?.status ?: Status.TO_DO
-                        )
-                    }
-                }
-
-                // Product list
-                command?.productWrappers?.let {
-                    item {
-                        CommandBasketItem(
-                            label = stringResource(id = R.string.individual_products),
-                            productWrappers = it,
-                            onQuantityChange = {
-                                commandDetailVM.updateRealCommandQuantity(it)
-                            },
-                            status = command?.status ?: Status.TO_DO
-                        )
-                    }
-                }
+        Text(
+            text = "Saisir l'adresse de livraison",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.align(Start)
+        )
+        Spacer(modifier = Modifier.height(30.dp))
+        AppTextField(
+            initialValue = selectedAddress,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(CenterHorizontally)
+                .padding(bottom = 35.dp),
+            widthPercentage = 1f,
+            labelId = R.string.delivery_address,
+            displayLabelText = false,
+            autoFocus = false,
+            onTextEntered = {
+                keyboardController?.hide()
+                onAddressValidate?.invoke(it)
+            },
+            onValueChange = {
+                onAddressChange?.invoke(it)
             }
+        )
+        Column(
+            modifier = Modifier.fillMaxHeight(0.7f).fillMaxWidth(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = CenterHorizontally
+        ) {
+            predictions.forEach { prediction ->
+                Text(text = prediction, Modifier.padding(bottom = 10.dp).clickable {
+                    selectedAddress = prediction
+
+                    // Close keyboard
+                    keyboardController?.hide()
+                })
+                Divider(color =  Gray1, thickness = 1.5.dp)
+            }
+        }
+        FloatingActionButton(
+            modifier = Modifier
+                .scale(0.7f)
+                .align(End),
+            containerColor = validateButtonColor,
+            onClick = {
+                onAddressValidate?.invoke("")
+            }
+        ) {
+            Icon(
+                tint = White,
+                imageVector = Icons.Rounded.Check,
+                contentDescription = ""
+            )
         }
     }
 }
@@ -241,10 +369,20 @@ fun CommandProductItem(
 @Composable
 fun CommandAddress(
     address : String? = null,
-    color: Color = Color.Black
+    color: Color = Black,
+    onAddressClick: (() -> Unit)?
 ){
+    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
-        Modifier.fillMaxWidth(),
+        Modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+                onAddressClick?.invoke()
+            },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -286,7 +424,8 @@ fun CommandDetailHeader(
     deliveryDate : String = "23/11/2022",
     status : Status = Status.IN_PROGRESS,
     price : Int = 19,
-    address : String? = null
+    address : String? = null,
+    onAddressClick : (()-> Unit)? = null
 ){
     Surface(
         shadowElevation = 2.dp,
@@ -326,7 +465,9 @@ fun CommandDetailHeader(
             }
 
             // Address
-            CommandAddress(address)
+            CommandAddress(address){
+                onAddressClick?.invoke()
+            }
         }
     }
 }

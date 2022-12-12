@@ -34,7 +34,7 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 /**
  * Show commands list sorted by delivery date block
  *
- * @param commands Map of deliveryDate formatted paired with command list
+ * @param commands Map of deliveryDate formatted paired with command list associated
  */
 @Composable
 @Preview
@@ -44,30 +44,40 @@ fun CommandListPage(
     // List of commands
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.padding(15.dp).fillMaxSize()
+        modifier = Modifier.fillMaxSize().padding(horizontal = 25.dp, vertical = 10.dp)
     ) {
 
-        commands.keys.forEach {
+        commands.keys.forEach { deliveryDate ->
             // Delivery date
             item {
                 // TODO Make this and statusText composable generic because same code
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically){
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
                     Box(
                         Modifier
                             .clip(CircleShape)
                             .size(10.dp)
                             .background(Orange1)
                     )
-                    Text(it, style = MaterialTheme.typography.labelMedium, color = Orange1)
+                    Text(
+                        text = deliveryDate,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Orange1
+                    )
                 }
                 Spacer(Modifier.height(10.dp))
             }
 
             // Command summary
-            items(commands[it] ?: listOf(Command())){
-                CommandProductItem(it, onClick = {
-                    onClick?.invoke(it)
-                })
+            items(items = commands[deliveryDate] ?: emptyList()){
+                CommandProductItem(
+                    command = it,
+                    onClick = {
+                        onClick?.invoke(it)
+                    }
+                )
             }
         }
     }
@@ -76,10 +86,10 @@ fun CommandListPage(
 @Composable
 @Preview
 fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? = null) {
-    val shape = RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp, topEnd = 20.dp, bottomEnd = 30.dp)
+    val shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp, topEnd = 15.dp, bottomEnd = 30.dp)
     Card(
         shape = shape,
-        elevation = 3.dp,
+        elevation = 5.dp,
         modifier = Modifier
             .padding(bottom = 5.dp)
             .border(

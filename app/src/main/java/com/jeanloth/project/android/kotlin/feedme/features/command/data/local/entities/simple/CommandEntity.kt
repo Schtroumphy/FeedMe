@@ -18,7 +18,8 @@ class CommandEntity (
     val totalPrice : Int = 0,
 
     val clientId : Long,
-    val deliveryDate : LocalDate = LocalDate.now().plusDays(1)
+    val deliveryDate : LocalDate = LocalDate.now().plusDays(1),
+    val deliveryAddress: String = ""
 )
 
 fun CommandEntity.toPojo(): Command{
@@ -27,6 +28,7 @@ fun CommandEntity.toPojo(): Command{
         status = this.status,
         totalPrice = this.totalPrice,
         clientId = this.clientId,
-        deliveryDate = this.deliveryDate
+        deliveryDate = this.deliveryDate,
+        deliveryAddress = this.deliveryAddress
     )
 }

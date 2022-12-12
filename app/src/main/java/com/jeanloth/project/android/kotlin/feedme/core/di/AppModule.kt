@@ -10,11 +10,12 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.CommandEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.mappers.ProductEntityMapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.*
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.GetAllClientUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.RemoveClientUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.SaveClientUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.client.GetAllClientUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.client.RemoveClientUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.client.SaveClientUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.*
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.googleApis.GetGooglePredictionsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
@@ -110,7 +111,7 @@ object AppModule {
     @Singleton
     fun provideSyncProducts(repository: ProductRepository) : SyncProductUseCase = SyncProductUseCase(repository)
 
-    // COmmand
+    // Command
     @Provides
     @Singleton
     fun provideObserveCommands(repository: CommandRepository) : ObserveAllCommandsUseCase = ObserveAllCommandsUseCase(repository)
@@ -164,5 +165,11 @@ object AppModule {
     @Singleton
     fun provideObserveAllBaskets(repository: BasketRepository) : ObserveBasketsUseCase = ObserveBasketsUseCase(repository)
 
+
+    /** --- Google map apis --- **/
+
+    @Provides
+    @Singleton
+    fun provideGetGooglePredictionUseCase(repository: GoogleMapRepository) : GetGooglePredictionsUseCase = GetGooglePredictionsUseCase(repository)
 
 }

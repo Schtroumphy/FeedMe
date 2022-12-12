@@ -14,6 +14,7 @@
     <string name="validate">Valider</string>
     <string name="new_item">Nouvel item</string>
     <string name="new_client">Nouveau client</string>
+    <string name="delivery_address">Adresse de livraison</string>
     <string name="yes">Yes</string>
     <string name="no">Non</string>
     <string name="euro">%1$s€</string>

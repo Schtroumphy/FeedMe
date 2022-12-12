@@ -3,9 +3,9 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.GetAllClientUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.RemoveClientUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.SaveClientUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.client.GetAllClientUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.client.RemoveClientUseCase
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.client.SaveClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*

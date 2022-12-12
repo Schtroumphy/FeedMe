@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases
+package com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.client
 
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.repository.AppClientRepository

@@ -1,9 +1,11 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeanloth.project.android.kotlin.feedme.features.command.data.external.services.GooglePrediction
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandAction
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
@@ -11,7 +13,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveCommandByIdUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.UpdateCommandUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.CommandQuantityInfo
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.googleApis.GetGooglePredictionsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.dashboard.domain.CommandDetailIdArgument
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,12 +27,15 @@ class CommandDetailsVM @Inject constructor(
     private val observeCommandByIdUseCase: ObserveCommandByIdUseCase,
     private val updateCommandUseCase: UpdateCommandUseCase,
     private val updateProductWrapperUseCase: UpdateProductWrapperUseCase,
+    private val getGooglePredictionsUseCase: GetGooglePredictionsUseCase
 ) : ViewModel() {
 
     val TAG = javaClass.simpleName
 
     private val _currentCommand : MutableStateFlow<Command?> = MutableStateFlow(null)
     val currentCommand = _currentCommand.asSharedFlow()
+
+    val predictions = mutableStateOf(listOf<String>())
 
     // Get current command id from nav args
     val commandId = savedStateHandle.get<Long>(CommandDetailIdArgument) ?: 0L
@@ -127,7 +132,7 @@ class CommandDetailsVM @Inject constructor(
                 }
                 updateProductWrapperUseCase(it.item.wrappers)
 
-                // TODO Change basket wrapper quanitty if product wrapper are complete
+                // TODO Change basket wrapper quantity if product wrappers are complete
             }
         }
     }
@@ -148,6 +153,21 @@ class CommandDetailsVM @Inject constructor(
                 CommandAction.PAY -> _currentCommand.value.changeStatusIfPredicatesOk(Status.PAYED)
                 CommandAction.CANCEL -> _currentCommand.value.changeStatusIfPredicatesOk(Status.CANCELED)
             }
+        }
+    }
+
+    fun getPredictions(input : String){
+        viewModelScope.launch(Dispatchers.IO) {
+            val liste = getGooglePredictionsUseCase(input)
+            Log.i("CommandDetailsVM", "Predictions : $liste")
+            predictions.value = liste.map { it.description }
+        }
+    }
+
+    fun updateCommandAddress(address: String) {
+        _currentCommand.value?.deliveryAddress = address
+        viewModelScope.launch(Dispatchers.IO){
+            updateCommandUseCase(_currentCommand.value)
         }
     }
 
