@@ -1,6 +1,7 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command
 
 import android.util.Log
+import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -38,6 +39,13 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortDate
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.progession
@@ -56,9 +64,7 @@ data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, va
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalMaterialApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun CommandDetailPage(
     commandDetailVM : CommandDetailsVM
@@ -79,6 +85,15 @@ fun CommandDetailPage(
     BackHandler(sheetState.isVisible) {
         coroutineScope.launch { sheetState.hide() }
     }
+
+    //command?.status?.order in Status.DONE.order until Status.PAYED.order631122
+    Log.i("TEST", "status : ${command?.status}")
+
+    var showMap by remember { mutableStateOf(false) }
+    val displayMap by remember(command?.status) { derivedStateOf{ command?.status?.order in Status.DONE.order until Status.PAYED.order || showMap } }
+
+    Log.i("TEST", "Display Map : $displayMap")
+
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
@@ -105,15 +120,20 @@ fun CommandDetailPage(
                     price = command?.totalPrice ?: 0,
                     status = command?.status ?: Status.TO_DO,
                     address = command?.deliveryAddress,
+                    coordinates = command?.coordinates,
+                    displayMap = displayMap,
                     onAddressClick = {
                         // TODO If command address unknown, display bottom sheet to add it, else display map
                         coroutineScope.launch {
-                            if (sheetState.isVisible) sheetState.hide()
+                            if(command?.status == Status.PAYED){
+                                showMap = !showMap
+                            } else if (sheetState.isVisible) sheetState.hide()
                             else sheetState.show()
                         }
                     }
                 )
-            }, bottomBar = {
+            },
+            bottomBar = {
                 ActionCommandDetailButton(command?.status) { action ->
                     commandDetailVM.onDetailActionClick(action)
                 }
@@ -164,17 +184,60 @@ fun CommandDetailPage(
     }
 }
 
+@Composable
+fun GoogleMapAddress(
+    modifier : Modifier = Modifier,
+    coordinates : Coordinates? = null
+){
+    val home = LatLng(47.212, -1.712)
+    val address = LatLng(coordinates?.first?.toDoubleOrNull() ?: 0.0, coordinates?.second?.toDoubleOrNull() ?: 0.0)
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(address, 10f)
+    }
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = cameraPositionState
+    ){
+        Marker(
+            state = MarkerState(position = home),
+            title = "Home",
+            snippet = "Marker in home"
+        )
+
+        Marker(
+            state = MarkerState(position = address),
+            title = "Delivery",
+            snippet = "Marker in delivery"
+        )
+    }
+}
+
+@Composable
+fun MapAddress(){
+    AndroidView(
+        factory = { ctx ->
+            View.inflate(ctx, R.layout.osm_map, null)
+        },
+        modifier = Modifier,
+        update = {
+
+        }
+    )
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheet(
-    predictions: List<String>,
+    predictions: List<CommandAddress>,
     address: String = "",
     validateButtonColor: Color = Orange1,
     onAddressChange: ((String) -> Unit)? = null,
-    onAddressValidate: ((String) -> Unit)? = null,
+    onAddressValidate: ((CommandAddress) -> Unit)? = null,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var selectedAddress by remember { mutableStateOf(address) }
+    var selectedAddressObject by remember { mutableStateOf<CommandAddress?>(null) }
 
     Column(
         modifier = Modifier
@@ -206,17 +269,20 @@ fun BottomSheet(
             }
         )
         Column(
-            modifier = Modifier.fillMaxHeight(0.7f).fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxHeight(0.7f)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = CenterHorizontally
         ) {
             predictions.forEach { prediction ->
                 Text(
-                    text = prediction,
+                    text = prediction.description,
                     modifier = Modifier
                         .padding(vertical = 10.dp)
                         .clickable {
-                            selectedAddress = prediction
+                            selectedAddress = prediction.description
+                            selectedAddressObject = prediction
 
                             // Close keyboard
                             keyboardController?.hide()
@@ -232,7 +298,9 @@ fun BottomSheet(
                 .align(End),
             containerColor = validateButtonColor,
             onClick = {
-                onAddressValidate?.invoke(selectedAddress)
+                selectedAddressObject?.let {
+                    onAddressValidate?.invoke(it)
+                }
             }
         ) {
             Icon(
@@ -432,6 +500,8 @@ fun CommandDetailHeader(
     status : Status = Status.IN_PROGRESS,
     price : Int = 19,
     address : String? = null,
+    displayMap : Boolean = true,
+    coordinates: Coordinates?= null,
     onAddressClick : (()-> Unit)? = null
 ){
     Surface(
@@ -475,6 +545,15 @@ fun CommandDetailHeader(
             CommandAddress(address){
                 onAddressClick?.invoke()
             }
+
+            if(displayMap)
+            GoogleMapAddress(
+                modifier = Modifier
+                    .padding(horizontal = 15.dp, vertical = 5.dp)
+                    .fillMaxWidth()
+                    .height(200.dp),
+                coordinates = coordinates
+            )
         }
     }
 }

@@ -5,10 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandAction
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveCommandByIdUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.UpdateCommandUseCase
@@ -34,7 +31,7 @@ class CommandDetailsVM @Inject constructor(
     private val _currentCommand : MutableStateFlow<Command?> = MutableStateFlow(null)
     val currentCommand = _currentCommand.asSharedFlow()
 
-    val predictions = mutableStateOf(listOf<String>())
+    val predictions = mutableStateOf(listOf<CommandAddress>())
 
     // Get current command id from nav args
     val commandId = savedStateHandle.get<Long>(CommandDetailIdArgument) ?: 0L
@@ -163,11 +160,12 @@ class CommandDetailsVM @Inject constructor(
         }
     }
 
-    fun updateCommandAddress(address: String) {
+    fun updateCommandAddress(address: CommandAddress) {
         // Clear predictions
         predictions.value = emptyList()
 
-        _currentCommand.value?.deliveryAddress = address
+        _currentCommand.value?.deliveryAddress = address.description
+        _currentCommand.value?.coordinates = address.coordinates
 
         viewModelScope.launch(Dispatchers.IO){
             updateCommandUseCase(_currentCommand.value)

@@ -9,7 +9,7 @@ interface NominatimApi {
     @GET("search")
     suspend fun getPredictions(
         @Query("countrycodes") country: String = "fr",
-        @Query("format") format: String = "json",
+        @Query("format") format: String = "jsonv2",
         @Query("addressdetails") addressdetails: String = "1",
         @Query("limit") limit: Int = 5,
         @Query("street") query: String

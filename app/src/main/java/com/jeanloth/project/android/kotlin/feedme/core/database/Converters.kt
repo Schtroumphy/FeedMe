@@ -1,10 +1,7 @@
 package com.jeanloth.project.android.kotlin.feedme.core.database
 
 import androidx.room.TypeConverter
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.CommandStatus
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.ProductCategory
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Status
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.*
 import java.time.LocalDate
 
 class DateTypeConverter {
@@ -34,7 +31,7 @@ class ProductCategoryConverter {
 class StatusConverter {
     @TypeConverter
     fun fromString(value: String): Status {
-        return Status.values().first { it.value.equals(value) } ?: Status.TO_DO
+        return Status.values().firstOrNull { it.value == value } ?: Status.TO_DO
     }
 
     @TypeConverter
@@ -43,10 +40,22 @@ class StatusConverter {
     }
 }
 
+class CoordinatesConverter {
+    @TypeConverter
+    fun fromValue(value: String): Coordinates {
+        return value.split(",").getOrElse(0){ "0"} to value.split(",").getOrElse(1){"0"}
+    }
+
+    @TypeConverter
+    fun coordinatesToValue(coordinates: Coordinates?): String {
+        return "${coordinates?.first},${coordinates?.second}"
+    }
+}
+
 class WrapperTypeConverter {
     @TypeConverter
     fun fromString(value: String): WrapperType {
-        return WrapperType.values().first { it.name.equals(value) } ?: WrapperType.NONE
+        return WrapperType.values().firstOrNull { it.name == value } ?: WrapperType.NONE
     }
 
     @TypeConverter
@@ -58,7 +67,7 @@ class WrapperTypeConverter {
 class CommandStatusConverter {
     @TypeConverter
     fun fromString(value: String): CommandStatus {
-        return CommandStatus.values().first { it.label.equals(value) } ?: CommandStatus.TO_DO
+        return CommandStatus.values().firstOrNull { it.label == value } ?: CommandStatus.TO_DO
     }
 
     @TypeConverter

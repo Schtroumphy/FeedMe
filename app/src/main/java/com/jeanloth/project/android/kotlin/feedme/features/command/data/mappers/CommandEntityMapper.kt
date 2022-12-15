@@ -12,7 +12,8 @@ class CommandEntityMapper : Mapper<CommandEntity, Command> {
             totalPrice = entity.totalPrice,
             clientId = entity.clientId,
             deliveryDate = entity.deliveryDate,
-            deliveryAddress = entity.deliveryAddress
+            deliveryAddress = entity.deliveryAddress,
+            coordinates = entity.coordinates
         )
     }
 
@@ -23,7 +24,8 @@ class CommandEntityMapper : Mapper<CommandEntity, Command> {
             totalPrice = pojo.totalPrice,
             clientId = pojo.clientId,
             deliveryDate = pojo.deliveryDate,
-            deliveryAddress = pojo.deliveryAddress
+            deliveryAddress = pojo.deliveryAddress,
+            coordinates = pojo.coordinates
         )
     }
 }

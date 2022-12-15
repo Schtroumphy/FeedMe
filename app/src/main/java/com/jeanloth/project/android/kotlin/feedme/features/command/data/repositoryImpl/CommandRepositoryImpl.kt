@@ -59,6 +59,7 @@ class CommandRepositoryImpl @Inject constructor(
                 ) },
                 deliveryDate = it.commandEntity.deliveryDate,
                 deliveryAddress = it.commandEntity.deliveryAddress,
+                coordinates = it.commandEntity.coordinates,
                 client = clientMapper.from(clientDao.getById(it.commandEntity.clientId)),
                 clientId = it.commandEntity.clientId
             )
@@ -92,6 +93,7 @@ class CommandRepositoryImpl @Inject constructor(
                     ) },
                     deliveryDate = commandWithWrappers.commandEntity.deliveryDate,
                     deliveryAddress = commandWithWrappers.commandEntity.deliveryAddress,
+                    coordinates = commandWithWrappers.commandEntity.coordinates,
                     client = clientMapper.from(clientDao.getById(commandWithWrappers.commandEntity.clientId)),
                     clientId = commandWithWrappers.commandEntity.clientId
                 )

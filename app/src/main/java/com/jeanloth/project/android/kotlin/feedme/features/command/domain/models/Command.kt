@@ -3,6 +3,8 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.domain.model
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import java.time.LocalDate
 
+typealias Coordinates = Pair<String, String>
+
 data class Command(
     var id : Long = 0L,
 
@@ -15,17 +17,27 @@ data class Command(
     val clientId : Long = 0,
     val client : AppClient? = null,
     val deliveryDate : LocalDate = LocalDate.now(),
-    var deliveryAddress : String = ""
+    var deliveryAddress : String = "",
+    var coordinates : Coordinates? = null
 ) {
 
     override fun toString(): String {
-        return "Command : [Id : $id, status : $status, price : $totalPrice, product: $productWrappers, basketwrappers : $basketWrappers, " +
-                "client : ${client.toNameString()}, deliverydate: $deliveryDate, Address : $deliveryAddress]"
+        return "Command : [Id : $id, status : $status, price : $totalPrice" +
+                "client : ${client.toNameString()}, deliverydate: $deliveryDate, Address : $deliveryAddress, Coordinates $coordinates]"
     }
 
     override fun equals(other: Any?): Boolean {
         //return other is Command && other.productWrappers == productWrappers && other.basketWrappers == basketWrappers
-        return false
+        //return false
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Command
+
+        if (productWrappers != other.productWrappers || basketWrappers != other.basketWrappers) return false
+        if (deliveryAddress != other.deliveryAddress ) return false // TODO Add fields to be checked if command can be editted
+
+        return true
     }
 
     companion object{

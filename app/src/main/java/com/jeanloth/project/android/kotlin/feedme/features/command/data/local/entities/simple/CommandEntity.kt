@@ -3,13 +3,14 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.data.local.e
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import com.jeanloth.project.android.kotlin.feedme.core.database.CoordinatesConverter
 import com.jeanloth.project.android.kotlin.feedme.core.database.DateTypeConverter
 import com.jeanloth.project.android.kotlin.feedme.core.database.StatusConverter
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.*
 import java.time.LocalDate
 
 @Entity(tableName = "command")
-@TypeConverters(DateTypeConverter::class, StatusConverter::class)
+@TypeConverters(DateTypeConverter::class, StatusConverter::class, CoordinatesConverter::class)
 class CommandEntity (
     @PrimaryKey(autoGenerate = true)
     var id : Long = 0,
@@ -19,7 +20,8 @@ class CommandEntity (
 
     val clientId : Long,
     val deliveryDate : LocalDate = LocalDate.now().plusDays(1),
-    val deliveryAddress: String = ""
+    val deliveryAddress: String = "",
+    val coordinates : Coordinates? = null
 )
 
 fun CommandEntity.toPojo(): Command{
@@ -29,6 +31,7 @@ fun CommandEntity.toPojo(): Command{
         totalPrice = this.totalPrice,
         clientId = this.clientId,
         deliveryDate = this.deliveryDate,
-        deliveryAddress = this.deliveryAddress
+        deliveryAddress = this.deliveryAddress,
+        coordinates = this.coordinates
     )
 }
