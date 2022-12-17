@@ -1,5 +1,10 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Environment
+import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,6 +32,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -36,18 +42,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
 import com.jeanloth.project.android.kotlin.feedme.core.theme.RedDark
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import java.io.File
 
 @Composable
 @Preview
 fun RoundedText(modifier: Modifier = Modifier, text: String = "2"){
     Box(
-        Modifier.clip(CircleShape).background(Color.White).border(width = 1.dp, color = Jaune1, shape = CircleShape).padding(horizontal = 8.dp, vertical = 5.dp)
+        Modifier
+            .clip(CircleShape)
+            .background(Color.White)
+            .border(width = 1.dp, color = Jaune1, shape = CircleShape)
+            .padding(horizontal = 8.dp, vertical = 5.dp)
     ){
         Text(text)
     }
@@ -57,7 +70,10 @@ fun RoundedText(modifier: Modifier = Modifier, text: String = "2"){
 @Preview
 fun RoundedText2(text: String = "2"){
     Box(
-        Modifier.clip(CircleShape).border(width = 1.dp, color = Jaune1, shape = CircleShape).padding(horizontal = 8.dp, vertical = 5.dp)
+        Modifier
+            .clip(CircleShape)
+            .border(width = 1.dp, color = Jaune1, shape = CircleShape)
+            .padding(horizontal = 8.dp, vertical = 5.dp)
     ){
         Text(text)
     }
@@ -71,10 +87,7 @@ fun RoundedProductItem(
     quantity: Int? = 0
 ){
     Box(Modifier){
-        Image(
-            painter = painterResource(product.imageId),
-            contentDescription = "food icon",
-            contentScale = ContentScale.Crop,// crop the image if it's not a square
+        AppImage(
             modifier = Modifier
                 .size(65.dp)
                 .clip(CircleShape)
@@ -82,15 +95,48 @@ fun RoundedProductItem(
                     width = 1.dp,
                     color = Orange1,
                     shape = CircleShape
-                )
+                ),
+            imageId = product.imageId,
+            imagePath = product.imagePath
         )
         RoundedText(text = quantity?.toString() ?: "0", modifier = Modifier.align(Alignment.TopStart))
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+fun AppImage(modifier : Modifier = Modifier, @DrawableRes imageId: Int? = null, imagePath : String? = null, contentScale : ContentScale = ContentScale.Crop){
+
+    val context = LocalContext.current
+
+    imageId?.let{
+        Image(
+            painter = painterResource(it),
+            contentDescription = "food icon",
+            contentScale = contentScale,
+            modifier = modifier
+        )
+    }
+
+    // Display image from external storage if exists
+    imagePath?.let {
+        val root= context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+        if(root != null){
+            val cacheFile = File(root, it)
+
+            Log.d("AppImage", "Image path : ${imagePath}")
+            Image(
+                painter = rememberImagePainter(data = cacheFile),
+                contentDescription = "Mon image",
+                contentScale = contentScale,
+                modifier = modifier
+            )
+        }
+    }
+}
+
 @Composable
 @Preview
-// /document/image%3A70 ou /document/image:70
 fun ProductItem(
     modifier: Modifier = Modifier,
     product: Product = Product(label = "Mon produit"),
@@ -166,16 +212,15 @@ fun ProductItem(
             verticalAlignment = Alignment.CenterVertically
         ){
 
-            painterResource(product.imageId)?.let {
-                Image(
-                    painter = it,
-                    contentDescription = "food icon",
-                    contentScale = ContentScale.Crop,// crop the image if it's not a square
-                    modifier = Modifier
-                        .size(65.dp)
-                        .clip(CircleShape)
-                )
-            }
+            // Display image by id or saved image by image path
+            AppImage(
+                modifier = Modifier
+                    .size(65.dp)
+                    .clip(CircleShape),
+                imageId = product.imageId,
+                imagePath = product.imagePath
+            )
+
 
             AnimatedVisibility(visible = text.isNotEmpty()) {
                 FloatingActionButton(

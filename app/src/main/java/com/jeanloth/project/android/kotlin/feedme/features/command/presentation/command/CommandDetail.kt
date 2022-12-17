@@ -213,19 +213,6 @@ fun GoogleMapAddress(
     }
 }
 
-@Composable
-fun MapAddress(){
-    AndroidView(
-        factory = { ctx ->
-            View.inflate(ctx, R.layout.osm_map, null)
-        },
-        modifier = Modifier,
-        update = {
-
-        }
-    )
-}
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BottomSheet(

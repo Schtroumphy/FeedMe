@@ -12,5 +12,5 @@ interface ProductRepository {
 
     fun remove(product : Product)
 
-    fun syncProduct()
+    fun syncProducts()
 }

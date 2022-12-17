@@ -10,6 +10,7 @@ class ProductEntityMapper : Mapper<ProductEntity, Product> {
             productId = entity.id,
             label = entity.label,
             image = entity.image,
+            imagePath = entity.imagePath,
             category = entity.category
         )
     }
@@ -19,6 +20,7 @@ class ProductEntityMapper : Mapper<ProductEntity, Product> {
             id = pojo.id,
             label = pojo.label,
             image = pojo.image,
+            imagePath = pojo.imagePath,
             category = pojo.category
         )
     }

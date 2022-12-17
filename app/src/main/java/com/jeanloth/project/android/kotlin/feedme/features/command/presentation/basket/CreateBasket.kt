@@ -1,5 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,7 +36,8 @@ data class BasketItem(val product: Product? = null, val addButton: Boolean = fal
 fun CreateBasketPage(
     basketItems: List<BasketItem> = emptyList(),
     onValidateBasket: ((String, Int, Map<Product, Int?>) -> Unit)? = null,
-    onAddProduct: ((String, String?) -> Unit)? = null
+    onAddProduct: ((String) -> Unit)? = null,
+    onUriEntered : ((String, Uri) -> Unit)? = null
 ) {
     // Basket info
     var label by remember { mutableStateOf("") }
@@ -51,8 +53,9 @@ fun CreateBasketPage(
     val showAddProductDialog = rememberSaveable { mutableStateOf(false) }
     if (showAddProductDialog.value) {
         AddProductDialog { name, uri ->
-            name?.let {
-                onAddProduct?.invoke(it, uri?.path)
+            name?.let { name ->
+                onAddProduct?.invoke(name)
+                uri?.let { onUriEntered?.invoke(name, uri) }
             }
             showAddProductDialog.value = false
         }

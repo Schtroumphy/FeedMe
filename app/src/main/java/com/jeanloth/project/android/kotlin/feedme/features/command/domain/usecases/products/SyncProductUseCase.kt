@@ -6,6 +6,6 @@ class SyncProductUseCase(
     private val repository: ProductRepository
 ) {
     operator fun invoke(){
-        repository.syncProduct()
+        repository.syncProducts()
     }
 }

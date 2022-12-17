@@ -18,12 +18,9 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.ObserveBasketsUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateBasketWrapperUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveAllCommandsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveCommandByIdUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.SaveCommandUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.UpdateCommandUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -96,8 +93,10 @@ class CommandVM @Inject constructor(
         }
 
         observeAllProductsUseCase().onEach {
-            it.onEach {
-                it.imageId = applicationContext.resources.getIdentifier(it.image, "drawable", applicationContext.packageName)
+            it.onEach {  product ->
+                product.image?.let {
+                    product.imageId = applicationContext.resources.getIdentifier(it, "drawable", applicationContext.packageName)
+                }
             }
             _products.emit(it)
             _productWrappers.emit(it.map { it.toWrapper()})

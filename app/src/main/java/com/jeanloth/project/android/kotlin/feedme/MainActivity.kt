@@ -1,6 +1,10 @@
 package com.jeanloth.project.android.kotlin.feedme
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -11,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,6 +49,9 @@ import com.jeanloth.project.android.kotlin.feedme.features.dashboard.presentatio
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import splitties.toast.UnreliableToastApi
+import java.io.File
+import java.io.FileOutputStream
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -101,6 +109,7 @@ class MainActivity : ComponentActivity() {
             dialogType.value = fromVal(navBackStackEntry?.destination?.route).dialogType
 
             val keyboardController = LocalSoftwareKeyboardController.current
+            val context = LocalContext.current
 
             FeedMeTheme {
                 PageTemplate(
@@ -197,7 +206,13 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate(FooterRoute.BASKETS.route)
                                         }
                                     },
-                                    onAddProduct = productVM::saveProduct
+                                    onAddProduct = productVM::saveProduct,
+                                    onUriEntered = { label, imageUri ->
+                                        val source = ImageDecoder.createSource(context.contentResolver,imageUri)
+                                        Log.d("onUriEntered", "Image uri path : ${imageUri.path}")
+                                        val bitmap = ImageDecoder.decodeBitmap(source)
+                                        saveBitmapToInternalStorage(bitmap, label)
+                                    }
                                 )
                             }
                             // Add command page - Not in footer
@@ -224,6 +239,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                             }
+
                             // Add client page - Not in footer
                             composable(FooterRoute.ADD_CLIENT.route) {
                                 AddClientPage(
@@ -239,4 +255,22 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    fun saveBitmapToInternalStorage(finalBitmap: Bitmap, productName : String): File? {
+        val root: File = this.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) ?: return null
+
+        val fname = "$productName.jpg"
+        val file = File(root, fname)
+        try {
+            val out = FileOutputStream(file)
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            out.flush()
+            out.close()
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+        return file
+    }
 }
+
+

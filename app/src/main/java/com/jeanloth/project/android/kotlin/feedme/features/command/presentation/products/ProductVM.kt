@@ -6,14 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeanloth.project.android.kotlin.feedme.BuildConfig
 import com.jeanloth.project.android.kotlin.feedme.core.AppPreferences
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.SaveBasketUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.ObserveAllProductsUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SaveProductUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.products.SyncProductUseCase
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.BasketItem
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.BasketItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -41,13 +38,13 @@ class ProductVM @Inject constructor(
         initialValue = emptyList()
     )
 
-    private val basketProductWrappers : MutableList<Wrapper<Product>> = mutableListOf()
-
     init {
         viewModelScope.launch {
             observeAllProductsUseCase.invoke().collect {
-                _products.value = it.onEach {
-                    it.imageId = applicationContext.resources.getIdentifier(it.image, "drawable", applicationContext.packageName)
+                _products.value = it.onEach { product ->
+                    product.image?.let {
+                        product.imageId = applicationContext.resources.getIdentifier(it, "drawable", applicationContext.packageName)
+                    }
                 }
             }
         }
@@ -63,12 +60,11 @@ class ProductVM @Inject constructor(
         }
     }
 
-    fun saveProduct(label : String, image: String?){
+    fun saveProduct(label : String){
         viewModelScope.launch(Dispatchers.IO){
             saveProductUseCase.invoke(Product(
                 label = label,
-                image = image,
-                imageId = applicationContext.resources.getIdentifier(image, "drawable", applicationContext.packageName)
+                imagePath = "$label.jpg"
             ))
         }
     }

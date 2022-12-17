@@ -31,7 +31,7 @@ class ProductRepositoryImpl @Inject constructor(
         return dao.delete(mapper.to(product))
     }
 
-    override fun syncProduct() {
+    override fun syncProducts() {
         val json = javaClass.getResource("/products.json")?.readText()
         Log.d("ProductRepositoryImpl", "JSON : $json")
         val dataList = Types.newParameterizedType(List::class.java, Product::class.java)
