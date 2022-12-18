@@ -1,5 +1,6 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data
 
+import android.net.Uri
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
@@ -21,4 +22,6 @@ class CreateCommandCallbacks(
     val onCommandPriceSelected: ((Int) -> Unit)? = null,
     val onCreateCommandClick: (() -> Unit)? = null,
     val onDateChanged: ((LocalDate) -> Unit)? = null,
+    val onAddProduct: ((String) -> Unit)? = null,
+    val onUriEntered : ((String, Uri) -> Unit)? = null
 )

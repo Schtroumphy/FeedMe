@@ -28,8 +28,8 @@ data class Command(
 
     override fun equals(other: Any?): Boolean {
         //return other is Command && other.productWrappers == productWrappers && other.basketWrappers == basketWrappers
-        //return false
-        if (this === other) return true
+        return false
+        /*if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as Command
@@ -37,7 +37,7 @@ data class Command(
         if (productWrappers != other.productWrappers || basketWrappers != other.basketWrappers) return false
         if (deliveryAddress != other.deliveryAddress ) return false // TODO Add fields to be checked if command can be editted
 
-        return true
+        return true */
     }
 
     companion object{

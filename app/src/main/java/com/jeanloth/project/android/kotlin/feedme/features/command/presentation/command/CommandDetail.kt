@@ -336,7 +336,11 @@ fun CommandBasketItem(
     status : Status = Status.TO_DO
 ){
 
-    val progress = productWrappers.progession()
+    var progress by remember { mutableStateOf(0f) }
+
+    LaunchedEffect(productWrappers.map { it.realQuantity }){
+        progress = productWrappers.progession()
+    }
 
     Row(
         modifier = Modifier

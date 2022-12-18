@@ -3,6 +3,7 @@ package com.jeanloth.project.android.kotlin.feedme
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -176,6 +177,10 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
                                             val isSavingSuccess = commandVM.saveCommand()
                                             Toast.makeText(this@MainActivity, if(isSavingSuccess)  "Votre commande a été enregistrée" else "Une erreur est survenue", Toast.LENGTH_SHORT)
+                                        },
+                                        onAddProduct = productVM::saveProduct,
+                                        onUriEntered = { label, uri ->
+                                            processToImageSaving(label, uri)
                                         }
                                     )
                                 )
@@ -208,10 +213,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onAddProduct = productVM::saveProduct,
                                     onUriEntered = { label, imageUri ->
-                                        val source = ImageDecoder.createSource(context.contentResolver,imageUri)
-                                        Log.d("onUriEntered", "Image uri path : ${imageUri.path}")
-                                        val bitmap = ImageDecoder.decodeBitmap(source)
-                                        saveBitmapToInternalStorage(bitmap, label)
+                                       processToImageSaving(label, imageUri)
                                     }
                                 )
                             }
@@ -235,6 +237,10 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
                                             val isSavingSuccess = commandVM.saveCommand()
                                             Toast.makeText(this@MainActivity, if(isSavingSuccess)  "Votre commande a été enregistrée" else "Une erreur est survenue", Toast.LENGTH_SHORT)
+                                        },
+                                        onAddProduct = productVM::saveProduct,
+                                        onUriEntered = { label, uri ->
+                                            processToImageSaving(label, uri)
                                         }
                                     )
                                 )
@@ -254,6 +260,13 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun processToImageSaving(label: String, imageUri: Uri) {
+        val source = ImageDecoder.createSource(this.contentResolver,imageUri)
+        Log.d("onUriEntered", "Image uri path : ${imageUri.path}")
+        val bitmap = ImageDecoder.decodeBitmap(source)
+        saveBitmapToInternalStorage(bitmap, label)
     }
 
     fun saveBitmapToInternalStorage(finalBitmap: Bitmap, productName : String): File? {

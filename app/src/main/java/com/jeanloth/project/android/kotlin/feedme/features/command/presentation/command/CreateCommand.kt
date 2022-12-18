@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
 import androidx.compose.ui.Alignment.Companion.Center
@@ -40,6 +41,7 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.AddProductButton
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AddProductDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppButton
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.DeliveryDateSpinner
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PricesRow
@@ -72,6 +74,18 @@ fun AddCommandPage(
         2 -> parameters.productWrappers.any { it.quantity > 0 }
         3 -> selectedPrice != null
         else -> false
+    }
+
+    // Add product data
+    val showAddProductDialog = rememberSaveable { mutableStateOf(false) }
+    if (showAddProductDialog.value) {
+        AddProductDialog { name, uri ->
+            name?.let { name ->
+                callbacks.onAddProduct?.invoke(name)
+                uri?.let { callbacks.onUriEntered?.invoke(name, uri) }
+            }
+            showAddProductDialog.value = false
+        }
     }
 
     ConstraintLayout(Modifier.fillMaxSize()) {
@@ -107,6 +121,7 @@ fun AddCommandPage(
                 LazyColumn(
                     Modifier
                         .fillMaxWidth()
+                        .padding(12.dp)
                         .constrainAs(content) {
                             top.linkTo(clientSpinner.bottom)
                             start.linkTo(parent.start)
@@ -134,7 +149,9 @@ fun AddCommandPage(
                 // Products list
                 LazyVerticalGrid(
                     cells = GridCells.Fixed(2),
-                    modifier = Modifier.constrainAs(content) {
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .constrainAs(content) {
                         top.linkTo(clientSpinner.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -154,7 +171,11 @@ fun AddCommandPage(
                         )
                     }
 
-                    item { AddProductButton() }
+                    item { AddProductButton(
+                        onAddProductClicked = {
+                            showAddProductDialog.value = true
+                        }
+                    ) }
                 }
             }
             3 -> {
