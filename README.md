@@ -84,11 +84,16 @@ Ce choix me permettra par la suite de pouvoir réutiliser certain "module featur
 - [ ] Définir type de paiement et s'il est complet ou non (booléen)
 - [ ] Migrer vers Koin
 - [ ] Ajout de filtre sur la liste de commandes (statut, date, client, avec ou sans panier ...)
-- - [ ] Pouvoir supprimer une commande (swipe vers la droite)
+- [ ] Pouvoir supprimer une commande (swipe vers la droite)
+
 
 Technique : 
 - [ ] Tests : Coverage 10% (avec définition des fichiers à ignorer)
 - [ ] Passer à gitmoji pour les commits
+- [ ] Migrer vers la navigation type-safe de Compose (2.8.0)
+  - https://developer.android.com/guide/navigation/design/type-safety?hl=fr
+  - https://developer.android.com/jetpack/androidx/releases/navigation?hl=fr
+- [ ] Séparer la partie Navigation de la MainActivity
 
 ## Backlog 
 
