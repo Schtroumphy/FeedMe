@@ -33,6 +33,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper.Companion.toWrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.AddQuantityBox
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.PriceBubble
 
 @Composable
@@ -42,7 +43,7 @@ fun BasketList(
 ) {
     LazyColumn {
         items(baskets.map { it.toWrapper() }) {
-            BasketItem(it, displayQuantityBox = false)
+            BasketItem(it, displayQuantityBox = false, onClick = onClick)
         }
     }
 }

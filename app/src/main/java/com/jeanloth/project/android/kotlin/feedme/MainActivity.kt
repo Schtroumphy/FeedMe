@@ -1,6 +1,5 @@
 package com.jeanloth.project.android.kotlin.feedme
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -37,6 +36,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.AddClientPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientListPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientVM
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.AddCommandPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate

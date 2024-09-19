@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
+package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -40,6 +40,7 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.BasketItem
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.AddProductButton
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AddProductDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppButton
@@ -63,7 +64,7 @@ fun AddCommandPage(
     var currentStep by remember { mutableStateOf(if (parameters.basketWrappers.isEmpty()) 2 else 1) } // Go to step 2 directly if there is no baskets to display
     val displayPreviousButton = when (currentStep) {
         1 -> false
-        2 -> !parameters.basketWrappers.isEmpty()
+        2 -> parameters.basketWrappers.isNotEmpty()
         else -> true
     }
     var clientSelected by remember { mutableStateOf(parameters.selectedClient) }
@@ -80,9 +81,9 @@ fun AddCommandPage(
     val showAddProductDialog = rememberSaveable { mutableStateOf(false) }
     if (showAddProductDialog.value) {
         AddProductDialog { name, uri ->
-            name?.let { name ->
-                callbacks.onAddProduct?.invoke(name)
-                uri?.let { callbacks.onUriEntered?.invoke(name, uri) }
+            name?.let { notNullName ->
+                callbacks.onAddProduct?.invoke(notNullName)
+                uri?.let { notNullUri -> callbacks.onUriEntered?.invoke(notNullName, notNullUri) }
             }
             showAddProductDialog.value = false
         }
@@ -240,7 +241,7 @@ fun AddCommandPage(
                     }
 
                     // Indeviduals product list items
-                    parameters.productWrappers.filter { (it.quantity ?: 0) > 0 }.chunked(3)
+                    parameters.productWrappers.filter { (it.quantity) > 0 }.chunked(3)
                         .forEach {
                             item {
                                 Row(
@@ -248,7 +249,7 @@ fun AddCommandPage(
                                         .padding(top = 10.dp)
                                         .fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceEvenly,
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = CenterVertically
                                 ) {
                                     it.forEach { productWrapper ->
                                         RoundedProductItem(

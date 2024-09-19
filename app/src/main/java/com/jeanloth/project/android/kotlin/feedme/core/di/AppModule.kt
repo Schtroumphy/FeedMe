@@ -133,6 +133,15 @@ object AppModule {
     @Singleton
     fun provideSaveBasketWrapper(repository: BasketWrapperRepository) : SaveBasketWrapperUseCase = SaveBasketWrapperUseCase(repository)
 
+    @Provides
+    @Singleton
+    fun provideUpdateProductWrappers(repository: ProductWrapperRepository) : UpdateProductWrapperUseCase = UpdateProductWrapperUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideUpdateBasketWrapperUseCase(repository: BasketWrapperRepository) : UpdateBasketWrapperUseCase = UpdateBasketWrapperUseCase(repository)
+
+
     /** --- Objects : Basket, Command, Wrappers --- **/
     @Provides
     @Singleton
@@ -151,14 +160,6 @@ object AppModule {
     @Singleton
     fun provideUpdateCommand(repository: CommandRepository) : UpdateCommandUseCase
     = UpdateCommandUseCase(repository)
-
-    @Provides
-    @Singleton
-    fun provideUpdateProductWrappers(repository: ProductWrapperRepository) : UpdateProductWrapperUseCase = UpdateProductWrapperUseCase(repository)
-
-    @Provides
-    @Singleton
-    fun provideUpdateBasketWrapperUseCase(repository: BasketWrapperRepository) : UpdateBasketWrapperUseCase = UpdateBasketWrapperUseCase(repository)
 
     /** --- Others --- **/
     @Provides

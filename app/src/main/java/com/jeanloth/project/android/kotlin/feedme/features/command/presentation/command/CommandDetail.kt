@@ -1,7 +1,8 @@
+@file:Suppress("OPT_IN_IS_NOT_ENABLED")
+
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command
 
 import android.util.Log
-import android.view.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -39,7 +40,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -54,7 +54,6 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Command.Companion.toString2
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.product.Product
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.AddQuantityBox
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
 import kotlinx.coroutines.launch
 

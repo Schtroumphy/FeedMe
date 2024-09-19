@@ -1,7 +1,5 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,10 +40,15 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.Button
 
-enum class FieldType(val label : String, val icon : ImageVector, val keyboardType : KeyboardType, val isOptional : Boolean = false, val maxChar: Int = 10){
-    FIRST_NAME("Nom", Icons.Rounded.Person, KeyboardType.Text),
-    LAST_NAME("Prénom", Icons.Outlined.Person, KeyboardType.Text),
-    PHONE_NUMBER("Numéro de téléphone", Icons.Rounded.Phone, KeyboardType.Phone)
+enum class FieldType(
+    val label: String,
+    val icon: ImageVector,
+    val keyboardType: KeyboardType,
+    val isOptional: Boolean = false
+){
+    FIRST_NAME("Nom", Icons.Rounded.Person, KeyboardType.Text, true),
+    LAST_NAME("Prénom", Icons.Outlined.Person, KeyboardType.Text, false),
+    PHONE_NUMBER("Numéro de téléphone", Icons.Rounded.Phone, KeyboardType.Phone, true)
 }
 
 @Composable
@@ -61,7 +64,7 @@ fun AddClientPage(
                 .navigationBarsWithImePadding()
                 .padding(dimensionResource(id = R.dimen.big_margin))
                 .verticalScroll(rememberScrollState())
-                .imePadding(), // padding for the bottom for the IME
+                .imePadding(), // padding for the IME bottom
             verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
             FieldType.values().forEachIndexed { index, field ->
                 AppTextField(field.label, field.icon, field.keyboardType, field.isOptional, isLastField = index == FieldType.values().size - 1)
@@ -78,7 +81,7 @@ fun AddClientPage(
 fun AppTextField(
     title : String = "Champs de texte",
     icon: ImageVector = Icons.Default.Person,
-    keyboardType: KeyboardType,
+    keyboardType: KeyboardType = KeyboardType.Text,
     isOptional: Boolean = false,
     maxChar : Int = 10,
     isLastField : Boolean = false
