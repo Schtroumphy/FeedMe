@@ -55,7 +55,7 @@ fun <T : WrapperItem> MutableList<Wrapper<T>>.updateWrapper(item: T, quantity : 
     if(this.any { it.item == item }){
         val index = temp.indexOfFirst { it.item == item }
         if(quantity > 0 || !removeIfQuantityIsZero) {
-            temp[index] = temp[index]?.copy(quantity = quantity)
+            temp[index] = temp[index].copy(quantity = quantity)
         } else {
             temp.removeIf { it.item == item }
         }

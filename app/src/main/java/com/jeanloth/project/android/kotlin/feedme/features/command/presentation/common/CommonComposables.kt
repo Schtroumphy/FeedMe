@@ -28,7 +28,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
@@ -486,10 +486,10 @@ fun PricesRow(
 fun AppButton(
     modifier: Modifier = Modifier,
     scale: Float = 0.6f,
-    containerColor : Color = Purple80,
-    icon : ImageVector = Icons.Filled.ArrowBackIos,
+    containerColor: Color = Purple80,
+    icon: ImageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
     onClick: (() -> Unit)?
-){
+) {
     FloatingActionButton(
         onClick = { onClick?.invoke() },
         containerColor = containerColor,

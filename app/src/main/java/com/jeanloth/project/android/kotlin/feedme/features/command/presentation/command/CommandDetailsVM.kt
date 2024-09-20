@@ -84,6 +84,8 @@ class CommandDetailsVM @Inject constructor(
                         updateProductWrapperUseCase(this)
                     }
                 }
+
+                else -> {}
             }
 
             // Update command status to in progress if possible

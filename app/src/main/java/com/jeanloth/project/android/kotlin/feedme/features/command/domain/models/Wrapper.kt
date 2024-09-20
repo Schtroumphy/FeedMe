@@ -22,6 +22,18 @@ data class Wrapper<T : WrapperItem>(
         return "Wrapper : [id : $id, parentID: $parentId, Quantities : $realQuantity / $quantity, status: $status, item: $item]"
     }
 
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + item.hashCode()
+        result = 31 * result + parentId.hashCode()
+        result = 31 * result + realQuantity
+        result = 31 * result + quantity
+        result = 31 * result + wrapperType.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + totalPrice.hashCode()
+        return result
+    }
+
     companion object{
         fun <T : WrapperItem> T.toWrapper() : Wrapper<T>{
             return Wrapper(item = this)

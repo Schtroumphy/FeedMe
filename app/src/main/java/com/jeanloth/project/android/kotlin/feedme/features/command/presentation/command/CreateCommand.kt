@@ -2,17 +2,19 @@ package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -53,7 +55,6 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products.RoundedProductItem
 import java.time.LocalDate
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun AddCommandPage(
@@ -61,7 +62,7 @@ fun AddCommandPage(
     callbacks: CreateCommandCallbacks = CreateCommandCallbacks()
 ) {
     val maxStepCount = 3
-    var currentStep by remember { mutableStateOf(if (parameters.basketWrappers.isEmpty()) 2 else 1) } // Go to step 2 directly if there is no baskets to display
+    var currentStep by remember { mutableIntStateOf(if (parameters.basketWrappers.isEmpty()) 2 else 1) } // Go to step 2 directly if there is no baskets to display
     val displayPreviousButton = when (currentStep) {
         1 -> false
         2 -> parameters.basketWrappers.isNotEmpty()
@@ -149,7 +150,7 @@ fun AddCommandPage(
             2 -> {
                 // Products list
                 LazyVerticalGrid(
-                    cells = GridCells.Fixed(2),
+                    columns = GridCells.Fixed(2),
                     modifier = Modifier
                         .padding(12.dp)
                         .constrainAs(content) {
@@ -213,7 +214,7 @@ fun AddCommandPage(
                             color = Orange1
                         )
                     }
-                    if (parameters.basketWrappers.filter { it.quantity > 0 }.isEmpty()) item {
+                    if (parameters.basketWrappers.none { it.quantity > 0 }) item {
                         Text(
                             "Aucun panier sélectionné",
                             textAlign = TextAlign.Center,
@@ -280,7 +281,7 @@ fun AddCommandPage(
             AppButton(
                 containerColor = Purple80,
                 modifier = Modifier.alpha(if (displayPreviousButton) 1f else 0f),
-                icon = Icons.Filled.ArrowBackIos,
+                icon = Icons.AutoMirrored.Filled.ArrowBackIos,
                 onClick = { if (currentStep > 0) currentStep -= 1 }
             )
 
@@ -291,7 +292,7 @@ fun AddCommandPage(
                 containerColor = if (nextStepEnabled) {
                     if (currentStep == maxStepCount) Orange1 else Purple80
                 } else Gray1,
-                icon = if (currentStep != maxStepCount) Icons.Filled.ArrowForwardIos else Icons.Filled.Check,
+                icon = if (currentStep != maxStepCount) Icons.AutoMirrored.Filled.ArrowForwardIos else Icons.Filled.Check,
                 onClick = { if (nextStepEnabled && currentStep < maxStepCount) currentStep += 1 else callbacks.onCreateCommandClick?.invoke() },
             )
         }
@@ -338,7 +339,7 @@ fun AddQuantityBox(
     onQuantityChange: ((Int) -> Unit)? = null
 ) {
 
-    var quantityEdit by remember { mutableStateOf(quantity) }
+    var quantityEdit by remember { mutableIntStateOf(quantity) }
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,

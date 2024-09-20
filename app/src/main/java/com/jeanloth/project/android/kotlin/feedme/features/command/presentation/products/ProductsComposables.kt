@@ -179,7 +179,6 @@ fun ProductItem(
                     maxLines = 1,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         capitalization = KeyboardCapitalization.Sentences,
-                        autoCorrect = false,
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
                     ),
