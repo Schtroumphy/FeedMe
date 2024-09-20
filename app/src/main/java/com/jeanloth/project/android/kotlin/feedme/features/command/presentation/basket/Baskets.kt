@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
+package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -43,7 +43,7 @@ fun BasketList(
 ) {
     LazyColumn {
         items(baskets.map { it.toWrapper() }) {
-            BasketItem(it, displayQuantityBox = false, onClick = onClick)
+            BasketItem(it, displayQuantityBox = false, onClick = { basket -> onClick?.invoke(basket)})
         }
     }
 }

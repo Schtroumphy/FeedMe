@@ -16,7 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -74,7 +73,7 @@ fun PageTemplate(
         bottomBar = {
             if(displayBottomNav) {
                 Box(Modifier.fillMaxWidth().background(Color.White)){
-                    Footer(navController, modifier = Modifier.align(Alignment.Center), currentRoute)
+                    Footer(modifier = Modifier.align(Alignment.Center), navController, currentRoute)
                 }
             }
         }
@@ -105,7 +104,7 @@ fun Header(
                         onNewClientAdded = {
                         showCustomDialogWithResult.value = false
                         Log.d("TAG", "Create client : $it")
-                        Toast.makeText(context, it, Toast.LENGTH_SHORT)
+                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
 
                         // Save client to db
                         onNewClientAdded?.invoke(it)
@@ -149,8 +148,8 @@ fun Header(
 
 @Composable
 fun Footer(
-    navController: NavController? = null,
     modifier: Modifier = Modifier,
+    navController: NavController? = null,
     route: FooterRoute?
 ){
     var selectedRoute by remember { mutableStateOf(route?.route) }

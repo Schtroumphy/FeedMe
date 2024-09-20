@@ -40,7 +40,7 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AppClient
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.toNameString
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.BasketItem
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.BasketItem
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.AddProductButton
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AddProductDialog
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppButton

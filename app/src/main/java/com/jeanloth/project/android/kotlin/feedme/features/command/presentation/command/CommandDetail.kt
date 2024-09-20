@@ -1,5 +1,3 @@
-@file:Suppress("OPT_IN_IS_NOT_ENABLED")
-
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command
 
 import android.util.Log
@@ -232,18 +230,18 @@ fun BottomSheet(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Text(
+            modifier = Modifier.align(Start),
             text = "Saisir l'adresse de livraison",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.align(Start)
         )
         Spacer(modifier = Modifier.height(30.dp))
         AppTextField(
-            initialValue = selectedAddress,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(CenterHorizontally)
                 .padding(bottom = 35.dp),
             widthPercentage = 1f,
+            initialValue = selectedAddress,
             labelId = R.string.delivery_address,
             displayLabelText = false,
             autoFocus = false,
@@ -536,14 +534,15 @@ fun CommandDetailHeader(
                 onAddressClick?.invoke()
             }
 
-            if(displayMap)
-            GoogleMapAddress(
-                modifier = Modifier
-                    .padding(horizontal = 15.dp, vertical = 5.dp)
-                    .fillMaxWidth()
-                    .height(200.dp),
-                coordinates = coordinates
-            )
+            if(displayMap) {
+                GoogleMapAddress(
+                    modifier = Modifier
+                        .padding(horizontal = 15.dp, vertical = 5.dp)
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    coordinates = coordinates
+                )
+            }
         }
     }
 }

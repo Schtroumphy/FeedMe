@@ -1,7 +1,5 @@
 package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.products
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.Log
 import androidx.annotation.DrawableRes
@@ -68,19 +66,6 @@ fun RoundedText(modifier: Modifier = Modifier, text: String = "2"){
 
 @Composable
 @Preview
-fun RoundedText2(text: String = "2"){
-    Box(
-        Modifier
-            .clip(CircleShape)
-            .border(width = 1.dp, color = Jaune1, shape = CircleShape)
-            .padding(horizontal = 8.dp, vertical = 5.dp)
-    ){
-        Text(text)
-    }
-}
-
-@Composable
-@Preview
 fun RoundedProductItem(
     modifier: Modifier = Modifier,
     product: Product = Product(label = "Mon produit"),
@@ -124,7 +109,7 @@ fun AppImage(modifier : Modifier = Modifier, @DrawableRes imageId: Int? = null, 
         if(root != null){
             val cacheFile = File(root, it)
 
-            Log.d("AppImage", "Image path : ${imagePath}")
+            Log.d("AppImage", "Image path : $imagePath")
             Image(
                 painter = rememberImagePainter(data = cacheFile),
                 contentDescription = "Mon image",

@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,7 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.jeanloth.project.android.kotlin.feedme.core.theme.FeedMeTheme
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.AddButtonActionType
-import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.*
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.BasketList
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.BasketVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.basket.CreateBasketPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.AddClientPage
@@ -38,6 +37,7 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.client.ClientVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.AddCommandPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandDetailPage
+import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandListPage
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command.CommandVM
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.client.PageTemplate
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.data.CreateCommandCallbacks
@@ -110,7 +110,6 @@ class MainActivity : ComponentActivity() {
             dialogType.value = fromVal(navBackStackEntry?.destination?.route).dialogType
 
             val keyboardController = LocalSoftwareKeyboardController.current
-            val context = LocalContext.current
 
             FeedMeTheme {
                 PageTemplate(
@@ -144,14 +143,14 @@ class MainActivity : ComponentActivity() {
                             composable(FooterRoute.COMMAND_LIST.route) {
                                 CommandListPage(
                                     commandsByDate,
-                                    onClick = {
-                                        navController.navigate(FooterRoute.buildCommandDetailRoute(it.toString()))
+                                    onClick = { commandId ->
+                                        navController.navigate(FooterRoute.buildCommandDetailRoute("$commandId"))
                                     }
                                 )
                             }
 
                             // Detail of command
-                            composable(FooterRoute.COMMAND_DETAIL.route, arguments = listOf(navArgument(CommandDetailIdArgument) { type = NavType.LongType })) { navBackStackEntry ->
+                            composable(FooterRoute.COMMAND_DETAIL.route, arguments = listOf(navArgument(CommandDetailIdArgument) { type = NavType.LongType })) {
                                 CommandDetailPage(
                                     commandDetailVM = hiltViewModel()
                                 )
@@ -176,7 +175,7 @@ class MainActivity : ComponentActivity() {
                                         onCreateCommandClick = {
                                             navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
                                             val isSavingSuccess = commandVM.saveCommand()
-                                            Toast.makeText(this@MainActivity, if(isSavingSuccess)  "Votre commande a été enregistrée" else "Une erreur est survenue", Toast.LENGTH_SHORT)
+                                            Toast.makeText(this@MainActivity, if(isSavingSuccess)  "Votre commande a été enregistrée" else "Une erreur est survenue", Toast.LENGTH_SHORT).show()
                                         },
                                         onAddProduct = productVM::saveProduct,
                                         onUriEntered = { label, uri ->
@@ -236,7 +235,7 @@ class MainActivity : ComponentActivity() {
                                         onCreateCommandClick = {
                                             navController.navigate(FooterRoute.COMMAND_LIST.route)  // Navigate back to command list page
                                             val isSavingSuccess = commandVM.saveCommand()
-                                            Toast.makeText(this@MainActivity, if(isSavingSuccess)  "Votre commande a été enregistrée" else "Une erreur est survenue", Toast.LENGTH_SHORT)
+                                            Toast.makeText(this@MainActivity, if(isSavingSuccess)  "Votre commande a été enregistrée" else "Une erreur est survenue", Toast.LENGTH_SHORT).show()
                                         },
                                         onAddProduct = productVM::saveProduct,
                                         onUriEntered = { label, uri ->
@@ -250,7 +249,7 @@ class MainActivity : ComponentActivity() {
                             composable(FooterRoute.ADD_CLIENT.route) {
                                 AddClientPage(
                                     onValidateClick = {
-                                        Toast.makeText(this@MainActivity, "Clic sur valider", Toast.LENGTH_SHORT)
+                                        Toast.makeText(this@MainActivity, "Clic sur valider", Toast.LENGTH_SHORT).show()
                                     }
                                 )
                             }
@@ -269,11 +268,11 @@ class MainActivity : ComponentActivity() {
         saveBitmapToInternalStorage(bitmap, label)
     }
 
-    fun saveBitmapToInternalStorage(finalBitmap: Bitmap, productName : String): File? {
+    private fun saveBitmapToInternalStorage(finalBitmap: Bitmap, productName : String): File? {
         val root: File = this.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) ?: return null
 
-        val fname = "$productName.jpg"
-        val file = File(root, fname)
+        val filename = "$productName.jpg"
+        val file = File(root, filename)
         try {
             val out = FileOutputStream(file)
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)

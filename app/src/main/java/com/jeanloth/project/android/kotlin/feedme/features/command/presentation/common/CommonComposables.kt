@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.util.Log
-import android.util.Size
 import android.widget.DatePicker
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,26 +11,49 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowBackIos
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
@@ -51,7 +73,10 @@ import com.jeanloth.project.android.kotlin.feedme.R
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.SLASH_DATE_FORMAT
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.clearFocusOnKeyboardDismiss
 import com.jeanloth.project.android.kotlin.feedme.core.extensions.formatToShortDate
-import com.jeanloth.project.android.kotlin.feedme.core.theme.*
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Gray1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Jaune1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Orange1
+import com.jeanloth.project.android.kotlin.feedme.core.theme.Purple80
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -104,11 +129,11 @@ fun StatusCircle(color: Color, status: String) {
 @Composable
 @Preview
 fun PriceBubble(
+    modifier: Modifier = Modifier,
     price: String = "20€",
     backgroundColor: Color = White,
     padding: Dp = 2.dp,
     size: Dp = 22.dp,
-    modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier
         .fillMaxSize(0.4f)
@@ -124,11 +149,11 @@ fun PriceBubble(
 @Composable
 @Preview
 fun QuantityBubble(
+    modifier: Modifier = Modifier,
     quantity: String = "20",
     backgroundColor: Color = White,
     padding: Dp = 2.dp,
     size: Dp = 22.dp,
-    modifier: Modifier = Modifier,
     onClick: ((Int) -> Unit)? = null,
 ) {
     val focusManager = LocalFocusManager.current
@@ -186,8 +211,8 @@ fun IconBox(
 @Composable
 @Preview
 fun AppTextField(
-    initialValue : String = "",
     modifier: Modifier = Modifier,
+    initialValue : String = "",
     widthPercentage: Float = 0.6f,
     @StringRes labelId: Int = R.string.label,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -293,46 +318,6 @@ fun GetIntValueDialog(
 }
 
 @Composable
-fun YesNoDialog(
-    @StringRes title: Int = R.string.save_state,
-    @StringRes question: Int = R.string.save_current_command,
-    @StringRes yesLabel: Int = R.string.yes,
-    onYesClicked : (()-> Unit)? = null,
-    @StringRes noLabel: Int = R.string.no,
-    onNoClicked : (()-> Unit)? = null,
-) {
-    AlertDialog(
-        onDismissRequest = {
-            onNoClicked?.invoke()
-        },
-        title = {
-            Text(text = stringResource(id = title), style = MaterialTheme.typography.titleMedium)
-        },
-        text = {
-            Text(text = stringResource(id = question), style = MaterialTheme.typography.labelMedium)
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onYesClicked?.invoke()
-                }
-            ) {
-                Text(stringResource(id = yesLabel))
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onNoClicked?.invoke()
-                }
-            ) {
-                Text(stringResource(id = noLabel))
-            }
-        }
-    )
-}
-
-@Composable
 @Preview
 fun AddProductDialog(
     onValidate : ((String?, Uri?)-> Unit)? = null
@@ -426,12 +411,12 @@ fun DeliveryDateSpinner(
     // Declaring a string value to store date in string format
     val mContext = LocalContext.current
     val mDatePickerDialog = DatePickerDialog(mContext,
-        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            val date = "$mDayOfMonth/${mMonth+1}/$mYear"
-            val dateFormatted = date.split("/").map { it.padStart(2, '0')}.joinToString("/")
+        { _: DatePicker, _: Int, _: Int, mDayOfMonth: Int ->
+            val selectedDate = "$mDayOfMonth/${mMonth+1}/$mYear"
+            val dateFormatted = selectedDate.split("/").joinToString("/") { it.padStart(2, '0') }
             val localDate = LocalDate.parse(dateFormatted, DateTimeFormatter.ofPattern(SLASH_DATE_FORMAT))
             selectedItem = localDate.formatToShortDate()
-            selectedItem?.let { onDateSelected?.invoke(localDate) }
+            selectedItem.let { onDateSelected?.invoke(localDate) }
         }, mYear, mMonth, mDay
     )
 
@@ -485,9 +470,9 @@ fun PricesRow(
     ) {
         (prices +  customQuantity).forEach {
             QuantityBubble(
-                it.toString(),
-                if (selectedPrice == it) Jaune1 else Gray1,
-                size = 32.dp
+                size = 32.dp,
+                quantity = it.toString(),
+                backgroundColor = if (selectedPrice == it) Jaune1 else Gray1,
             ) { price ->
                 if(price == customQuantity) showCustomDialogWithResult.value = true else selectedPrice = price
                 onPriceSelected?.invoke(selectedPrice)

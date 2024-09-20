@@ -1,4 +1,4 @@
-package com.jeanloth.project.android.kotlin.feedme.features.command.presentation
+package com.jeanloth.project.android.kotlin.feedme.features.command.presentation.command
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,7 +39,7 @@ import com.jeanloth.project.android.kotlin.feedme.core.theme.*
 @Composable
 @Preview
 fun CommandListPage(
-    commands : Map<String, List<Command>> = mutableMapOf(), onClick: ((Long)-> Unit)? = null
+    commands : Map<String, List<Command>> = mutableMapOf(), onClick: ((commandId : Long)-> Unit)? = null
 ){
     // List of commands
     LazyColumn(
@@ -74,8 +74,8 @@ fun CommandListPage(
             items(items = commands[deliveryDate] ?: emptyList()){
                 CommandProductItem(
                     command = it,
-                    onClick = {
-                        onClick?.invoke(it)
+                    onClick = { commandId ->
+                        onClick?.invoke(commandId)
                     }
                 )
             }
@@ -85,7 +85,7 @@ fun CommandListPage(
 
 @Composable
 @Preview
-fun CommandProductItem(command: Command = Command(), onClick: ((Long)-> Unit)? = null) {
+fun CommandProductItem(command: Command = Command(), onClick: ((commandId : Long)-> Unit)? = null) {
     val shape = RoundedCornerShape(topStart = 15.dp, bottomStart = 15.dp, topEnd = 15.dp, bottomEnd = 30.dp)
     Card(
         shape = shape,
@@ -149,7 +149,7 @@ fun CommandProduct(productName: String = "Banane", quantity: Int = 2){
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        QuantityBubble(quantity.toString(), backgroundColor = Gray1)
+        QuantityBubble(quantity = quantity.toString(), backgroundColor = Gray1)
         Text(productName)
     }
 }
@@ -161,7 +161,7 @@ fun CommandBasket(basketName: String = "Gourmandises", quantity: Int = 2){
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        QuantityBubble(quantity.toString(), backgroundColor = Orange1)
+        QuantityBubble(quantity = quantity.toString(), backgroundColor = Orange1)
         Text(basketName)
     }
 }
