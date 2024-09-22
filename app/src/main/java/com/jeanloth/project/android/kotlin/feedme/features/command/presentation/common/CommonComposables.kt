@@ -372,10 +372,14 @@ fun AddProductDialog(
                     AppTextField(
                         labelId = R.string.item,
                         widthPercentage = 0.9f,
-                        keyboardType = KeyboardType.Text
-                    ){
-                        name = it
-                    }
+                        keyboardType = KeyboardType.Text,
+                        onTextEntered = {
+                            name = it
+                        },
+                        onValueChange = {
+                            name = it
+                        }
+                    )
                 }
             },
             confirmButton = {

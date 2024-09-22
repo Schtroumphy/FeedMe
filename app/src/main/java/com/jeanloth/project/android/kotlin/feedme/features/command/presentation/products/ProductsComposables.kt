@@ -13,14 +13,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,14 +53,14 @@ import java.io.File
 
 @Composable
 @Preview
-fun RoundedText(modifier: Modifier = Modifier, text: String = "2"){
+fun RoundedText(modifier: Modifier = Modifier, text: String = "2") {
     Box(
         Modifier
             .clip(CircleShape)
             .background(Color.White)
             .border(width = 1.dp, color = Jaune1, shape = CircleShape)
             .padding(horizontal = 8.dp, vertical = 5.dp)
-    ){
+    ) {
         Text(text)
     }
 }
@@ -68,33 +69,55 @@ fun RoundedText(modifier: Modifier = Modifier, text: String = "2"){
 @Preview
 fun RoundedProductItem(
     modifier: Modifier = Modifier,
-    product: Product = Product(label = "Mon produit"),
-    quantity: Int? = 0
-){
-    Box(Modifier){
-        AppImage(
+    product: Product = Product(label = "Mon produit test très"),
+    quantity: Int? = 2
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(Modifier) {
+            AppImage(
+                modifier = Modifier
+                    .size(65.dp)
+                    .clip(CircleShape)
+                    .border(
+                        width = 1.dp,
+                        color = Orange1,
+                        shape = CircleShape
+                    ),
+                imageId = product.imageId,
+                imagePath = product.imagePath
+            )
+            RoundedText(
+                text = quantity?.toString() ?: "0",
+                modifier = Modifier.align(Alignment.TopStart)
+            )
+        }
+        Text(
+            text = product.label,
             modifier = Modifier
-                .size(65.dp)
-                .clip(CircleShape)
-                .border(
-                    width = 1.dp,
-                    color = Orange1,
-                    shape = CircleShape
-                ),
-            imageId = product.imageId,
-            imagePath = product.imagePath
+                .padding(vertical = 8.dp)
+                .background(Orange1, shape = CircleShape)
+                .padding(horizontal = 6.dp, vertical = 2.dp)
+                .widthIn(max = 150.dp),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
         )
-        RoundedText(text = quantity?.toString() ?: "0", modifier = Modifier.align(Alignment.TopStart))
     }
 }
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-fun AppImage(modifier : Modifier = Modifier, @DrawableRes imageId: Int? = null, imagePath : String? = null, contentScale : ContentScale = ContentScale.Crop){
+fun AppImage(
+    modifier: Modifier = Modifier,
+    @DrawableRes imageId: Int? = null,
+    imagePath: String? = null,
+    contentScale: ContentScale = ContentScale.Crop
+) {
 
     val context = LocalContext.current
 
-    imageId?.let{
+    imageId?.let {
         Image(
             painter = painterResource(it),
             contentDescription = "food icon",
@@ -105,8 +128,8 @@ fun AppImage(modifier : Modifier = Modifier, @DrawableRes imageId: Int? = null, 
 
     // Display image from external storage if exists
     imagePath?.let {
-        val root= context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-        if(root != null){
+        val root = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+        if (root != null) {
             val cacheFile = File(root, it)
 
             Log.d("AppImage", "Image path : $imagePath")
@@ -127,14 +150,14 @@ fun ProductItem(
     product: Product = Product(label = "Mon produit"),
     quantity: Int? = null,
     onQuantityChange: ((Int?) -> Unit)? = null,
-){
-    var text by remember { mutableStateOf(if(quantity == null || quantity == 0) "" else quantity.toString()) }
+) {
+    var text by remember { mutableStateOf(if (quantity == null || quantity == 0) "" else quantity.toString()) }
     val focusManager = LocalFocusManager.current
     val textFieldRequester = FocusRequester()
 
     Box(
         modifier.fillMaxSize()
-    ){
+    ) {
         Box(
             Modifier
                 .align(Alignment.Center)
@@ -154,12 +177,12 @@ fun ProductItem(
                     .align(Alignment.BottomCenter),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Bottom
-            ){
+            ) {
                 TextField(
                     value = text,
                     onValueChange = {
                         text = it
-                        onQuantityChange?.invoke(if(it.isEmpty()) null else it.toInt())
+                        onQuantityChange?.invoke(if (it.isEmpty()) null else it.toInt())
                     },
                     shape = RoundedCornerShape(25.dp),
 
@@ -171,9 +194,9 @@ fun ProductItem(
                         .focusRequester(textFieldRequester)
                         .clearFocusOnKeyboardDismiss()
                         .fillMaxWidth(0.7f),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        focusedIndicatorColor =  Color.Transparent, //hide the indicator
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent, //hide the indicator
                         unfocusedIndicatorColor = Color.Transparent
                     ),
                     maxLines = 1,
@@ -183,10 +206,14 @@ fun ProductItem(
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
-                        onDone = {  focusManager.clearFocus() }
+                        onDone = { focusManager.clearFocus() }
                     )
                 )
-                Text(product.label, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                Text(
+                    product.label,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
@@ -194,7 +221,7 @@ fun ProductItem(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
 
             // Display image by id or saved image by image path
             AppImage(

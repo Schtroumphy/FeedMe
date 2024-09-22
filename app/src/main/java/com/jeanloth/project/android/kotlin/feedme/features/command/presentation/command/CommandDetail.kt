@@ -61,7 +61,7 @@ data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, va
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommandDetailPage(
     commandDetailVM : CommandDetailsVM
@@ -333,7 +333,7 @@ fun CommandBasketItem(
     status : Status = Status.TO_DO
 ){
 
-    var progress by remember { mutableStateOf(0f) }
+    var progress by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(productWrappers.map { it.realQuantity }){
         progress = productWrappers.progession()

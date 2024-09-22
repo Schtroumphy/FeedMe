@@ -241,7 +241,7 @@ fun AddCommandPage(
                         )
                     }
 
-                    // Indeviduals product list items
+                    // Individuals product list items
                     parameters.productWrappers.filter { (it.quantity) > 0 }.chunked(3)
                         .forEach {
                             item {
@@ -252,11 +252,13 @@ fun AddCommandPage(
                                     horizontalArrangement = Arrangement.SpaceEvenly,
                                     verticalAlignment = CenterVertically
                                 ) {
-                                    it.forEach { productWrapper ->
-                                        RoundedProductItem(
-                                            product = productWrapper.item,
+                                    it.sortedBy { it.item.image != null }.forEach { productWrapper ->
+                                        val product = productWrapper.item
+                                        if(product.image != null)
+                                            RoundedProductItem(
+                                            product = product ,
                                             quantity = productWrapper.quantity
-                                        )
+                                        ) else Text("${productWrapper.quantity} x ${product.label} \n")
                                     }
                                 }
                             }

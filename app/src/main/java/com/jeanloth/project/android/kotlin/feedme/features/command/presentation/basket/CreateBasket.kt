@@ -53,9 +53,9 @@ fun CreateBasketPage(
     val showAddProductDialog = rememberSaveable { mutableStateOf(false) }
     if (showAddProductDialog.value) {
         AddProductDialog { name, uri ->
-            name?.let { name ->
-                onAddProduct?.invoke(name)
-                uri?.let { onUriEntered?.invoke(name, uri) }
+            name?.let { nameNonNull ->
+                onAddProduct?.invoke(nameNonNull)
+                uri?.let { uriNotNull -> onUriEntered?.invoke(nameNonNull, uriNotNull) }
             }
             showAddProductDialog.value = false
         }

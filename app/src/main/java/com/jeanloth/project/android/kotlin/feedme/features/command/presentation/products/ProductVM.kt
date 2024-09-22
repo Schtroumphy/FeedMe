@@ -64,14 +64,8 @@ class ProductVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO){
             saveProductUseCase.invoke(Product(
                 label = label,
-                imagePath = "$label.jpg"
+                image = "fruits"
             ))
-        }
-    }
-
-    fun removeProduct(product: Product){
-        viewModelScope.launch(Dispatchers.IO){
-            //removeProductUseCase.invoke(product)
         }
     }
 }

@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         productVM.syncProducts()
 
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 commandVM.basketWrappers.collect{
                     Log.d("Command", "Wrappers received : $it")

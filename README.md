@@ -67,11 +67,12 @@ Ce choix me permettra par la suite de pouvoir réutiliser certain "module featur
 
 ## Fonctionnalités MVP (LOADING)
 
-- [ ] Pouvoir ajouter des produits sans image (LOADING - Bug)
+- [x] Pouvoir ajouter des produits sans image
+  - Comme pas d'image, revoir l'affichage lors du détail de la commande
 - [x] Créer des commandes
 - [x] Changer le statut d'une commande (à faire, en cours, en livraison, livrée, payée)
 - [x] Ajouter des clients (juste avec un nom)
-- [ ] Pouvoir annuler une commande (swipe vers la gauche - annulation)
+- [ ] Pouvoir annuler une commande (swipe vers la gauche - annulation) - Nouveau statut 'cancel'
 
 ## Définition V2 (NOT STARTED)
 
@@ -85,6 +86,8 @@ Ce choix me permettra par la suite de pouvoir réutiliser certain "module featur
 - [ ] Migrer vers Koin
 - [ ] Ajout de filtre sur la liste de commandes (statut, date, client, avec ou sans panier ...)
 - [ ] Pouvoir supprimer une commande (swipe vers la droite)
+- [ ] Pouvoir modifier un panier ?
+- [ ] Pouvoir visualiser le contenu d'un panier
 
 
 Technique : 
