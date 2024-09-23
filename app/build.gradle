@@ -73,8 +73,6 @@ kapt {
 }
 
 dependencies {
-    implementation 'androidx.compose.foundation:foundation-android:1.7.2'
-
     /* ---- Variables ---- */
 
     def room_version = "2.6.1"
@@ -89,8 +87,9 @@ dependencies {
     // Compose compiler is not included in BOM : https://developer.android.com/develop/ui/compose/bom#why_isnt_the_compose_compiler_library_included_in_the_bom
     // But must be compatible ith Kotlin version : https://developer.android.com/jetpack/androidx/releases/compose-kotlin#pre-release_kotlin_compatibility
     implementation "androidx.compose.compiler:compiler:$compose_compiler"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
-    /* ---- Compose Libraries ---- */
+    /* ---- Compose BOM Libraries ---- */
     // BOM Library versions : https://developer.android.com/develop/ui/compose/bom/bom-mapping
 
     implementation "androidx.compose.ui:ui"
@@ -100,7 +99,8 @@ dependencies {
     implementation "androidx.activity:activity-compose"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose"
     implementation "androidx.compose.runtime:runtime"
-    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+    implementation 'androidx.compose.foundation:foundation-android'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
 
     /* ---- Others ---- */
 
