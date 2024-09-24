@@ -40,6 +40,20 @@ data class Command(
         return true */
     }
 
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + totalPrice
+        result = 31 * result + productWrappers.hashCode()
+        result = 31 * result + basketWrappers.hashCode()
+        result = 31 * result + clientId.hashCode()
+        result = 31 * result + (client?.hashCode() ?: 0)
+        result = 31 * result + deliveryDate.hashCode()
+        result = 31 * result + deliveryAddress.hashCode()
+        result = 31 * result + (coordinates?.hashCode() ?: 0)
+        return result
+    }
+
     companion object{
 
         fun Command?.toString2(): String {

@@ -2,6 +2,7 @@ package com.jeanloth.project.android.kotlin.feedme.core.extensions
 
 import android.util.Log
 import com.jeanloth.project.android.kotlin.feedme.features.command.data.local.entities.ProductWrapperEntity
+import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Basket
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.Wrapper
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperItem
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.WrapperType
@@ -71,14 +72,12 @@ fun <T : WrapperItem> MutableList<Wrapper<T>>.updateWrapper(item: T, quantity : 
     return temp
 }
 
-
 fun <T : WrapperItem> List<Wrapper<T>>.progession() : Float {
     val quantityTotal = this.sumOf { it.quantity }
     val realQuantity = this.sumOf { it.realQuantityMajored }.toFloat()
     Log.i("PROGRESS", "${realQuantity / quantityTotal}")
     return realQuantity / quantityTotal
 }
-
 
 fun List<Wrapper<Product>>.toBasketDescription() : String {
     val sb = StringBuilder().apply {
@@ -88,4 +87,12 @@ fun List<Wrapper<Product>>.toBasketDescription() : String {
         }
     }
     return sb.toString()
+}
+
+fun List<Wrapper<Product>>.isTreated() : Boolean {
+    return isEmpty() || all { it.realQuantity >= it.quantity }
+}
+
+fun List<Wrapper<Basket>>.isAllProductsTreated() : Boolean {
+    return isEmpty() || flatMap { it.item.wrappers }.isTreated()
 }

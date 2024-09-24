@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.isAllProductsTreated
+import com.jeanloth.project.android.kotlin.feedme.core.extensions.isTreated
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models.*
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.basket.UpdateProductWrapperUseCase
 import com.jeanloth.project.android.kotlin.feedme.features.command.domain.usecases.command.ObserveCommandByIdUseCase
@@ -19,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CommandDetailsVM @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val observeCommandByIdUseCase: ObserveCommandByIdUseCase,
     private val updateCommandUseCase: UpdateCommandUseCase,
     private val updateProductWrapperUseCase: UpdateProductWrapperUseCase,
@@ -89,23 +91,27 @@ class CommandDetailsVM @Inject constructor(
             }
 
             // Update command status to in progress if possible
-            _currentCommand.value?.changeStatusIfPredicatesOk(Status.IN_PROGRESS)
-            _currentCommand.value?.changeStatusIfPredicatesOk(Status.DONE)
+            changeStatusIfPredicatesOk(Status.IN_PROGRESS)
+            changeStatusIfPredicatesOk(Status.DONE)
         }
     }
 
-    private fun Command?.changeStatusIfPredicatesOk(newStatus : Status) {
-        if(this == null) return
+    private fun changeStatusIfPredicatesOk(newStatus : Status) {
+        val command = _currentCommand.value ?: return
+
         val canChangeStatus = when(newStatus) {
-            Status.TO_DO -> this.status == Status.IN_PROGRESS
-            Status.IN_PROGRESS -> {
-                // Check if there is realQuantity > 0
-                (this.status == Status.TO_DO || this.status == Status.DONE) && (!this.productWrappers.all { it.realQuantity >= it.quantity } || !this.basketWrappers.flatMap { it.item.wrappers }.all { it.realQuantity >= it.quantity })
-            }
-            Status.DONE -> (this.status == Status.TO_DO || this.status == Status.IN_PROGRESS) && this.productWrappers.all { it.realQuantity >= it.quantity } && this.basketWrappers.flatMap { it.item.wrappers }.all { it.realQuantity >= it.quantity }
-            Status.DELIVERING -> this.status == Status.DONE
-            Status.CANCELED -> this.status.order < Status.DELIVERING.order
-            Status.PAYED -> this.status == Status.DELIVERING
+            Status.TO_DO -> command.status == Status.IN_PROGRESS
+            Status.IN_PROGRESS ->
+                (command.status == Status.TO_DO || command.status == Status.DONE)
+                        && command.productWrappers.isTreated()
+                        || command.basketWrappers.isAllProductsTreated()
+            Status.DONE ->
+                (command.status == Status.TO_DO || command.status == Status.IN_PROGRESS)
+                    && command.productWrappers.isTreated()
+                    && command.basketWrappers.isAllProductsTreated()
+            Status.DELIVERING -> command.status == Status.DONE
+            Status.CANCELED -> command.status.order < Status.DELIVERING.order
+            Status.PAYED -> command.status == Status.DELIVERING
         }
         viewModelScope.launch(Dispatchers.IO) {
             if(canChangeStatus) updateCommandUseCase(_currentCommand.value?.apply {
@@ -145,11 +151,11 @@ class CommandDetailsVM @Inject constructor(
             when(action){
                 CommandAction.DONE -> {
                     fillQuantities()
-                    _currentCommand.value.changeStatusIfPredicatesOk(Status.DONE)
+                    changeStatusIfPredicatesOk(Status.DONE)
                 }
-                CommandAction.DELIVER -> _currentCommand.value.changeStatusIfPredicatesOk(Status.DELIVERING)
-                CommandAction.PAY -> _currentCommand.value.changeStatusIfPredicatesOk(Status.PAYED)
-                CommandAction.CANCEL -> _currentCommand.value.changeStatusIfPredicatesOk(Status.CANCELED)
+                CommandAction.DELIVER -> changeStatusIfPredicatesOk(Status.DELIVERING)
+                CommandAction.PAY -> changeStatusIfPredicatesOk(Status.PAYED)
+                CommandAction.CANCEL -> changeStatusIfPredicatesOk(Status.CANCELED)
             }
         }
     }
@@ -172,6 +178,10 @@ class CommandDetailsVM @Inject constructor(
         viewModelScope.launch(Dispatchers.IO){
             updateCommandUseCase(_currentCommand.value)
         }
+    }
+
+    fun onCancelClick() {
+        changeStatusIfPredicatesOk(Status.CANCELED)
     }
 
 }

@@ -72,7 +72,7 @@ Ce choix me permettra par la suite de pouvoir réutiliser certain "module featur
 - [x] Créer des commandes
 - [x] Changer le statut d'une commande (à faire, en cours, en livraison, livrée, payée)
 - [x] Ajouter des clients (juste avec un nom)
-- [ ] Pouvoir annuler une commande (swipe vers la gauche - annulation) - Nouveau statut 'cancel'
+- [x] Pouvoir annuler une commande depuis le détail de celle-ci
 
 ## Définition V2 (NOT STARTED)
 

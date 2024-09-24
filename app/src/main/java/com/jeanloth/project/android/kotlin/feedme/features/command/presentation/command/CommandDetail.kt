@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
@@ -55,7 +56,13 @@ import com.jeanloth.project.android.kotlin.feedme.features.command.domain.models
 import com.jeanloth.project.android.kotlin.feedme.features.command.presentation.common.AppTextField
 import kotlinx.coroutines.launch
 
-data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, var wrapperId : Long, val parentId : Long, var wrapperType : WrapperType = WrapperType.COMMAND_INDIVIDUAL_PRODUCT){
+data class CommandQuantityInfo(
+    val newQuantity: Int,
+    var basketId: Long = 0,
+    var wrapperId: Long,
+    val parentId: Long,
+    var wrapperType: WrapperType = WrapperType.COMMAND_INDIVIDUAL_PRODUCT
+) {
     override fun toString(): String {
         return "Infos | newQuantity : $newQuantity, basketId : $basketId, wrapperId : $wrapperId, parentId : $parentId, wrapperType : ${wrapperType.name}"
     }
@@ -64,8 +71,8 @@ data class CommandQuantityInfo(val newQuantity: Int, var basketId : Long = 0, va
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommandDetailPage(
-    commandDetailVM : CommandDetailsVM
-){
+    commandDetailVM: CommandDetailsVM
+) {
     val command by commandDetailVM.currentCommand.collectAsState(null)
     val client = command?.client?.toNameString() ?: "Albert"
 
@@ -83,29 +90,30 @@ fun CommandDetailPage(
         coroutineScope.launch { sheetState.hide() }
     }
 
-    //command?.status?.order in Status.DONE.order until Status.PAYED.order631122
     Log.i("TEST", "status : ${command?.status}")
 
     var showMap by remember { mutableStateOf(false) }
-    val displayMap by remember(command?.status) { derivedStateOf{ command?.status?.order in Status.DONE.order until Status.PAYED.order || showMap } }
+    val displayMap by remember(command?.status) { derivedStateOf { command?.status?.order in Status.DONE.order until Status.PAYED.order || showMap } }
 
     Log.i("TEST", "Display Map : $displayMap")
 
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
-        sheetContent = { BottomSheet(
-            predictions = predictions,
-            onAddressValidate = { address ->
-                commandDetailVM.updateCommandAddress(address)
-                coroutineScope.launch {
-                    sheetState.hide()
+        sheetContent = {
+            BottomSheet(
+                predictions = predictions,
+                onAddressValidate = { address ->
+                    commandDetailVM.updateCommandAddress(address)
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                },
+                onAddressChange = {
+                    commandDetailVM.getPredictions(it)
                 }
-            },
-            onAddressChange = {
-                commandDetailVM.getPredictions(it)
-            }
-        ) },
+            )
+        },
         modifier = Modifier.fillMaxSize(),
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
@@ -122,11 +130,14 @@ fun CommandDetailPage(
                     onAddressClick = {
                         // TODO If command address unknown, display bottom sheet to add it, else display map
                         coroutineScope.launch {
-                            if(command?.status == Status.PAYED){
+                            if (command?.status == Status.PAYED) {
                                 showMap = !showMap
                             } else if (sheetState.isVisible) sheetState.hide()
                             else sheetState.show()
                         }
+                    },
+                    onCancelClick = {
+                        commandDetailVM.onCancelClick()
                     }
                 )
             },
@@ -183,11 +194,14 @@ fun CommandDetailPage(
 
 @Composable
 fun GoogleMapAddress(
-    modifier : Modifier = Modifier,
-    coordinates : Coordinates? = null
-){
+    modifier: Modifier = Modifier,
+    coordinates: Coordinates? = null
+) {
     val home = LatLng(47.212, -1.712)
-    val address = LatLng(coordinates?.first?.toDoubleOrNull() ?: 0.0, coordinates?.second?.toDoubleOrNull() ?: 0.0)
+    val address = LatLng(
+        coordinates?.first?.toDoubleOrNull() ?: 0.0,
+        coordinates?.second?.toDoubleOrNull() ?: 0.0
+    )
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(address, 10f)
@@ -195,7 +209,7 @@ fun GoogleMapAddress(
     GoogleMap(
         modifier = modifier,
         cameraPositionState = cameraPositionState
-    ){
+    ) {
         Marker(
             state = MarkerState(position = home),
             title = "Home",
@@ -273,7 +287,7 @@ fun BottomSheet(
                         },
                     overflow = TextOverflow.Clip
                 )
-                Divider(color =  Gray1, thickness = 1.5.dp)
+                HorizontalDivider(thickness = 1.5.dp, color = Gray1)
             }
         }
         FloatingActionButton(
@@ -298,7 +312,10 @@ fun BottomSheet(
 
 @Composable
 @Preview
-fun ActionCommandDetailButton(currentStatus : Status? = Status.TO_DO, onClick : ((CommandAction) -> Unit)? = null){
+fun ActionCommandDetailButton(
+    currentStatus: Status? = Status.TO_DO,
+    onClick: ((CommandAction) -> Unit)? = null
+) {
     currentStatus?.potentialAction?.let { action ->
         Column(
             modifier = Modifier
@@ -320,22 +337,25 @@ fun ActionCommandDetailButton(currentStatus : Status? = Status.TO_DO, onClick : 
                     contentDescription = ""
                 )
             }
-            Text(stringResource(id = action.detailText), style = MaterialTheme.typography.labelSmall)
+            Text(
+                stringResource(id = action.detailText),
+                style = MaterialTheme.typography.labelSmall
+            )
         }
     }
 }
 
 @Composable
 fun CommandBasketItem(
-    label : String? = "Panier Label",
-    productWrappers : List<Wrapper<Product>> = emptyList(),
-    onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null,
-    status : Status = Status.TO_DO
-){
+    label: String? = "Panier Label",
+    productWrappers: List<Wrapper<Product>> = emptyList(),
+    onQuantityChange: ((CommandQuantityInfo) -> Unit)? = null,
+    status: Status = Status.TO_DO
+) {
 
     var progress by remember { mutableFloatStateOf(0f) }
 
-    LaunchedEffect(productWrappers.map { it.realQuantity }){
+    LaunchedEffect(productWrappers.map { it.realQuantity }) {
         progress = productWrappers.progession()
     }
 
@@ -345,22 +365,25 @@ fun CommandBasketItem(
             .padding(vertical = 8.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Box{
-            Box(modifier = Modifier
-                .fillMaxHeight()
-                .width(10.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Gray1)
+        Box {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(10.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Gray1)
             )
-            Box(modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxHeight(if (progress.isNaN()) 0f else progress)
-                .width(10.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(status.secondaryColor))
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxHeight(if (progress.isNaN()) 0f else progress)
+                    .width(10.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(status.secondaryColor)
+            )
         }
 
-        Column{
+        Column {
             label?.let {
                 Text(it, style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.height(12.dp))
@@ -380,10 +403,10 @@ fun CommandBasketItem(
 
 @Composable
 fun CommandProductItem(
-    productWrapper : Wrapper<Product>,
-    isEditMode : Boolean = true,
-    onQuantityChange : ((CommandQuantityInfo)-> Unit)? = null
-){
+    productWrapper: Wrapper<Product>,
+    isEditMode: Boolean = true,
+    onQuantityChange: ((CommandQuantityInfo) -> Unit)? = null
+) {
     var quantityEdit by remember { mutableStateOf(productWrapper.realQuantity) }
     var backgroundColor by remember { mutableStateOf(Gray1) }
 
@@ -396,7 +419,7 @@ fun CommandProductItem(
             .padding(vertical = 5.dp),
         horizontalArrangement = SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         Text(
             text = productWrapper.item.label,
             style = MaterialTheme.typography.labelMedium,
@@ -410,30 +433,32 @@ fun CommandProductItem(
             color = Color.LightGray,
             modifier = Modifier.padding(end = 10.dp)
         )
-        if(isEditMode){
+        if (isEditMode) {
             AddQuantityBox(modifier = Modifier.width(80.dp),
                 quantity = quantityEdit,
                 backgroundColor = backgroundColor,
                 onQuantityChange = {
                     quantityEdit = it
                     backgroundColor = quantityEdit.toQuantityEditColor(productWrapper.quantity)
-                    onQuantityChange?.invoke(CommandQuantityInfo(
-                        newQuantity = it,
-                        wrapperId = productWrapper.id,
-                        parentId = productWrapper.parentId,
-                        wrapperType = productWrapper.wrapperType
-                    ))
-            })
+                    onQuantityChange?.invoke(
+                        CommandQuantityInfo(
+                            newQuantity = it,
+                            wrapperId = productWrapper.id,
+                            parentId = productWrapper.parentId,
+                            wrapperType = productWrapper.wrapperType
+                        )
+                    )
+                })
         }
     }
 }
 
 @Composable
 fun CommandAddress(
-    address : String? = null,
+    address: String? = null,
     color: Color = Black,
     onAddressClick: (() -> Unit)?
-){
+) {
     val interactionSource = remember { MutableInteractionSource() }
 
     Row(
@@ -448,14 +473,14 @@ fun CommandAddress(
             },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         Icon(
             imageVector = Icons.Filled.LocationOn,
             contentDescription = "",
             tint = Color.LightGray
         )
         Text(
-            text = if(address.isNullOrEmpty()) stringResource(id = R.string.unknown_address) else address,
+            text = if (address.isNullOrEmpty()) stringResource(id = R.string.unknown_address) else address,
             style = MaterialTheme.typography.labelSmall,
             fontStyle = FontStyle.Italic,
             color = if (address == null) Color.LightGray else color
@@ -465,10 +490,10 @@ fun CommandAddress(
 
 @Composable
 fun SemiRoundedBox(
-    text : String,
+    text: String,
     textColor: Color = White,
-    backgroundColor : Color = Orange1
-){
+    backgroundColor: Color = Orange1
+) {
     Text(
         text,
         color = textColor,
@@ -481,17 +506,56 @@ fun SemiRoundedBox(
 }
 
 @Composable
+fun MenuBurger(
+    modifier: Modifier = Modifier,
+    iconColor: Color = Black,
+    actionsMap : Map<String, (() -> Unit)?> = mapOf()
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    // Boîte pour contenir l'icône qui déclenche le menu
+    Box(modifier = modifier) {
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                Icons.Default.MoreHoriz,
+                tint = iconColor,
+                contentDescription = "Menu Actions"
+            )
+        }
+
+        // DropdownMenu pour afficher les options
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.padding(8.dp)
+        ) {
+
+            actionsMap.forEach { map ->
+                DropdownMenuItem(
+                    text = { Text(map.key, color = if(map.value == null) Gray1 else Black) },
+                    onClick = {
+                        expanded = false
+                        map.value?.invoke()
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 @Preview
 fun CommandDetailHeader(
-    client : String = "Albert MANCHON",
-    deliveryDate : String = "23/11/2022",
-    status : Status = Status.IN_PROGRESS,
-    price : Int = 19,
-    address : String? = null,
-    displayMap : Boolean = true,
-    coordinates: Coordinates?= null,
-    onAddressClick : (()-> Unit)? = null
-){
+    client: String = "Albert MANCHON",
+    deliveryDate: String = "23/11/2022",
+    status: Status = Status.IN_PROGRESS,
+    price: Int = 19,
+    address: String? = null,
+    displayMap: Boolean = true,
+    coordinates: Coordinates? = null,
+    onAddressClick: (() -> Unit)? = null,
+    onCancelClick: (() -> Unit)? = null
+) {
     Surface(
         shadowElevation = 2.dp,
         shape = RoundedCornerShape(bottomEnd = 20.dp, bottomStart = 20.dp)
@@ -507,7 +571,7 @@ fun CommandDetailHeader(
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 ClientCommandBox(client)
                 DateRoundedBox(
                     modifier = Modifier
@@ -515,6 +579,29 @@ fun CommandDetailHeader(
                         .offset(y = 10.dp), deliveryDate,
                     backgroundColor = status.secondaryColor
                 )
+                MenuBurger(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(end = 6.dp),
+                    iconColor = status.primaryColor,
+                    actionsMap = mutableMapOf<String, (() -> Unit)?>(
+                        "Supprimer" to null,
+                    ).apply {
+                        if(status != Status.CANCELED)
+                            this["Annuler la commande"] = { onCancelClick?.invoke() }
+                    }
+                    )
+                /*Icon(
+                    imageVector = Icons.Rounded.MoreHoriz,
+                    contentDescription = "command_menu",
+                    tint = status.secondaryColor,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(end = 6.dp)
+                        .clickable {
+                            onMenuClick?.invoke()
+                        }
+                )*/
             }
 
             // Rounded price + Status text in row
@@ -524,17 +611,21 @@ fun CommandDetailHeader(
                     .padding(end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = SpaceBetween
-            ){
-                SemiRoundedBox(stringResource(id = R.string.euro, price), backgroundColor = status.secondaryColor, textColor = if(status != Status.TO_DO) White else Black)
+            ) {
+                SemiRoundedBox(
+                    stringResource(id = R.string.euro, price),
+                    backgroundColor = status.secondaryColor,
+                    textColor = if (status != Status.TO_DO) White else Black
+                )
                 StatusText(status = status)
             }
 
             // Address
-            CommandAddress(address){
+            CommandAddress(address) {
                 onAddressClick?.invoke()
             }
 
-            if(displayMap) {
+            if (displayMap) {
                 GoogleMapAddress(
                     modifier = Modifier
                         .padding(horizontal = 15.dp, vertical = 5.dp)
@@ -550,39 +641,47 @@ fun CommandDetailHeader(
 @Composable
 fun StatusText(
     modifier: Modifier = Modifier,
-    status : Status
-){
+    status: Status
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         Box(
             Modifier
                 .clip(CircleShape)
                 .size(10.dp)
-                .background(status.secondaryColor))
-        Text(status.value, style = MaterialTheme.typography.labelMedium, fontStyle = FontStyle.Italic)
+                .background(status.secondaryColor)
+        )
+        Text(
+            status.value,
+            style = MaterialTheme.typography.labelMedium,
+            fontStyle = FontStyle.Italic
+        )
     }
 }
 
 @Composable
 fun DateRoundedBox(
     modifier: Modifier = Modifier,
-    date : String,
+    date: String,
     backgroundColor: Color = Jaune1
-){
-    Text(date, modifier= modifier
-        .clip(RoundedCornerShape(20.dp))
-        .background(backgroundColor)
-        .padding(horizontal = 8.dp, vertical = 5.dp), style = MaterialTheme.typography.labelSmall
+) {
+    Text(
+        date,
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(backgroundColor)
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+        style = MaterialTheme.typography.labelSmall
     )
 }
 
 @Composable
 fun ClientCommandBox(
     client: String = "Albert MARCHONS"
-){
+) {
     Box(
         Modifier
             .fillMaxWidth(0.7f)
@@ -590,7 +689,7 @@ fun ClientCommandBox(
             .clip(RoundedCornerShape(15.dp))
             .background(Gray1)
 
-    ){
+    ) {
         Text(client, modifier = Modifier.align(Alignment.Center))
     }
 }
